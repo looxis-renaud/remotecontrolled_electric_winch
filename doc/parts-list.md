@@ -1,10 +1,14 @@
 ## This is a list of parts including sourcing links ##
 
-### Winch ###
+### Motor ###
 
 * Motor - QS Motor, 12kW 260 V4 https://www.aliexpress.com/item/4001237537247.html Version 72V 100kph
 * Controller - VESC 75/300 https://trampaboards.com/vesc-75v-300a-black-anodised-non-conductive-cnc-housing--the-most-powerful-vedder-electronic-speed-controller-ever-p-26284.html
+
+### Winch ###
+* Cable Guide - Bevel Gears https://www.ebay.de/itm/203914276161
 * Connection to car - EUFAB Quick Connector https://www.amazon.de/EUFAB-11402-Schnellverschluss/dp/B002IPGRT8/
+
 
 ### Remote ###
 * Transceiver / Receiver - 3x LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3
