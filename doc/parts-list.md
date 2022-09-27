@@ -2,7 +2,7 @@
 
 ### Winch ###
 
-* Motor - QS Motor, 12kW 260 V4 https://www.aliexpress.com/item/4001237537247.html (unclear: is it the "72V 100kph" or "96V 120kph" version)
+* Motor - QS Motor, 12kW 260 V4 https://www.aliexpress.com/item/4001237537247.html Version 72V 100kph
 * Controller - VESC 75/300 https://trampaboards.com/vesc-75v-300a-black-anodised-non-conductive-cnc-housing--the-most-powerful-vedder-electronic-speed-controller-ever-p-26284.html
 * Connection to car - EUFAB Quick Connector https://www.amazon.de/EUFAB-11402-Schnellverschluss/dp/B002IPGRT8/
 
