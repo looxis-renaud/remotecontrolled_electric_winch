@@ -15,11 +15,15 @@
 
 ## Pin Setup receiver:
 PWM_PIN_OUT  13
+
 VESC_RX  14    //connect to TX on Vesc
+
 VESC_TX  2    //connect to RX on Vesc
+
 
 ## transmitter buttons connected to GND:
 BUTTON_UP  15 
+
 BUTTON_DOWN  12
 
 ## Line auto stop in VESC
