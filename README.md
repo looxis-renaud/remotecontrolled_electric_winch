@@ -28,4 +28,5 @@ BUTTON_DOWN  12
 
 ## Line auto stop in VESC
 Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
+
 Default VESC app config is vesc_app_config.xml
