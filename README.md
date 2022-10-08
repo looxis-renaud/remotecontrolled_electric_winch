@@ -7,15 +7,21 @@
 
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/
+ 
 
-Pin Setup receiver:
+## Install the following Arduino libraries:
+- [18650CL](https://github.com/pangodream/18650CL)
+- [Button2](https://github.com/LennartHennigs/Button2)
+
+## Pin Setup receiver:
 PWM_PIN_OUT  13
 VESC_RX  14    //connect to TX on Vesc
 VESC_TX  2    //connect to RX on Vesc
 
-transmitter buttons connected to GND:
+## transmitter buttons connected to GND:
 BUTTON_UP  15 
 BUTTON_DOWN  12
 
+## Line auto stop in VESC
 Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
 Default VESC app config is vesc_app_config.xml
