@@ -13,6 +13,8 @@
 - [18650CL](https://github.com/pangodream/18650CL)
 - [Button2](https://github.com/LennartHennigs/Button2)
 - [VescUart](https://github.com/SolidGeek/VescUart)
+- [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306) //I could not get the display work with Robert Zach's Code, so I updated some of the code. more of this later
+
 ## Pin Setup receiver:
 PWM_PIN_OUT  13
 
