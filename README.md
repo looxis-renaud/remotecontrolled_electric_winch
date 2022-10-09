@@ -12,7 +12,7 @@
 ## Install the following Arduino libraries:
 - [18650CL](https://github.com/pangodream/18650CL)
 - [Button2](https://github.com/LennartHennigs/Button2)
-
+- [VescUart]](https://github.com/SolidGeek/VescUart
 ## Pin Setup receiver:
 PWM_PIN_OUT  13
 
