@@ -6,7 +6,7 @@
 * Controller - VESC 75/300 https://trampaboards.com/vesc-75v-300a-black-anodised-non-conductive-cnc-housing--the-most-powerful-vedder-electronic-speed-controller-ever-p-26284.html
 
 ### Winch ###
-* Cable Guide - Bevel Gears https://www.ebay.de/itm/203914276161
+* Cable Guide - Bevel Gears https://www.ebay.de/itm/203914276161 OR Worm Gears https://www.thingiverse.com/thing:2995199/files
 * Connection to car - EUFAB Quick Connector https://www.amazon.de/EUFAB-11402-Schnellverschluss/dp/B002IPGRT8/
 
 
