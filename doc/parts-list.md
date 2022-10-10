@@ -11,7 +11,7 @@
 
 
 ### Remote ###
-* Transceiver / Receiver - 3x LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3
+* Transmitter / Receiver - 3x LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3
 
 ### Battery ###
 * Battery - 2x 8S10P built with samsung inr21700-40t 4000mah 35A - connected in series to result in 16S10P = 57,6V. The reason is 8s can be charged with common RC chargers.
