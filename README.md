@@ -3,7 +3,7 @@
  Based on LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED
  (http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3) 
 
-Edit *(Etienne)*: **There's a confusion here**: The code of transmitter, receiver and monitor defines the frequency to be 868MHz, but the purchase-link instructs to buy the 915MHz version ??
+Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
  
  see https://www.youtube.com/watch?v=5IkagHkxbxY
 
@@ -17,7 +17,7 @@ Edit *(Etienne)*: **There's a confusion here**: The code of transmitter, receive
 - [VescUart](https://github.com/SolidGeek/VescUart)
 - [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306) //I could not get the display work with Robert Zach's Code, so I updated some of the code. more of this later
 
-## Pin Setup receiver:
+## PIN Setup eceiver:
 PWM_PIN_OUT  13
 
 VESC_RX  14    //connect to TX on Vesc
@@ -25,7 +25,9 @@ VESC_RX  14    //connect to TX on Vesc
 VESC_TX  2    //connect to RX on Vesc
 
 
-## transmitter buttons connected to GND:
+## PIN Setup Transmitter:
+GND and
+
 BUTTON_UP  15 
 
 BUTTON_DOWN  12
