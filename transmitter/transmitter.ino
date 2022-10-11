@@ -3,11 +3,11 @@
  * transmitter
  * sends current state (pull value)
  * receives acknowlegement with current parameters
- * 
+ * communication is locked to a specific transmitter for 5 seconds after his last message
+ * admin ID 0 can always take over communication
  */
-// communication is locked to a specific transmitter for 5 seconds after his last message
-// admin ID 0 can allays take over communication
-static int myID = 8;    // set to your desired transmitter id!!! [unique number from 1 - 15]
+
+static int myID = 8;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
 static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings
 
 #include <Pangodream_18650_CL.h>
