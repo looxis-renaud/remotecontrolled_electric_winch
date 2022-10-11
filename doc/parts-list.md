@@ -3,7 +3,10 @@
 ### Motor ###
 
 * Motor - QS Motor, 12kW 260 V4 https://www.aliexpress.com/item/4001237537247.html Version 72V 100kph
+
+### Controller ###
 * Controller - VESC 75/300 https://trampaboards.com/vesc-75v-300a-black-anodised-non-conductive-cnc-housing--the-most-powerful-vedder-electronic-speed-controller-ever-p-26284.html
+* Cooler for VESC https://www.reichelt.de/miniatur-luefteraggregat-12-volt-dc-lam-4150-12v-p75427.html
 
 ### Winch ###
 * Cable Guide - Bevel Gears https://www.ebay.de/itm/203914276161 OR Worm Gears https://www.thingiverse.com/thing:2995199/files / https://www.ebay.de/itm/394060343380
