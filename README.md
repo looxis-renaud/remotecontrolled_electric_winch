@@ -1,7 +1,9 @@
 # ewinch_remote_controller
  transmitter and receiver code for remote controlling a paragliding winch
  Based on LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED
- (http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3)
+ (http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3) 
+
+Edit *(Etienne)*: **There's a confusion here**: The code of transmitter, receiver and monitor defines the frequency to be 868MHz, but the purchase-link instructs to buy the 915MHz version ??
  
  see https://www.youtube.com/watch?v=5IkagHkxbxY
 
