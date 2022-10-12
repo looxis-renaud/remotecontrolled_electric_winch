@@ -7,6 +7,7 @@
 ### Controller ###
 * Controller - VESC 75/300 https://trampaboards.com/vesc-75v-300a-black-anodised-non-conductive-cnc-housing--the-most-powerful-vedder-electronic-speed-controller-ever-p-26284.html
 * Cooler for VESC https://www.reichelt.de/miniatur-luefteraggregat-12-volt-dc-lam-4150-12v-p75427.html
+* Some JST PHR 2.0mm pin pitch Connectors for connecting with the COMM and PPM Port Connectors on the VESC 75/300
 
 ### Winch ###
 * Cable Guide - Bevel Gears https://www.ebay.de/itm/203914276161 OR Worm Gears https://www.thingiverse.com/thing:2995199/files / https://www.ebay.de/itm/394060343380
