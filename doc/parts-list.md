@@ -10,8 +10,7 @@
 * Some JST PHR 2.0mm pin pitch Connectors for connecting with the COMM and PPM Port Connectors on the VESC 75/300
 
 ### Winch ###
-* Cable Guide - Bevel Gears https://www.ebay.de/itm/203914276161 OR Worm Gears https://www.thingiverse.com/thing:2995199/files / https://www.ebay.de/itm/394060343380
-* Connection to car - EUFAB Quick Connector https://www.amazon.de/EUFAB-11402-Schnellverschluss/dp/B002IPGRT8/
+* Cable Guide - Worm Gearbox https://www.thingiverse.com/thing:2995199/files / https://www.ebay.de/itm/394060343380 / https://www.ebay.de/itm/394060413582
 
 
 ### Remote ###
