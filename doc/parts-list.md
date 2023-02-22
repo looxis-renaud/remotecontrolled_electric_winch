@@ -11,6 +11,7 @@
 
 ### Winch ###
 * Cable Guide - Worm Gearbox https://www.thingiverse.com/thing:2995199/files / https://www.ebay.de/itm/394060343380 / https://www.ebay.de/itm/394060413582
+* UPDATE February '23: I am considering a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - found a possible part that could be used with minimal changes: https://www.ebinger-gmbh.com/aufrolltechnik/zubehoer-aufrolltechnik/automatische-schlauchf%C3%BChrung-3-4-stahl-lackiert-1-710-011.html
 
 
 ### Remote ###
@@ -18,4 +19,5 @@
 
 ### Battery ###
 * Battery - 2x 8S10P built with samsung inr21700-40t 4000mah 35A - connected in series to result in 16S10P = 57,6V. The reason is 8s can be charged with common RC chargers.
-* Charger - ISDT AIR8 500W 20A Lipo Akku Balance Ladegerät Smart Digital Ladegerät für RC 1-8S Akku Batterien - https://www.amazon.de/ISDT-Touchscreen-Balance-Ladeger%C3%A4t-Batterien/dp/B081YZLMV4/
+* Charger - 2 Pieces ISDT AIR8 500W 20A Lipo Akku Balance Ladegerät Smart Digital Ladegerät für RC 1-8S Akku Batterien - https://www.amazon.de/ISDT-Touchscreen-Balance-Ladeger%C3%A4t-Batterien/dp/B081YZLMV4/
+* Power Supply for Charger: 2 Pieces 24V 50A 1200W Schalternetzteil 230V AC https://www.amazon.de/dp/B077CP69P6
