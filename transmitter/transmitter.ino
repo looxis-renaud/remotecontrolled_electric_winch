@@ -63,14 +63,14 @@ bool toogleSlow = true;
 int8_t targetPull = 0;   // pull value range from -127 to 127
 int currentPull = 0;          // current active pull on vesc
 bool stateChanged = false;
-int currentState = -1;   // -2 = hard brake, -1 = soft brake, 0 = no pull/no brake, 1 = default pull (~3kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
-int hardBrake = -20;  //in kg
-int softBrake = -7;  //in kg
-int defaultPull = 7;  //in kg
-int prePullScale = 18;      //in %
-int takeOffPullScale = 55;  //in %
-int fullPullScale = 80;     //in %
-int strongPullScale = 100;  //in %
+int currentState = -1;   // status to start with: -2 = hard brake, -1 = soft brake, 0 = no pull/no brake, 1 = default pull (~3kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
+int hardBrake = -20;  //in kg - status -2 this status is 20kg brake - 
+int softBrake = -7;  //in kg - status -1 this status is 7kg brake - activated with a long stop press on "buttonDown"
+int defaultPull = 7;  //in kg - status 1 this will always be activated when the "brake-button" (buttonDown) is pressed (unless a long press, which activates the "soft-break" status)
+int prePullScale = 18;      //in %, calculated in code below: "targetPull = myMaxPull * prePullScale / 100;" - status 2 this is to help you launch your glider up into the air, approx 13kg pull value
+int takeOffPullScale = 55;  //in % - status 3 this is to gently and safely take off with a slight pull
+int fullPullScale = 80;     //in % - status 4 once you have a safety margin of 15-30m heigt, switch to this status for full pull
+int strongPullScale = 100;  //in % - status 5 - extra strong pull - this is equal your value in kg as defined in "myMaxPull" above. should be equal your bodyweight
 unsigned long lastStateSwitchMillis = 0;
 
 uint8_t vescBattery = 0;
