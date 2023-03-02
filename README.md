@@ -34,3 +34,23 @@ IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRA
 Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
 
 Default VESC app config is vesc_app_config.xml
+
+## usage:
+- A) launch: ...
+- B) Step Towing:
+  1 - switch to defaultPull (7kg pull value) before you turn away from winch to fly back to launch site
+  2 - go to prePull (~13kg pull value) during turn towards next step (towards winch) to avoid line sag
+  3 - after successful turn, go to fullPull again
+ 
+- C) Release
+  Go To defaultPull (7kg pull value) before you release
+  The winch will autorewind the line IF AutoStop feature is enabled (modified VESC Firmware is required, see vesc/vesc_ppm_auto_stop.patch)
+ 
+- D) Neutral
+  You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it.
+ 
+ ## UNCLEAR
+Ask Robert:
+- which mode is needed to pull the line from winch to start ? "neutral" ?
+- why is neutral NOT default ?
+- instruction for PPM Settings says "static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings" how to set or calibrate this ?
