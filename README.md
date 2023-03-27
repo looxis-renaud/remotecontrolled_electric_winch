@@ -33,6 +33,11 @@ IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRA
 ## Line auto stop in VESC
 Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
 
+For this to work properly, either connecta Potentiometer to ADC2 and GND to manually control the winch. E.g. To wind up the last meters of the line when finishing. Or to manually set a tension when used as a rewind winch.
+
+If you do not install a Potentionmeter, connect ADC2 to GND.
+
+## Default Config for VESC
 Default VESC app config is vesc_app_config.xml
 
 ## usage:
@@ -51,6 +56,4 @@ Default VESC app config is vesc_app_config.xml
  
  ## UNCLEAR
 Ask Robert:
-- which mode is needed to pull the line from winch to start ? "neutral" ?
-- why is neutral NOT default ?
 - instruction for PPM Settings says "static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings" how to set or calibrate this ?
