@@ -33,7 +33,7 @@ IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRA
 ## Line auto stop in VESC
 Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
 
-For this to work properly, either connecta Potentiometer to ADC2 and GND to manually control the winch. E.g. To wind up the last meters of the line when finishing. Or to manually set a tension when used as a rewind winch.
+For this to work properly, either connect a Potentiometer to ADC2 and GND to manually control the winch. E.g. To wind up the last meters of the line when finishing. Or to manually set a tension when used as a rewind winch. Note that the potentiometer only reduces tension/speed of the motor when it is running one of the pull programs as controlled via the transmitter!
 
 If you do not install a Potentionmeter, connect ADC2 to GND.
 
@@ -52,7 +52,7 @@ Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly 
 - B) launch:
   1 - switch to defaultPull (7kg pull value) to tighten the line
   2 - go to prePull (~13kg pull value) to assist you to launch the glider
-  3 - go to takeOffPull (~ 40kg pull value) to gently get into the air with a slight pull towards a safety margin of 15-30m height
+  3 - go to takeOffPull (~40kg pull value) to gently get into the air with a slight pull towards a safety margin of 15-30m height
   4 - 
 - C) Step Towing:
   1 - switch to defaultPull (7kg pull value) before you turn away from winch to fly back to launch site
