@@ -39,10 +39,22 @@ If you do not install a Potentionmeter, connect ADC2 to GND.
 
 ## Default Config for VESC
 Default VESC app config is vesc_app_config.xml
+Default Motor config is vesc_motor_config_12kw_260_V4.xml or vesc_motor_config_12kw_273.xml
+**PLEASE NOTE:** don't just take the standard motor config and upload to your VESC. Take it as an example only.
+Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly detect internal resistances and other values.
 
 ## usage:
-- A) launch: ...
-- B) Step Towing:
+- A) prepare:
+  1 - turn the VESC and receiver on
+  2 - set the transmitter to X (? unclear ?) to be able to pull out / unwind the cable
+  3 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
+  4 - go through your pre-flight preparations and clip in
+- B) launch:
+  1 - switch to defaultPull (7kg pull value) to tighten the line
+  2 - go to prePull (~13kg pull value) to assist you to launch the glider
+  3 - go to takeOffPull (~ 40kg pull value) to gently get into the air with a slight pull towards a safety margin of 15-30m height
+  4 - 
+- C) Step Towing:
   1 - switch to defaultPull (7kg pull value) before you turn away from winch to fly back to launch site
   2 - go to prePull (~13kg pull value) during turn towards next step (towards winch) to avoid line sag
   3 - after successful turn, go to fullPull again
