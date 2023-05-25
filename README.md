@@ -10,6 +10,13 @@ Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, t
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/
  
+## To use Arduino IDE with the Lilygo TTGO ESP32 Paxcounter LoRa32
+- In Arduino IDE open File > Preferences
+- in additional boards manager URLS field copy: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+- click OK
+- go to Go to Tools > Board > Boards Manager
+- In Boards Manager Search for ESP32 and press install button for the “ESP32 by Espressif Systems“
+- Go To Tools > Board > ESP32 and select the TTGO LoRa32-OLED Board
 
 ## Install the following Arduino libraries:
 - [18650CL](https://github.com/pangodream/18650CL)
