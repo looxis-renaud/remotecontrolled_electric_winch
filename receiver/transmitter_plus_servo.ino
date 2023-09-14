@@ -55,7 +55,7 @@ Pangodream_18650_CL BL(35); // pin 34 old / 35 new v2.1 hw
 VescUart vescUART;
 
 // Etienne: Define Servo for LineCutter
-Servo servomotorlinecutter1;
+Servo ServoLineCutter1;
 
 
 // PWM signal to vesc
@@ -325,6 +325,14 @@ void loop() {
           if (currentPull > 127)
             currentPull = 127;
       }
+
+      // Etienne: Trigger Servo for LineCutter, when tripleclick on button, rotate Servo 180 degrees, wait 1 second, then go back to zero position
+      if (TripleClick = 1;){
+         ServoLineCutter1.write(180);
+         delay(1000)
+         ServoLineCutter1.write(0);
+      }
+         
       
       delay(10);
       //calculate PWM time for VESC
