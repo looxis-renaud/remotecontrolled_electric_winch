@@ -4,7 +4,7 @@
  * sends acknowlegement on lora with current parameters
  * writes target pull with PWM signal to vesc
  * reads current parameters (tachometer, battery %, motor temp) with UART from vesc, based on (https://github.com/SolidGeek/VescUart/)
- * 
+ * ...trying to add Servo Control. A Servo can trigger a lineCutter
  */
 
 //vesc battery number of cells
@@ -116,7 +116,7 @@ void setup() {
   vescUART.setSerialPort(&Serial1);
   //vescUART.setDebugPort(&Serial);
 
-  //Setup Servo for Line Cutter 
+  //Etienne: Setup Servo for Line Cutter 
   servomotorlinecutter1.attach(xy);
 
   //lora init
