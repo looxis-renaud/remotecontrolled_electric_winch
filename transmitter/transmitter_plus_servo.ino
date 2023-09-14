@@ -310,6 +310,9 @@ void btnDownDoubleClick(Button2& btn) {
   }
 // Etienne: Let's try the Triple Click Function of "Button Down" to trigger the Servo-LineCutter
 void btnDownTripleClick(Button2& btn) {
-    code to send ServoTrigger goes here :-)
-}
+    currentState = -1;    //brake
+    lastStateSwitchMillis = millis();
+    stateChanged = true;
+    somethingneededhere to trigger servo
+    }
 }
