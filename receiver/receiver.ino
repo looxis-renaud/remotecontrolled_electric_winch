@@ -16,18 +16,12 @@ static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settin
 #include <Pangodream_18650_CL.h>
 #include <SPI.h>
 #include <LoRa.h>
-// #include <Wire.h>  // replaced with input from SSD1306DrawingDemo.ino
-// #include "SSD1306.h" // replaced with input from SSD1306DrawingDemo.ino
 
-// Etienne: the following is taken from SSD1306DrawingDemo.ino:
-// Include the correct display library
-// For a connection via I2C using Wire include
+// Include the correct display library for a connection via I2C using Wire include
 #include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
 #include "SSD1306Wire.h" // legacy include: `#include "SSD1306.h"
 
-// Initialize the OLED display using Wire library
 SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL - SDA and SCL usually populate automatically based on your board's pins_arduino.h e.g. https://github.com/esp8266/Arduino/blob/master/variants/nodemcu/pins_arduino.h
-// End stuff taken from SS1306DrawingDemo.io
 
 #define SCK     5    // GPIO5  -- SX1278's SCK
 #define MISO    19   // GPIO19 -- SX1278's MISnO
@@ -37,7 +31,6 @@ SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL - SDA and SCL usuall
 #define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
 #define BAND  868E6  //frequency in Hz (433E6, 868E6, 915E6) 
 
-// SSD1306 display(0x3c, 21, 22); //replaced with the above from SSD1306DrawingDemo.ino
 int rssi = 0;
 float snr = 0;
 String packSize = "--";
