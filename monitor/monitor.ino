@@ -1,27 +1,31 @@
 /*
- * 
  * monitor
  * shows current transmitter and receiver status
  * does only listen to lora messages
- * 
  */
 
 #include <Pangodream_18650_CL.h>
 #include <SPI.h>
 #include <LoRa.h>
-#include <Wire.h>  
-#include "SSD1306.h"
+
+// Include the correct display library for a connection via I2C using Wire include
+#include <Wire.h>  // Only needed for Arduino 1.6.5 and earlier
+#include "SSD1306Wire.h" // legacy include: `#include "SSD1306.h"`
+
+// Initialize the OLED display using Wire library
+SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL - SDA and SCL usually populate automatically based on your board's pins_arduino.h e.g. https://github.com/esp8266/Arduino/blob/master/variants/nodemcu/pins_arduino.h
+
 #define SCK     5    // GPIO5  -- SX1278's SCK
 #define MISO    19   // GPIO19 -- SX1278's MISnO
 #define MOSI    27   // GPIO27 -- SX1278's MOSI
 #define SS      18   // GPIO18 -- SX1278's CS
 #define RST     14   // GPIO14 -- SX1278's RESET
 #define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
-#define BAND  868E6
+#define BAND  868E6  //frequency in Hz (433E6, 868E6, 915E6) 
 
-SSD1306 display(0x3c, 21, 22);
 int rssi = 0;
 float snr = 0;
+
 #include <rom/rtc.h>
 
 #include "Arduino.h"
