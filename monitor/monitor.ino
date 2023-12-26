@@ -63,12 +63,6 @@ unsigned long loraErrorMillis = 0;
 void setup() {
   Serial.begin(115200);
   
-  //OLED display
-  pinMode(16,OUTPUT);
-  pinMode(2,OUTPUT);
-  digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
-  delay(50); 
-  digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
 
   //lora init
   SPI.begin(SCK,MISO,MOSI,SS);
