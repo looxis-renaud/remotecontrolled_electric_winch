@@ -9,9 +9,9 @@
 * Cooler for VESC https://www.reichelt.de/miniatur-luefteraggregat-12-volt-dc-lam-4150-12v-p75427.html
 * Some JST PHR 2.0mm pin pitch Connectors for connecting with the COMM and PPM Port Connectors on the VESC 75/300
 
-### Winch ###
-* Cable Guide - Worm Gearbox https://www.thingiverse.com/thing:2995199/files / https://www.ebay.de/itm/394060343380 / https://www.ebay.de/itm/394060413582
-* UPDATE February '23: I am considering a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - found a possible part that could be used with minimal changes: https://www.ebinger-gmbh.com/aufrolltechnik/zubehoer-aufrolltechnik/automatische-schlauchf%C3%BChrung-3-4-stahl-lackiert-1-710-011.html
+### Winding Mechanism ###
+
+* I am using a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - I used this part (with modifications): https://www.ebinger-gmbh.com/aufrolltechnik/zubehoer-aufrolltechnik/automatische-schlauchf%C3%BChrung-3-4-stahl-lackiert-1-710-011.html
 
 
 ### Remote ###
