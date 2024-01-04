@@ -11,8 +11,7 @@
 
 ### Winding Mechanism ###
 
-* I am using a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - I used this part (with modifications): https://www.ebinger-gmbh.com/aufrolltechnik/zubehoer-aufrolltechnik/automatische-schlauchf%C3%BChrung-3-4-stahl-lackiert-1-710-011.html
-
+* I am using a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - I used this part (with modifications): https://www.ebinger-gmbh.com/ Automatische Schlauchführung 1/2" - 5/8" Artikel-Nr (SKU).: 1.610.010
 
 ### Remote ###
 * Transmitter / Receiver - 3x LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3
