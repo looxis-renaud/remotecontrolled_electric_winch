@@ -1,10 +1,10 @@
-/*
- * 
- * transmitter
+/* TRANSMITTER
  * sends current state (pull value)
  * receives acknowlegement with current parameters
  * communication is locked to a specific transmitter for 5 seconds after his last message
  * admin ID 0 can always take over communication
+ * Edit: Updated with Code for a third Button which will trigger a servo for deploying a line cutter
+ * or will turn on or off a relay which controls the fan and warning light
  */
 
 static int myID = 8;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
@@ -57,8 +57,8 @@ Button2 btnDown = Button2(BUTTON_DOWN);
 * after completing a successful self-launch
 */
 
-//#define BUTTON_THREE  14 // Third button on pin14, 
-//Button2 btnThree = Button2(BUTTON_THREE);
+#define BUTTON_THREE  14 // Third button on pin14, 
+Button2 btnThree = Button2(BUTTON_THREE);
 
 
 static int loopStep = 0;
@@ -80,22 +80,22 @@ uint8_t vescBattery = 0;
 uint8_t vescTempMotor = 0;
 
 // Servo and Relay variables:
-// int8_t deployServo = 0;
-// bool relayOn = true;
+int8_t deployServo = 0;
+bool relayOn = true;
 
 // #include "common.h" instead of having this as a separate file, let's include it directly - START:
 /*
-Copyright 2015 - 2017 Andreas Chaitidis Andreas.Chaitidis@gmail.com
-This program is free software : you can redistribute it and / or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
-GNU General Public License for more details.
-You should have received a copy of the GNU General Public License
-along with this program.If not, see <http://www.gnu.org/licenses/>.
+* Copyright 2015 - 2017 Andreas Chaitidis Andreas.Chaitidis@gmail.com
+* This program is free software : you can redistribute it and / or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.If not, see <http://www.gnu.org/licenses/>.
 */
 
 //send by transmitter
@@ -104,8 +104,8 @@ struct LoraTxMessage {
    int8_t currentState : 4;    // -2 --> -2 = hard brake -1 = soft brake, 0 = no pull / no brake, 1 = default pull (2kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
    int8_t pullValue;           // target pull value,  -127 - 0 --> 5 brake, 0 - 127 --> pull
    int8_t pullValueBackup;     // to avoid transmission issues, TODO remove, CRC is enough??
-  //  int8_t deployServo;         // is supposed to send Servo position for emergency line cutter
-  //  bool relayOn : true;       // is supposed to turn relay on and off. Fan and warning light will be connected to relay
+   int8_t deployServo;         // is supposed to send Servo position for emergency line cutter
+   bool relayOn : true;       // is supposed to turn relay on and off. Fan and warning light will be connected to relay
 };
 
 //send by receiver (acknowledgement)
@@ -158,11 +158,11 @@ void setup() {
   btnDown.setDoubleClickTime(400);
   btnDown.setDoubleClickHandler(btnDownDoubleClick);
   
-  //btnThree.setPressedHandler(btnThreePressed);
-  //btnThree.setDoubleClickTime(400);
-  //btnThree.setDoubleClickHandler(btnThreeDoubleClick);
-  //btnThree.setLongClickTime(500);
-  //btnThree.setLongClickDetectedHandler(btnThreeLongClickDetected);
+  btnThree.setPressedHandler(btnThreePressed);
+  btnThree.setDoubleClickTime(400);
+  btnThree.setDoubleClickHandler(btnThreeDoubleClick);
+  btnThree.setLongClickTime(500);
+  btnThree.setLongClickDetectedHandler(btnThreeLongClickDetected);
     
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_LEFT);
@@ -244,7 +244,7 @@ void loop() {
   // if no lora message for more then 1,5s --> show error on screen + acustic
   if (millis() > lastRxLoraMessageMillis + 1500 ) {
         //TODO acustic information
-        //TODO  red disply
+        //TODO  red display
         display.clear();
         display.display();
         // log connection error
@@ -296,8 +296,10 @@ void loop() {
             loraTxMessage.currentState = currentState;
             loraTxMessage.pullValue = targetPull;
             loraTxMessage.pullValueBackup = targetPull;
-            // loraTxMessage.deployServo = deployServo;
-            // loraTxMessage.relayOn = relayOn;
+            loraTxMessage.deployServo = deployServo;
+            loraTxMessage.relayOn = relayOn;
+
+	    // here we'll send everything in binary format over LoRa:
             if (LoRa.beginPacket()) {
                 LoRa.write((uint8_t*)&loraTxMessage, sizeof(loraTxMessage));
                 LoRa.endPacket();
@@ -310,7 +312,7 @@ void loop() {
 
         btnUp.loop();
         btnDown.loop();
-//		btnThree.loop();
+	btnThree.loop();
         delay(10);
 }
 
@@ -318,7 +320,7 @@ void loop() {
 
 void btnPressed(Button2& btn) {
     if (btn == btnUp) {
-        Serial.println("btnUP pressed");
+        Serial.println("+++++ Button Up pressed +++++");
         //do not switch up to fast
         if (millis() > lastStateSwitchMillis + 1000 && currentState < 5) {
           currentState = currentState + 1;
@@ -330,7 +332,7 @@ void btnPressed(Button2& btn) {
           stateChanged = true;
         }
     } else if (btn == btnDown) {
-        Serial.println("btnDown pressed");
+        Serial.println("+++++ Button Down pressed +++++");
         if (currentState > 1) {
           currentState = 1;   //default pull
           lastStateSwitchMillis = millis();
@@ -357,24 +359,21 @@ void btnDownDoubleClick(Button2& btn) {
 	}
 
 //additional code to handle Button Three (Servo and Relay)
-//ToDo: - implement that these are sent over LoRa
-//- implement on the receiver
+//ToDo: implement on the receiver
 
 
-// void btnThreePressed(Button2& btn) {
-  // Serial.println("btnThree Pressed");
-  // relayOn = true;
-  // }
+void btnThreePressed(Button2& btn) {
+ Serial.println("+++++ Third Button Pressed +++++");
+ relayOn = true; // turns relay on, which will activate Vesc Cooling Fan and Warning Light
+ }
 
-// void btnThreeDoubleClick(Button2& btn) {
-  // Serial.println("btnThree Double Click");
-  // relayOn = false;
+void btnThreeDoubleClick(Button2& btn) {
+  Serial.println("+++++ DoubleClick on Third Button +++++");
+  relayOn = false; // turns relay off, which will turn off Cooling fan and Warning light. Use after successful launch
   }
 
-// void btnThreeLongClickDetected(Button2& btn) {
-  // Serial.println("btnThree Long Click");
-  // deployServo = 90;
+void btnThreeLongClickDetected(Button2& btn) {
+ Serial.println("btnThree Long Click");
+ deployServo = 90; // use only in emergency, this will trigger a line cutter // yet to be implemented -> Bernd, deine Aufgabe!
   }
-
-
 }
