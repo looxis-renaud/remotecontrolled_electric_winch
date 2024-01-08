@@ -346,18 +346,20 @@ void btnPressed(Button2& btn) {
 }
 
 void btnDownLongClickDetected(Button2& btn) {
+    Serial.println("+++++ Button Down Looooong pressed +++++");
     currentState = -1;    //brake
     lastStateSwitchMillis = millis();
     stateChanged = true;
 	}
 void btnDownDoubleClick(Button2& btn) {
+  Serial.println("+++++ Double Click on Button Down +++++");
   // only get to neutral state from brake
   if (currentState <= -1) {
     currentState = 0;    // neutral
     lastStateSwitchMillis = millis();
     stateChanged = true;
 	}
-
+}
 //additional code to handle Button Three (Servo and Relay)
 //ToDo: implement on the receiver
 
@@ -373,7 +375,6 @@ void btnThreeDoubleClick(Button2& btn) {
   }
 
 void btnThreeLongClickDetected(Button2& btn) {
- Serial.println("btnThree Long Click");
+ Serial.println("+++++ LOOOOOOng Click on Third Button +++++");
  deployServo = 90; // use only in emergency, this will trigger a line cutter // yet to be implemented -> Bernd, deine Aufgabe!
   }
-}
