@@ -22,7 +22,8 @@ Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, t
 - [18650CL](https://github.com/pangodream/18650CL)
 - [Button2](https://github.com/LennartHennigs/Button2)
 - [VescUart](https://github.com/SolidGeek/VescUart)
-- [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306) //I could not get the display work with Robert Zach's Code, so I updated some of the code. more of this later
+- [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
+- [Servo](https://github.com/arduino-libraries/Servo)
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
@@ -30,6 +31,8 @@ IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
 IO 14 (VESC_RX)   //connect to COMM Port "TX" on Vesc
 
 IO 2 (VESC_TX)   //connect to COMM Port "RX" on Vesc
+
+ToDo: Connect Servo and Relay for Emergency Line Cutter and Fan/Warning Light
 
 
 ## PIN Setup Transmitter:
@@ -53,17 +56,15 @@ Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly 
 ## usage:
 - A) prepare:
   1 - turn the VESC and receiver on
-  2 - set the transmitter to X (? unclear ?) to be able to pull out / unwind the cable
-  3 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
-  4 - go through your pre-flight preparations and clip in
+  2 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
+  3 - go through your pre-flight preparations and clip in
 - B) launch:
-  1 - switch to defaultPull (7kg pull value) to tighten the line
-  2 - go to prePull (~13kg pull value) to assist you to launch the glider
-  3 - go to takeOffPull (~40kg pull value) to gently get into the air with a slight pull towards a safety margin of 15-30m height
-  4 - 
+  1 - switch to defaultPull (7kg pull value) and prePull (to tighten the line (~13kg pull value) to assist you to launch the glider
+  2 - go to takeOffPull (~40kg pull value) to assist you with launching the glider and gently getting into the air with a slight pull towards a safety margin of 15-30m height
+  4 - click "Up" Button to increase Pull
 - C) Step Towing:
   1 - switch to defaultPull (7kg pull value) before you turn away from winch to fly back to launch site
-  2 - go to prePull (~13kg pull value) during turn towards next step (towards winch) to avoid line sag
+  2 - go to prePull (~15kg pull value) during turn towards next step (towards winch) to avoid line sag
   3 - after successful turn, go to fullPull again
  
 - C) Release
