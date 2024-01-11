@@ -210,7 +210,7 @@ void loop() {
           targetPull = loraTxMessage.pullValue;
           currentState = loraTxMessage.currentState;
           deployServo = loraTxMessage.deployServo;
-          relayOn = loraTXMessage.relayOn;
+          relayOn = loraTxMessage.relayOn;
           previousTxLoraMessageMillis = lastTxLoraMessageMillis;  // remember time of previous paket
           lastTxLoraMessageMillis = millis();
           rssi = LoRa.packetRssi();
