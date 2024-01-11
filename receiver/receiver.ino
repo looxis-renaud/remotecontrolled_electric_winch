@@ -1,10 +1,9 @@
-/*
- * receiver
+/* RECEIVER
  * receives target pull value from lora link
  * sends acknowlegement on lora with current parameters
  * writes target pull with PWM signal to vesc
  * reads current parameters (tachometer, battery %, motor temp) with UART from vesc, based on (https://github.com/SolidGeek/VescUart/)
- * 
+ * Update: Will add support for triggering a Servo and Relay
  */
 
 //vesc battery number of cells
@@ -45,8 +44,15 @@ String packet ;
 //#define READS 20
 Pangodream_18650_CL BL(35); // pin 34 old / 35 new v2.1 hw
 
+// Servo and Relay Library
+#include <Servo.h> // https://github.com/arduino-libraries/Servo
+#include "Relay.h" // https://github.com/rafaelnsantos/Relay
 
-//Using VescUart librarie to read from Vesc (https://github.com/SolidGeek/VescUart/)
+int8_t deployServo = 0;   // variable for Servo - used to trigger an emergency line cutter. Needs to be implemented
+bool relayOn = false;     // variable for Relay - used to turn on fan and warning light. is first off, and will be turned on by switching on the remote
+
+
+//Using VescUart library to read from Vesc (https://github.com/SolidGeek/VescUart/)
 #include <VescUart.h>
 #define VESC_RX  14    //connect to TX on Vesc
 #define VESC_TX  2    //connect to RX on Vesc
@@ -60,7 +66,38 @@ VescUart vescUART;
 static int loopStep = 0;
 static uint8_t activeTxId = 0;
 
-#include "common.h"
+/*
+* Copyright 2015 - 2017 Andreas Chaitidis Andreas.Chaitidis@gmail.com
+* This program is free software : you can redistribute it and / or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.See the
+* GNU General Public License for more details.
+* You should have received a copy of the GNU General Public License
+* along with this program.If not, see <http://www.gnu.org/licenses/>.
+*/
+
+//sent by transmitter
+struct LoraTxMessage {
+   uint8_t id : 4;              // unique id 1 - 15, id 0 is admin!
+   int8_t currentState : 4;    // -2 --> -2 = hard brake -1 = soft brake, 0 = no pull / no brake, 1 = default pull (2kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
+   int8_t pullValue;           // target pull value,  -127 - 0 --> 5 brake, 0 - 127 --> pull
+   int8_t pullValueBackup;     // to avoid transmission issues, TODO remove, CRC is enough??
+   int8_t deployServo;         // is supposed to send Servo position for emergency line cutter
+   bool relayOn : true;       // is supposed to turn relay on and off. Fan and warning light will be connected to relay
+};
+//send by receiver (acknowledgement)
+struct LoraRxMessage {
+   int8_t pullValue;           // currently active pull value,  -127 - 0 --> 5 brake, 0 - 127 --> pull
+   uint8_t tachometer;          // *10 --> in meter
+   uint8_t dutyCycleNow;
+   uint8_t vescBatteryOrTempMotor : 1 ;  // 0 ==> vescTempMotor , 1 ==> vescBatteryPercentage
+   uint8_t vescBatteryOrTempMotorValue  : 7 ;   //0 - 127
+};
+
 struct LoraTxMessage loraTxMessage;
 struct LoraRxMessage loraRxMessage;
 
@@ -80,9 +117,9 @@ int currentState = -1;
 int currentPull = softBrake;     // active range -127 to 127
 int8_t targetPullValue = 0;    // received from lora transmitter or rewinding winch mode
 
-
 uint8_t vescBattery = 0;
 uint8_t vescTempMotor = 0;
+
 unsigned long lastTxLoraMessageMillis = 0;
 unsigned long previousTxLoraMessageMillis = 0;
 unsigned long lastRxLoraMessageMillis = 0;
@@ -109,13 +146,6 @@ void setup() {
   Serial1.begin(115200, SERIAL_8N1, VESC_RX, VESC_TX);
   vescUART.setSerialPort(&Serial1);
   //vescUART.setDebugPort(&Serial);
-  
-  ////OLED display // replaced with stuff from SSD1306DrawingDemo.ino 
-  //pinMode(16,OUTPUT);
-  //pinMode(2,OUTPUT);
-  //digitalWrite(16, LOW);    // set GPIO16 low to reset OLED
-  //delay(50); 
-  //digitalWrite(16, HIGH); // while OLED is running, must set GPIO16 in high
 
   //lora init
   SPI.begin(SCK,MISO,MOSI,SS);
@@ -178,7 +208,7 @@ void loop() {
           if (millis() > lastTxLoraMessageMillis + 5000){
             activeTxId = loraTxMessage.id;
           }
-          // The admin id 0 can allways take over
+          // The admin id 0 can always take over
           if (loraTxMessage.id == 0){
             activeTxId = loraTxMessage.id;
           }
@@ -225,7 +255,7 @@ void loop() {
       // if no lora message for more then 1,5s --> show error on screen + acustic
       if (millis() > lastTxLoraMessageMillis + 1500 ) {
             //TODO acustic information
-            //TODO  red disply
+            //TODO  red display
             display.clear();
             display.display();
             // log connection error
@@ -279,7 +309,7 @@ void loop() {
 
 
       // auto line stop
-      // (smouth to avoid line issues on main winch with rewinding winch)
+      // (smooth to avoid line issues on main winch with rewinding winch)
       // tachometer > 2 --> avoid autostop when no tachometer values are read from uart (--> 0)
       if (vescUART.data.tachometer > 2 && vescUART.data.tachometer < 40) {
           if (targetPullValue > defaultPull){
@@ -331,6 +361,20 @@ void loop() {
       pulseOut(PWM_PIN_OUT, pwmWriteTimeValue);
       lastWritePWMMillis = millis();
       delay(10);    //RC PWM usually has a signal every 20ms (50 Hz)
+
+
+     // ToDo: Emergeny Line Cutter
+     // if (deployServo == 90) {
+         //trigger Servo
+     // }
+
+     // ToDo: Relay on and off logic
+     //   if (relayOn == true) {
+           //turn on Relay
+     //   else
+     //      //turn off Relay
+     //   }
+   
 
       
       //read actual Vesc values from uart
