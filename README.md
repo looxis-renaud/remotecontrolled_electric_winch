@@ -60,6 +60,7 @@ TODO - the relay itself hasn't been implemented yet, working on it
 The transmitter and receiver code now supports the connection of a Servo (on PIN 15 on Receiver).
 The servo rotates 90 degrees when the third button on the transmitter is "long pressed" (one full second).
 This servo should be attached to an emergency line cutter, that cuts the dyneema line in an emergency.
+Note: Activating the line cutter also triggers the full brake (-20kg)
 TODO - Design and build a lightweight and efficient line cutter! Bernd O., this one is on you :-)
 
 
