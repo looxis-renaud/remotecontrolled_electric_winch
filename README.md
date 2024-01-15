@@ -23,7 +23,7 @@ Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, t
 - [Button2](https://github.com/LennartHennigs/Button2)
 - [VescUart](https://github.com/SolidGeek/VescUart)
 - [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
-- [Servo](https://github.com/arduino-libraries/Servo)
+- [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/)
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
@@ -48,6 +48,20 @@ Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
 For this to work properly, either connect a Potentiometer to ADC2 and GND to manually control the winch. E.g. To wind up the last meters of the line when finishing. Or to manually set a tension when used as a rewind winch. Note that the potentiometer only reduces tension/speed of the motor when it is running one of the pull programs as controlled via the transmitter!
 
 If you do not install a Potentionmeter, connect ADC2 to GND.
+
+## Remote Control of cooling fan and warning light (DHV Regulations)
+The transmitter and receiver code now supports a Relay that is automatically turned on when the
+remote is switched on. The relay can control the cooling fan of the VESC and a warning light (as required by DHV regulations)
+A a single click on a third button on the remote turns the Relay (Fan and warning light) off - usefull when you launched yourself
+and want to fly away and leave the winch behind.
+TODO - the relay itself hasn't been implemented yet, working on it
+
+## Remote Control of an Emergency Line Cutter (DHV Regulations)
+The transmitter and receiver code now supports the connection of a Servo (on PIN 15 on Receiver).
+The servo rotates 90 degrees when the third button on the transmitter is "long pressed" (one full second).
+This servo should be attached to an emergency line cutter, that cuts the dyneema line in an emergency.
+TODO - Design and build a lightweight and efficient line cutter! Bernd O., this one is on you :-)
+
 
 ## Default Config for VESC
 Default VESC app config is vesc_app_config.xml
