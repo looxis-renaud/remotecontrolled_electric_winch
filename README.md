@@ -32,7 +32,9 @@ IO 14 (VESC_RX)   //connect to COMM Port "TX" on Vesc
 
 IO 2 (VESC_TX)   //connect to COMM Port "RX" on Vesc
 
-ToDo: Connect Servo and Relay for Emergency Line Cutter and Fan/Warning Light
+IO 15 (Servo Signal) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15
+
+ToDo: Connect Relay for Fan/Warning Light Control
 
 
 ## PIN Setup Transmitter:
