@@ -45,12 +45,14 @@ String packet ;
 Pangodream_18650_CL BL(35); // pin 34 old / 35 new v2.1 hw
 
 // Servo and Relay Library
-#include <Servo.h> // https://github.com/arduino-libraries/Servo
+#include <ESP32Servo.h> // https://www.arduino.cc/reference/en/libraries/esp32servo/
 #include "Relay.h" // https://github.com/rafaelnsantos/Relay
 
-int8_t deployServo = 0;   // variable for Servo - used to trigger an emergency line cutter. Needs to be implemented
-bool relayOn = false;     // variable for Relay - used to turn on fan and warning light. is first off, and will be turned on by switching on the remote
-
+// Set up Servo
+Servo myservo;  // create servo object to control a servo
+int pos = 0;    // variable to store the servo position
+int servoPin = 2; // Pin for Servo / signal cable
+bool servo = false;
 
 //Using VescUart library to read from Vesc (https://github.com/SolidGeek/VescUart/)
 #include <VescUart.h>
@@ -86,8 +88,8 @@ struct LoraTxMessage {
    int8_t currentState : 4;    // -2 --> -2 = hard brake -1 = soft brake, 0 = no pull / no brake, 1 = default pull (2kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
    int8_t pullValue;           // target pull value,  -127 - 0 --> 5 brake, 0 - 127 --> pull
    int8_t pullValueBackup;     // to avoid transmission issues, TODO remove, CRC is enough??
-   int8_t deployServo;         // is supposed to send Servo position for emergency line cutter
-   bool relayOn : true;       // is supposed to turn relay on and off. Fan and warning light will be connected to relay
+   bool servo;         // is supposed to send Servo position for emergency line cutter
+   bool relay;       // is supposed to turn relay on and off. Fan and warning light will be connected to relay
 };
 //send by receiver (acknowledgement)
 struct LoraRxMessage {
@@ -120,6 +122,8 @@ int8_t targetPullValue = 0;    // received from lora transmitter or rewinding wi
 uint8_t vescBattery = 0;
 uint8_t vescTempMotor = 0;
 
+bool relay;     // variable for Relay - used to turn on fan and warning light. is first off, and will be turned on by switching on the remote
+
 unsigned long lastTxLoraMessageMillis = 0;
 unsigned long previousTxLoraMessageMillis = 0;
 unsigned long lastRxLoraMessageMillis = 0;
@@ -147,6 +151,11 @@ void setup() {
   vescUART.setSerialPort(&Serial1);
   //vescUART.setDebugPort(&Serial);
 
+  // Setup Servo
+	myservo.setPeriodHertz(50);    //sets the PWM (Pulse Width Modulation) signal frequency for the servo motor
+	myservo.attach(servoPin, 500, 2500); // attaches the servo on defined pin to the servo object
+	// different servos may require different min/max settings
+
   //lora init
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
@@ -161,7 +170,7 @@ void setup() {
 
   // display init
   display.init();
-  //display.flipScreenVertically();  
+  display.flipScreenVertically();  
 
   //PWM Pins
   //pinMode(PWM_PIN_IN, INPUT);
@@ -194,8 +203,22 @@ void loop() {
       }
       display.setFont(ArialMT_Plain_10);  //10, 16, 24
       //display.drawString(0, 36, String("Error / Uptime{min}: ") + loraErrorCount + " / " + millis()/60000);
-      display.drawString(0, 36, String("B: ") + vescBattery + "%, M: " + vescTempMotor + "C");
-      display.drawString(0, 48, String("Last TX / RX: ") + lastTxLoraMessageMillis/100 + " / " + lastRxLoraMessageMillis/100);
+      // display.drawString(0, 36, String("B: ") + vescBattery + "%, M: " + vescTempMotor + "C");
+      if (relay == true) {
+        display.drawString(0, 36, String("Relay: ON "));
+        Serial.printf("Relay On \n");
+      } else {
+        display.drawString(0, 36, String("Relay: OFFFF "));
+        Serial.printf("Relay OFFFF \n");
+      }
+      // display.drawString(0, 48, String("Last TX / RX: ") + lastTxLoraMessageMillis/100 + " / " + lastRxLoraMessageMillis/100);
+      if (servo == false) {
+        display.drawString(0, 48, String("Line Cutter: ready "));
+        Serial.printf("Line Cutter Ready \n");
+      } else {
+        display.drawString(0, 48, String("EMERGENCY "));
+        Serial.printf("EMERGENCY \n");
+      }
       display.display();
     }
     
@@ -220,7 +243,11 @@ void loop() {
               lastTxLoraMessageMillis = millis();
               rssi = LoRa.packetRssi();
               snr = LoRa.packetSnr();
-              Serial.printf("Value received: %d, RSSI: %d: , SNR: %d \n", loraTxMessage.pullValue, rssi, snr);
+
+              servo = loraTxMessage.servo; // changes variable servo according to what is received over LoRa
+              relay = loraTxMessage.relay;  // changes variable relay according to what is received over LoRa
+
+              // Serial.printf("Value received: %d, RSSI: %d: , SNR: %d \n", loraTxMessage.pullValue, rssi, snr);
               
               // send ackn after receiving a value
               delay(10);
@@ -238,7 +265,7 @@ void loop() {
               if (LoRa.beginPacket()) {
                   LoRa.write((uint8_t*)&loraRxMessage, sizeof(loraRxMessage));
                   LoRa.endPacket();
-                  Serial.printf("sending Ackn currentPull %d: \n", currentPull);
+                  // Serial.printf("sending Ackn currentPull %d: \n", currentPull);
                   lastRxLoraMessageMillis = millis();  
               } else {
                   Serial.println("Lora send busy");
@@ -363,20 +390,23 @@ void loop() {
       delay(10);    //RC PWM usually has a signal every 20ms (50 Hz)
 
 
-     // ToDo: Emergeny Line Cutter
-     // if (deployServo == 90) {
-         //trigger Servo
-     // }
+  // Emergeny Line Cutter / Servo
+  if (servo) {
+    pos = 90;
+		myservo.write(pos);    // tell servo to go to position in variable 'pos'
+
+  } else {
+    pos = 0;
+		myservo.write(pos);    // tell servo to go to position in variable 'pos'
+  }
 
      // ToDo: Relay on and off logic
-     //   if (relayOn == true) {
+     //   if (relay) {
            //turn on Relay
      //   else
-     //      //turn off Relay
+     //    //turn off Relay
      //   }
-   
 
-      
       //read actual Vesc values from uart
       if (loopStep % 20 == 0) {
         if (vescUART.getVescValues()) {
@@ -396,7 +426,7 @@ void loop() {
           {
             //TODO send notification to lora
             //measuredVescVal.tachometer = 0;
-            Serial.println("Failed to get data from VESC!");
+            // Serial.println("Failed to get data from VESC!");
           }
       }
 }
