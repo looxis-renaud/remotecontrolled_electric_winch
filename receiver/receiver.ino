@@ -3,7 +3,9 @@
  * sends acknowlegement on lora with current parameters
  * writes target pull with PWM signal to vesc
  * reads current parameters (tachometer, battery %, motor temp) with UART from vesc, based on (https://github.com/SolidGeek/VescUart/)
- * Update: Will add support for triggering a Servo and Relay
+ * Added Support for a Relay and a Servo
+ * The Relay controls the VESC Cooling Fan and a Warning Light (DHV Regulations)
+ * The Servo triggers an Emergency Line Cutter
  */
 
 //vesc battery number of cells
@@ -44,15 +46,18 @@ String packet ;
 //#define READS 20
 Pangodream_18650_CL BL(35); // pin 34 old / 35 new v2.1 hw
 
-// Servo and Relay Library
+// Servo Library
 #include <ESP32Servo.h> // https://www.arduino.cc/reference/en/libraries/esp32servo/
-#include "Relay.h" // https://github.com/rafaelnsantos/Relay
 
 // Set up Servo
 Servo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
 int servoPin = 2; // Pin for Servo / signal cable
 bool servo = false;
+
+// Set up Relay for Fan and Warning Light Control
+int relayPin = 12; //Connect Relay Red Cable to 5V, Black Cable to GND and White Cable / Signal to Pin 12
+bool relay = false;
 
 //Using VescUart library to read from Vesc (https://github.com/SolidGeek/VescUart/)
 #include <VescUart.h>
@@ -122,8 +127,6 @@ int8_t targetPullValue = 0;    // received from lora transmitter or rewinding wi
 uint8_t vescBattery = 0;
 uint8_t vescTempMotor = 0;
 
-bool relay;     // variable for Relay - used to turn on fan and warning light. is first off, and will be turned on by switching on the remote
-
 unsigned long lastTxLoraMessageMillis = 0;
 unsigned long previousTxLoraMessageMillis = 0;
 unsigned long lastRxLoraMessageMillis = 0;
@@ -156,6 +159,9 @@ void setup() {
 	myservo.attach(servoPin, 500, 2500); // attaches the servo on defined pin to the servo object
 	// different servos may require different min/max settings
 
+  // Setup Relay
+  pinMode(relayPin, OUTPUT);
+
   //lora init
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
@@ -183,7 +189,6 @@ void setup() {
   display.drawString(0, 0, "Starting Receiver");
 }
 
-
 void loop() {
 
  loopStep++;
@@ -205,18 +210,18 @@ void loop() {
       //display.drawString(0, 36, String("Error / Uptime{min}: ") + loraErrorCount + " / " + millis()/60000);
       // display.drawString(0, 36, String("B: ") + vescBattery + "%, M: " + vescTempMotor + "C");
       if (relay == true) {
-        display.drawString(0, 36, String("Relay: ON "));
+        display.drawString(0, 36, String("Fan/Light ON "));
         Serial.printf("Relay On \n");
       } else {
-        display.drawString(0, 36, String("Relay: OFFFF "));
+        display.drawString(0, 36, String("Fan/Light OFF "));
         Serial.printf("Relay OFFFF \n");
       }
       // display.drawString(0, 48, String("Last TX / RX: ") + lastTxLoraMessageMillis/100 + " / " + lastRxLoraMessageMillis/100);
       if (servo == false) {
-        display.drawString(0, 48, String("Line Cutter: ready "));
+        display.drawString(0, 48, String("Line Cutter: Ready "));
         Serial.printf("Line Cutter Ready \n");
       } else {
-        display.drawString(0, 48, String("EMERGENCY "));
+        display.drawString(0, 48, String("Line Cutter Activated!"));
         Serial.printf("EMERGENCY \n");
       }
       display.display();
@@ -306,8 +311,6 @@ void loop() {
                  }
             }
       }
-      
-
  } else {
       // rewinding winch mode
       // screen
@@ -333,7 +336,6 @@ void loop() {
       // ??? TODO higher pull value on fast pull out to avoid drum overshoot on line disconection ???
       
  }  // end rewind winch mode
-
 
       // auto line stop
       // (smooth to avoid line issues on main winch with rewinding winch)
@@ -389,7 +391,6 @@ void loop() {
       lastWritePWMMillis = millis();
       delay(10);    //RC PWM usually has a signal every 20ms (50 Hz)
 
-
   // Emergeny Line Cutter / Servo
   if (servo) {
     pos = 90;
@@ -400,12 +401,12 @@ void loop() {
 		myservo.write(pos);    // tell servo to go to position in variable 'pos'
   }
 
-     // ToDo: Relay on and off logic
-     //   if (relay) {
-           //turn on Relay
-     //   else
-     //    //turn off Relay
-     //   }
+  // Relay for Cooling Fan and Warning Light Control
+     if (relay) {
+       digitalWrite(relayPin, HIGH); // turn Fan and Warning light on
+     } else {
+       digitalWrite(relayPin, LOW); // turn Fan and Warning light off
+     }
 
       //read actual Vesc values from uart
       if (loopStep % 20 == 0) {
