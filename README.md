@@ -56,7 +56,6 @@ The transmitter and receiver code now supports a Relay that is automatically tur
 remote is switched on. The relay can control the cooling fan of the VESC and a warning light (as required by DHV regulations)
 A a single click on a third button on the remote turns the Relay (Fan and warning light) off - usefull when you launched yourself
 and want to fly away and leave the winch behind.
-TODO - the relay itself hasn't been implemented yet, working on it
 
 ## Remote Control of an Emergency Line Cutter (DHV Regulations)
 The transmitter and receiver code now supports the connection of a Servo (on PIN 15 on Receiver).
@@ -64,7 +63,6 @@ The servo rotates 90 degrees when the third button on the transmitter is "long p
 This servo should be attached to an emergency line cutter, that cuts the dyneema line in an emergency.
 Note: Activating the line cutter also triggers the full brake (-20kg)
 TODO - Design and build a lightweight and efficient line cutter! Bernd O., this one is on you :-)
-
 
 ## Default Config for VESC
 Default VESC app config is vesc_app_config.xml
