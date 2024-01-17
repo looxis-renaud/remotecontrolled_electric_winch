@@ -1,4 +1,4 @@
-/* Transmitter
+/* TRANSMITTER
  * sends current state (pull value)
  * receives acknowlegement with current parameters
  * communication is locked to a specific transmitter for 5 seconds after his last message
@@ -14,15 +14,6 @@ static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settin
 #include <Pangodream_18650_CL.h>
 #include <SPI.h>
 #include <LoRa.h>
-
-// Include the correct display library for a connection via I2C using W/* TRANSMITTER
- * sends current state (pull value)
- * receives acknowlegement with current parameters
- * communication is locked to a specific transmitter for 5 seconds after his last message
- * admin ID 0 can always take over communication
- * Edit: Updated with Code for a third Button which will trigger a servo for deploying a line cutter
- * or will turn on or off a relay which controls the fan and warning light
- */
 
 static int myID = 8;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
 static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings
@@ -77,7 +68,6 @@ Button2 btnDown = Button2(BUTTON_DOWN);
 #define BUTTON_THREE  14 // Third button on pin14, 
 Button2 btnThree = Button2(BUTTON_THREE);
 
-
 static int loopStep = 0;
 bool toogleSlow = true;
 int8_t targetPull = 0;   // pull value range from -127 to 127
@@ -96,7 +86,7 @@ unsigned long lastStateSwitchMillis = 0;
 uint8_t vescBattery = 0;
 uint8_t vescTempMotor = 0;
 
-// Servo and Relay variables:
+// Servo and Relay variables
 bool servo = false;
 bool relay = true;
 
