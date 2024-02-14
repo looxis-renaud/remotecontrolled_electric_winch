@@ -24,6 +24,7 @@ Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, t
 - [VescUart](https://github.com/SolidGeek/VescUart)
 - [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
 - [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/)
+- [TFT_eSPI](https://www.arduino.cc/reference/en/libraries/tft_espi/)
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
