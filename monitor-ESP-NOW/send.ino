@@ -7,7 +7,7 @@
 TFT_eSPI tft = TFT_eSPI();
 TFT_eSprite sprite = TFT_eSprite(&tft);
 
-uint8_t receiverAdd[] = {0x34 0x85, 0x18, 0xAB, 0x35, 0xF4};
+uint8_t receiverAdd[] = {0xDC, 0xDA, 0x0C, 0x5A, 0x59, 0x58};
 esp_now_peer_info_t peerInfo;
 
 int data=12;
