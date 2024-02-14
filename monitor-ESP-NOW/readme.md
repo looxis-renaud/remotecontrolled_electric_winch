@@ -1,5 +1,6 @@
 ## Nearby Monitor with ESP-NOW Communication Protocol
- WORK IN PROGRESS - Using a Lilygo ESP32 T-Display S3 board to communicate with the
+ WORK IN PROGRESS - Using a Lilygo ESP32 T-Display S3 board ( https://www.lilygo.cc/products/t-display-s3 ) 
+ to communicate with the
  Lilygo ESP32 LoRa board over ESP-NOW Protocol to display winch-data
 
  - based on https://github.com/VolosR/t-displayESPNOW/tree/main/Examples
