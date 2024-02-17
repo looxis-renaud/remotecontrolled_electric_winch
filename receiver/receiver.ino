@@ -54,7 +54,7 @@ Servo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
 int servoPin = 2; // Pin for Servo / signal cable
 bool servo = false;
-
+ 
 // Set up Relay for Fan and Warning Light Control
 int relayPin = 12; //Connect Relay Red Cable to 5V, Black Cable to GND and White Cable / Signal to Pin 12
 bool relay = false;
