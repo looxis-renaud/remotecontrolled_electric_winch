@@ -20,6 +20,9 @@
 * Transmitter / Receiver - 3x LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3
 * 868 MHz LoRa 6dBi Fiberglas Antenna (N-Stecker) for the receiver https://www.amazon.de/gp/product/B09MD895ZR
 
+### Monitor ###
+* Lilygo T-Display S3 https://www.lilygo.cc/products/t-display-s3
+
 ### Battery ###
 * Battery - 2x 8S10P built with samsung inr21700-40t 4000mah 35A - connected in series to result in 16S10P = 57,6V. The reason is 8s can be charged with common RC chargers.
 * 10 AWG Silicone Cable going to the VESC Controller, 3x pairs of cable with 3x XT90 Connectors
