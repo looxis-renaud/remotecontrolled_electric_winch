@@ -22,9 +22,6 @@
 // Use hardware SPI
 TFT_eSPI tft = TFT_eSPI();
 
-#define WAIT 100
-unsigned long targetTime = 0; // Used for testing draw times
-
 // Structure to receive data
 // Must match the sender structure
 struct EspNowTxMessage {
@@ -99,14 +96,15 @@ void setup() {
 void draw() {
   tft.fillScreen(TFT_BLACK); // Clear the screen
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
-  tft.drawString("Pull: " + String(EspNowTxMessage.pullValue) + "/" + String(EspNowTxMessage.currentPull) + "kg", 0, 0, 4); // Display current pull
+  tft.drawString("TargetPull: " + String(EspNowTxMessage.pullValue) + "kg", 0, 0, 4);
+  tft.drawString(String(EspNowTxMessage.currentPull) + "kg", 200, 30, 8); // Display current pull
   tft.setTextColor(TFT_YELLOW, TFT_BLACK);
-  tft.drawString("Line: " + String(EspNowTxMessage.tachometer) + " Meter", 0, 40, 4); // Display deployed line length in meters
-  tft.drawString("Speed: " + String(EspNowTxMessage.dutyCycleNow) + "%", 0 ,65, 4);  // Display %of max Speed before VESC goes bust
+  tft.drawString("Line: " + String(EspNowTxMessage.tachometer) + "m", 0, 40, 4); // Display deployed line length in meters
+  tft.drawString("Speed: " + String(EspNowTxMessage.dutyCycleNow) + "%", 0 ,75, 4);  // Display %of max Speed before VESC goes bust
   tft.setTextColor(TFT_MAGENTA, TFT_BLACK);
   int xpos = 0;
-  xpos += tft.drawString("Fan: " + String(EspNowTxMessage.relay ? "ON" : "OFF") + " | ", 0, 100, 2); // Display servo state
-  tft.drawString("LineCutter: " + String(EspNowTxMessage.servo ? "EMERGENCY" : "Ready!"), xpos, 100, 2); // Display servo state
+  xpos += tft.drawString("Fan: " + String(EspNowTxMessage.relay ? "ON" : "OFF") + " | ", 0, 120, 2); // Display servo state
+  tft.drawString("LineCutter: " + String(EspNowTxMessage.servo ? "EMERGENCY" : "Ready!"), xpos, 120, 2); // Display servo state
 }
  
 void loop() {
