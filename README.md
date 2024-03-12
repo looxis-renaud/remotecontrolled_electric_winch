@@ -10,7 +10,7 @@ Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, t
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/
  
-## To use Arduino IDE with the Lilygo TTGO ESP32 Paxcounter LoRa32
+## To use Arduino IDE with the Lilygo TTGO ESP32 Paxcounter LoRa32 / (and Lilygo T-Display S3)
 - In Arduino IDE open File > Preferences
 - in additional boards manager URLS field copy: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 - click OK
@@ -24,7 +24,7 @@ Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, t
 - [VescUart](https://github.com/SolidGeek/VescUart)
 - [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
 - [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/)
-- [TFT_eSPI](https://www.arduino.cc/reference/en/libraries/tft_espi/)
+- [TFT_eSPI](https://www.arduino.cc/reference/en/libraries/tft_espi/) / If you want to use the Lilygo T-Display S3 as a monitor
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
@@ -33,7 +33,7 @@ IO 14 (VESC_RX)   //connect to COMM Port "TX" on Vesc
 
 IO 2 (VESC_TX)   //connect to COMM Port "RX" on Vesc
 
-IO 2 (Servo Signal) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15. Servo is in neutral state by default
+IO 15 (Servo Signal) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15. Servo is in neutral state by default
 
 IO 12 (Relay Signal) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire your Warning Light and VESC Cooling Fan through the relay module. Relay is off by default, will be turned on once the Remote/Transmitter is turned on. 
 
@@ -64,6 +64,14 @@ The servo rotates 90 degrees when the third button on the transmitter is "long p
 This servo should be attached to an emergency line cutter, that cuts the dyneema line in an emergency.
 Note: Activating the line cutter also triggers the full brake (-20kg)
 TODO - Design and build a lightweight and efficient line cutter! Bernd O., this one is on you :-)
+
+## Work in Progress
+I am currently working on adding a Lilygo T-Display S3 ( https://www.lilygo.cc/products/t-display-s3 )
+to use as
+- a monitor on your paraglider cockpit to have winch values in eyesight
+- a control unit for the emergency line cutter and fan / warning light
+- a control unit to change the settings for "maxPull" with the help of a potentiometer
+Work in Progress as of march '24
 
 ## Default Config for VESC
 Default VESC app config is vesc_app_config.xml
