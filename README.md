@@ -5,7 +5,10 @@
 
 Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
  
- see https://www.youtube.com/watch?v=5IkagHkxbxY
+ see 
+  - https://www.youtube.com/watch?v=5IkagHkxbxY
+  - https://www.youtube.com/shorts/iNt1cCAZv0I
+  
 
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/
