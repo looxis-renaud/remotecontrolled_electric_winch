@@ -1,4 +1,5 @@
 // this code displays the mac address of the board
+// Complete Instructions to Get and Change ESP MAC Address: https://RandomNerdTutorials.com/get-change-esp32-esp8266-mac-address-arduino/
 
 #include <TFT_eSPI.h>
 #include "WiFi.h"
@@ -16,8 +17,13 @@ void setup(){
   WiFi.mode(WIFI_MODE_STA);
   tft.drawString("my MAC is:",10,10,4);
   tft.drawString(String(WiFi.macAddress()),10,50,4);
+
+  Serial.begin(115200);
+  Serial.println(WiFi.macAddress()); // print MAC Address via Serial Monitor
 }
  
 void loop(){
 
 }
+
+

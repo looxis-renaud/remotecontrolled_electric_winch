@@ -1,6 +1,7 @@
 /*
- * electric paraglider winch Transmitter monitor 
- * use it on an Lilygo T-Display S3 to display winch values on your paraglider Cockpit.
+ * Electric Paraglider Winch Monitor 
+ * use it on an Lilygo T-Display S3 to display winch values on your paraglider Cockpit
+ * and to change maxPull Value pre-flight.
  * This monitor connects with the TTGO Lora ESP32 Paxounter Remote Transmitter via ESP-NOW
  * to display useful data in your eye-sight (rather than having to turn your head
  * to view the onboard OLED display of your remote)
@@ -41,7 +42,7 @@ Button2 btnC = Button2(BUTTON_C);
  // Variables to store incoming/outgoing data
   int8_t pullValue;
   int currentPull;
-  int maxPull = 85;
+  int setMaxPull = 85;
   int8_t currentState;
   bool servo;
   bool relay;
@@ -56,7 +57,7 @@ String success;
 struct EspNowButtonMessage {
   bool servo;
   bool relay;
-  int maxPull = 85;  // Initial value for maxPull / Add functionality to change maxPull Value on Transmitter
+  int setMaxPull = 85;  // Initial value for maxPull / Add functionality to change maxPull Value on Transmitter
 } ;
 
 // Create a struct message called EspNowButtonMessage
@@ -101,10 +102,13 @@ int xpos = 10;
 
 // callback function that will be executed when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  if (!settingsIsActive) {
+    // Only update EspNowTxMessage if settings are not active
   memcpy(&EspNowTxMessage, incomingData, sizeof(EspNowTxMessage));
   // Serial.print("Bytes received: ");
   // Serial.println(len);
   draw();
+  }
 }
  
 void setup() {
@@ -155,14 +159,18 @@ void setup() {
   btnB.setPressedHandler(btnBPressed);
   btnB.setDoubleClickTime(400);
   btnB.setDoubleClickHandler(btnBDoubleClick);
-  // btnB.setLongClickTime(500);
-  // btnB.setLongClickDetectedHandler(btnBLongClickDetected);
 
   btnC.setPressedHandler(btnCPressed);
 }
 
 void draw() {
   tft.fillScreen(TFT_BLACK); // Clear the screen
+  if (settingsIsActive) {
+  // Display setMaxPull value if settings are active
+  tft.setTextColor(TFT_WHITE, TFT_BLACK);
+  tft.drawString("Set MaxPull Value: " + String(setMaxPull) + "kg", 0, 0, 4);
+  } else {
+  // Display received ESP-Now values if settings are not active
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString("TargetPull: " + String(EspNowTxMessage.pullValue) + "kg", 0, 0, 4);
   tft.drawString(String(EspNowTxMessage.currentPull), 200, 30, 8); // Display current pull
@@ -173,6 +181,7 @@ void draw() {
   int xpos = 0;
   xpos += tft.drawString("Fan: " + String(EspNowTxMessage.relay ? "ON" : "OFF") + " | ", 0, 120, 2); // Display servo state
   tft.drawString("LineCutter: " + String(EspNowTxMessage.servo ? "EMERGENCY" : "Ready!"), xpos, 120, 2); // Display servo state
+  }
 }
 
  
@@ -189,67 +198,56 @@ void loop() {
     // Select the corresponding maxPull value from the list
     switch (mappedValue) {
       case 0:
-        maxPull = 60;
+        setMaxPull = 60;
         break;
       case 1:
-        maxPull = 65;
+        setMaxPull = 65;
         break;
       case 2:
-        maxPull = 70;
+        setMaxPull = 70;
         break;
       case 3:
-        maxPull = 75;
+        setMaxPull = 75;
         break;
       case 4:
-        maxPull = 80;
+        setMaxPull = 80;
         break;
       case 5:
-        maxPull = 85;
+        setMaxPull = 85;
         break;
       case 6:
-        maxPull = 90;
+        setMaxPull = 90;
         break;
       case 7:
-        maxPull = 95;
+        setMaxPull = 95;
         break;
       case 8:
-        maxPull = 100;
+        setMaxPull = 100;
         break;
       case 9:
-        maxPull = 105;
+        setMaxPull = 105;
         break;
       case 10:
-        maxPull = 110;
+        setMaxPull = 110;
         break;
       case 11:
-        maxPull = 115;
+        setMaxPull = 115;
         break;
       case 12:
-        maxPull = 120;
+        setMaxPull = 120;
         break;
     }
   }
 
-      // send ESP-NOW Message every 200 milliseconds
-            EspNowButtonMessage.servo = servo;
-            EspNowButtonMessage.relay = relay;
-            EspNowButtonMessage.maxPull = maxPull;
-        // Send message via ESP-NOW
-        esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowButtonMessage, sizeof(EspNowButtonMessage));
-        // Check whether sending the ESP-NOW Message was successful 
-        // if (result == ESP_OK) {
-        //   Serial.println("Sent with success");
-        //   } else {
-        //   Serial.println("Error sending the data");
-        // }
-        btnA.loop();
-        btnB.loop();
-        btnC.loop();
-        Serial.println(maxPull);
-        delay(10);
+
+  btnA.loop();
+  btnB.loop();
+  btnC.loop();
+  // Serial.println(setMaxPull);
+  delay(10);
 }
 
-//additional functions to handle Button Presses
+//handle Button Presses
 void btnAPressed(Button2& btn) {
   Serial.println("Button A Pressed");
   if (relay == true) {
@@ -263,30 +261,48 @@ void btnAPressed(Button2& btn) {
   // lastStateSwitchMillis = millis();
   // stateChanged = true;
   }
+  sendEspNowMessage(); // Send ESP-Now message when button A is pressed
  }
 
 void btnBPressed(Button2& btn) {
- // Serial.println("Button B Pressed");
+// Serial.println("Button B Pressed");
   servo = true; // use only in emergency, this will trigger a line cutter, yet to be built -> Bernd, deine Aufgabe!
+  sendEspNowMessage(); // Send ESP-Now message when button B is pressed
     // currentState = -2;    //hard brake, when line is being cut, of course!
     // lastStateSwitchMillis = millis();
     // stateChanged = true;
   }
 
 void btnBDoubleClick(Button2& btn) {
-  // Serial.println("Double Click on Button B");
+//  Serial.println("Double Click on Button B");
   servo = false; // returns servo to neutral
+  sendEspNowMessage(); // Send ESP-Now message when button B is double clicked
   // lastStateSwitchMillis = millis();
   // stateChanged = true;
   }
 
 void btnCPressed(Button2& btn) {
-  if (settingsIsActive == false) {
-    settingsIsActive = true;
+  settingsIsActive = !settingsIsActive; // Flip the value of settingsIsActive
+  if (settingsIsActive) {
+    draw(); // Execute draw() when settingsIsActive is true
     // Serial.println("Button C Pressed / Settings Active\n");
+  } else {
+    sendEspNowMessage(); // send the values to the transmitter
+    //Serial.println("Inactive\n");
   }
-  else {
-    settingsIsActive = false;
-    // Serial.println("Inactive\n");
-  }
+}
+
+void sendEspNowMessage () {
+    // prepare ESP-NOW Message 
+    EspNowButtonMessage.servo = servo;
+    EspNowButtonMessage.relay = relay;
+    EspNowButtonMessage.setMaxPull = setMaxPull;
+    // Send message via ESP-NOW
+    esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowButtonMessage, sizeof(EspNowButtonMessage));
+    // Check whether sending the ESP-NOW Message was successful 
+    //    if (result == ESP_OK) {
+    //      Serial.println("Sent with success");
+    //      } else {
+    //      Serial.println("Error sending the data");
+        }
 }
