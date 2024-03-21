@@ -17,7 +17,7 @@
 */
 
 #include "Arduino.h" 
-#include "pin_config.h"
+#include "pin_config.h" // contains config for internal TFT Display
 #include <esp_now.h>
 #include <WiFi.h>
 #include <Button2.h>
@@ -304,5 +304,5 @@ void sendEspNowMessage () {
     //      Serial.println("Sent with success");
     //      } else {
     //      Serial.println("Error sending the data");
-        }
+    // }
 }
