@@ -3,7 +3,7 @@
  Based on LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED
  (http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3) 
 
-Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
+Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
  
  see 
   - https://www.youtube.com/watch?v=5IkagHkxbxY
@@ -29,6 +29,13 @@ Note: The 915MHz Version apparently can transmit/receive in 868MHz and 915MHz, t
 - [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/)
 - [TFT_eSPI](https://www.arduino.cc/reference/en/libraries/tft_espi/) / If you want to use the Lilygo T-Display S3 as a monitor
 
+## Moving to Visual Studio Code and PlatformIO
+
+I am moving to Visual Studio Code and PlatformIO to introduce Version control with Github and Git.
+The main difference is that with VS Code and PlatformIO the main program files don't have the *.ino file extension
+but *.cpp. If you want to compile and upload the code to the ESP32 boards just download all files and rename
+them from *.cpp to *.ino.
+
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
 
@@ -47,6 +54,23 @@ IO 15 (BUTTON_UP) //together with GND connect with push button for UP Command
 IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRAKE Command
 
 IO 14 (BUTTON_THREE ) // additional /optional Button for Relay and Servo Control. Click once to deactivate Relay (Fan and Warning light), Click again to turn on again. Long Click to trigger the Emergency Line Cutter (Servo). Doubleclick to move Servo to Neutral Position again. By default, the Servo is in neutral position, and Relay is off. Turning on the Remote will turn on the Relay automatically.
+
+## Monitor with LilyGo T-Display
+I am adding a Monitor for the paraglider cockpit to better view winch values in your eye-sight,
+based on a LilyGo T-Display S-3 board with integrated color TFT Display.
+This monitor also serves to control some (additional) functions on the transmitter,
+such as deploying an emergency line cutter, turning on and off a relay (that controls a cooling fan and a warning light)
+and setting the maxPull Value. The Monitor communicates with the Transmitter over Wifi via ESP-NOW Protocol.
+
+## Pin Setup Monitor
+IO 16 Connect a Potentiometer to PIN 16 (dont forget GND and +3,3V)
+
+IO 0 Button A - Relay and cooling fan are on by default. Press Button A once to turn off, and on again
+
+IO 14 Button B - Button B should be a large and easily reachable button on your cockpit. This triggers the emergency line cutter. A double press resets the Servo / Line Cutter back to neutral/ready position
+
+IO 12 Button C - Press Button C once to enter "settings mode". You can now turn the potentiometer to set the Max Pull Value to the transmitter (set Value according to Pilot's Take-Off weight) Press Button once more to exit settings mode and confirm the selected value. It is then sent
+to the transmitter over Wifi via ESP-Now Protocol.
 
 ## Line auto stop in VESC
 Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
