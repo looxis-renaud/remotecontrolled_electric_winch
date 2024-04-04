@@ -52,7 +52,7 @@ Pangodream_18650_CL BL(35); // pin 34 old / 35 new v2.1 hw
 // Set up Servo
 Servo myservo;  // create servo object to control a servo
 int pos = 0;    // variable to store the servo position
-int servoPin = 2; // Pin for Servo / signal cable
+int servoPin = 15; // Pin for Servo / signal cable
 bool servo = false;
  
 // Set up Relay for Fan and Warning Light Control
