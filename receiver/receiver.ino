@@ -211,18 +211,18 @@ void loop() {
       // display.drawString(0, 36, String("B: ") + vescBattery + "%, M: " + vescTempMotor + "C");
       if (relay == true) {
         display.drawString(0, 36, String("Fan/Light ON "));
-        Serial.printf("Relay On \n");
+        //Serial.printf("Relay On \n");
       } else {
         display.drawString(0, 36, String("Fan/Light OFF "));
-        Serial.printf("Relay OFFFF \n");
+        //Serial.printf("Relay OFF \n");
       }
       // display.drawString(0, 48, String("Last TX / RX: ") + lastTxLoraMessageMillis/100 + " / " + lastRxLoraMessageMillis/100);
       if (servo == false) {
         display.drawString(0, 48, String("Line Cutter: Ready "));
-        Serial.printf("Line Cutter Ready \n");
+        //Serial.printf("Line Cutter Ready \n");
       } else {
         display.drawString(0, 48, String("Line Cutter Activated!"));
-        Serial.printf("EMERGENCY \n");
+        //Serial.printf("EMERGENCY \n");
       }
       display.display();
     }
