@@ -9,9 +9,8 @@ Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired 
   - https://www.youtube.com/watch?v=5IkagHkxbxY
   - https://www.youtube.com/shorts/iNt1cCAZv0I
   
-
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
- VESC UART communication depends on https://github.com/SolidGeek/VescUart/
+ VESC UART communication depends on https://github.com/SolidGeek/VescUart/ - Note: Line length seems to not be correctly transmitted, falls short by a factor of ~0,7
  
 ## To use Arduino IDE with the Lilygo TTGO ESP32 Paxcounter LoRa32 / (and Lilygo T-Display S3)
 - In Arduino IDE open File > Preferences
@@ -34,7 +33,8 @@ Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired 
 I am moving to Visual Studio Code and PlatformIO to introduce Version control with Github and Git.
 The main difference is that with VS Code and PlatformIO the main program files don't have the *.ino file extension
 but *.cpp. If you want to compile and upload the code to the ESP32 boards just download all files and rename
-them from *.cpp to *.ino.
+them from *.cpp to *.ino. There are some other challenges with Visual Studio Code and PlatformIO that may require
+to move the code for each platform to it's own repository, i.e. "transmitter", "receiver" and "monitor"
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
@@ -43,9 +43,9 @@ IO 14 (VESC_RX)   //connect to COMM Port "TX" on Vesc
 
 IO 2 (VESC_TX)   //connect to COMM Port "RX" on Vesc
 
-IO 15 (Servo Signal) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15. Servo is in neutral state by default
+IO 15 (Servo Signal) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15. Servo is in neutral state by default // info to self: white cable to "S", black/green to "-", red/blue to "+"
 
-IO 12 (Relay Signal) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire your Warning Light and VESC Cooling Fan through the relay module. Relay is off by default, will be turned on once the Remote/Transmitter is turned on. 
+IO 12 (Relay Signal) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire your Warning Light and VESC Cooling Fan through the relay module. Relay is off by default, will be turned on once the Remote/Transmitter is turned on. // note to self: yellow to yellow (signal), red to red/blue, brown to black/green.
 
 
 ## PIN Setup Transmitter:
@@ -77,7 +77,7 @@ Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
 
 For this to work properly, either connect a Potentiometer to ADC2 and GND to manually control the winch. E.g. To wind up the last meters of the line when finishing. Or to manually set a tension when used as a rewind winch. Note that the potentiometer only reduces tension/speed of the motor when it is running one of the pull programs as controlled via the transmitter!
 
-If you do not install a Potentionmeter, connect ADC2 to GND.
+IMPORTANT: If you do not install a Potentionmeter, connect ADC2 to GND.
 
 ## Remote Control of cooling fan and warning light (DHV Regulations)
 The transmitter and receiver code now supports a Relay that is automatically turned on when the
@@ -127,6 +127,6 @@ Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly 
 - D) Neutral
   You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it.
  
- ## UNCLEAR
-Ask Robert:
-- instruction for PPM Settings says "static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings" how to set or calibrate this ?
+## ToDo
+- set up some sort of encryption or password for a secure connection between transmitter and receiver
+- set up some way to calibrate PWM Settings and Pull Values.
