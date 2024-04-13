@@ -19,6 +19,7 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <Button2.h>
+#include "AiEsp32RotaryEncoder.h" // Library for Rotary Encoder / https://github.com/igorantolic/ai-esp32-rotary-encoder
 
 // Mac Address of ESP-NOW Receiver Board / Remote Control Transmitter
 uint8_t broadcastAddress[] = {0x4C, 0x75, 0x25, 0xA7, 0x73, 0xFC}; 
@@ -34,16 +35,26 @@ unsigned short gray=0x6B6D; //grey color
 int maxpull_segments=0; //segments for progress bar of "setMaxPull"
 int currentpull_segments=0; //segments for progress bar of "currentPull"
 
+
 #define PIN_POWER_ON 15
 
-// Buttons for Relay, Servo and MaxPull control
-#define BUTTON_A  0 // relay upper left button
-#define BUTTON_B  12 // settings/maxPull control - extra button
-#define BUTTON_C  14 // servo - lower left button
+// Buttons & Rotary Encoder for Relay, Servo and MaxPull control
+#define BUTTON_A  0 // upper left button - for relay
+#define BUTTON_B  12 // extra button
+#define BUTTON_C  14 // lower left button settings/maxPull control - 
+#define ROTARY_ENCODER_BUTTON_PIN 10
+#define ROTARY_ENCODER_A_PIN 2
+#define ROTARY_ENCODER_B_PIN 3
+
+#define ROTARY_ENCODER_STEPS 4 //depending on your encoder - try 1,2 or 4 to get expected behaviour
 
 Button2 btnA = Button2(BUTTON_A);
 Button2 btnB = Button2(BUTTON_B);
 Button2 btnC = Button2(BUTTON_C);
+
+// Set up Rotary Encoder
+AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, -1, ROTARY_ENCODER_STEPS);
+
 
  // Variables to store incoming/outgoing data
   int8_t pullValue;
@@ -88,10 +99,11 @@ struct EspNowTxMessage EspNowTxMessage;
 esp_now_peer_info_t peerInfo;
 
 // Variables for Settings Control
-const int potPin = 16;     // Pin connected to the potentiometer & 3,3V, reads a value between 0 and 4095
-int potValue = 0;          // Variable to store the potentiometer value
-int mappedValue = 0;       // Variable to store the mapped value
+// const int potPin = 16;     // Pin connected to the potentiometer & 3,3V, reads a value between 0 and 4095
+// int potValue = 0;          // Variable to store the potentiometer value
+// int mappedValue = 0;       // Variable to store the mapped value
 bool settingsIsActive = false;     // Flag to track the state of the potentiometer
+int rotaryDialValue=0; // variable for rotaryEncoder
 
 
 // callback function that will be executed when data is sent
@@ -114,6 +126,12 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   // Serial.println(len);
   //draw();
   // }
+}
+
+// function to read Encoder
+void IRAM_ATTR readEncoderISR()
+{
+    rotaryEncoder.readEncoder_ISR();
 }
  
 void setup() {
@@ -168,8 +186,13 @@ void setup() {
   btnB.setPressedHandler(btnBPressed);
   btnB.setDoubleClickTime(400);
   btnB.setDoubleClickHandler(btnBDoubleClick);
-
   btnC.setPressedHandler(btnCPressed);
+
+  // Set up Rotary Encoder
+  rotaryEncoder.begin();
+  rotaryEncoder.setup(readEncoderISR);
+  rotaryEncoder.setBoundaries(0, 18, false); //minValue, maxValue, circleValues true|false (when max go to min and vice versa)
+  rotaryEncoder.setAcceleration(10);
 }
 
 
@@ -217,51 +240,72 @@ void loop() {
 
     // Update maxPull value only if potentiometer is active
   if (settingsIsActive) {
-    // Read the value from the potentiometer
-    potValue = analogRead(potPin);
-    
-    // Map the potentiometer value to the range of possible maxPull values
-    mappedValue = map(potValue, 0, 4095, 0, 12);
+    // // Read the value from the potentiometer
+    // potValue = analogRead(potPin);
+    // // Map the potentiometer value to the range of possible maxPull values
+    // mappedValue = map(potValue, 0, 4095, 0, 18);
+    // Read value from Rotary Encoder and assign it to variable rotarydialValue
+    rotaryDialValue = rotaryEncoder.readEncoder();
+    // Map the values of Rotary Dial to 
+    // mappedValue = map(rotaryDialValue, 0,18,0,18);
     
     // Select the corresponding maxPull value from the list
-    switch (mappedValue) {
+    switch (rotaryDialValue) {
       case 0:
-        setMaxPull = 60;
+        setMaxPull = 30;
         break;
       case 1:
-        setMaxPull = 65;
+        setMaxPull = 35;
         break;
       case 2:
-        setMaxPull = 70;
+        setMaxPull = 40;
         break;
       case 3:
-        setMaxPull = 75;
+        setMaxPull = 45;
         break;
       case 4:
-        setMaxPull = 80;
+        setMaxPull = 50;
         break;
       case 5:
-        setMaxPull = 85;
+        setMaxPull = 55;
         break;
       case 6:
-        setMaxPull = 90;
+        setMaxPull = 60;
         break;
       case 7:
-        setMaxPull = 95;
+        setMaxPull = 65;
         break;
       case 8:
-        setMaxPull = 100;
+        setMaxPull = 70;
         break;
       case 9:
-        setMaxPull = 105;
+        setMaxPull = 75;
         break;
       case 10:
-        setMaxPull = 110;
+        setMaxPull = 80;
         break;
       case 11:
-        setMaxPull = 115;
+        setMaxPull = 85;
         break;
       case 12:
+        setMaxPull = 90;
+        break;
+      case 13:
+        setMaxPull = 95;
+        break;
+      case 14:
+        setMaxPull = 100;
+        break;
+      case 15:
+        setMaxPull = 105;
+        break;
+      case 16:
+        setMaxPull = 110;
+        break;
+      case 17:
+        setMaxPull = 115;
+        break;
+      case 18:
         setMaxPull = 120;
         break;
     }
@@ -273,7 +317,12 @@ void loop() {
   btnC.loop();
   // Serial.println(setMaxPull);
 
-  maxpull_segments = map(setMaxPull,60,120,0,12); // map the max Pull values to the 12 segments
+      if (rotaryEncoder.isEncoderButtonClicked())
+    {
+      settingsIsActive = !settingsIsActive; // Flip the value of settingsIsActive;
+    }
+
+  maxpull_segments = map(setMaxPull,30,120,0,12); // map the max Pull values to the 12 segments
   currentpull_segments = map(EspNowTxMessage.currentPull,0,setMaxPull,0,22); // map the max Pull values to the 12 segments
 
   draw();
