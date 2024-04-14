@@ -1,18 +1,20 @@
 /*
- * electric paraglider winch remote control monitor 
+ * Electric Paraglider winch remote control monitor 
  * use it on an Lilygo T-Display S3 to display winch values on your paraglider Cockpit.
  * This monitor connects with the TTGO Lora ESP32 Paxounter Remote Transmitter via ESP-NOW
  * to display useful data in your eye-sight (rather than having to turn your head
  * to view the onboard OLED display of your remote)
  * UPDATE: Added functionality to not only use the T-Display as a Monitor,
  * but also to accept button presses that are sent to the Remote Transmitter
- * for additional control (Servo, Relay and maximum Pull Value)
+ * for additional control (Servo, Relay and maximum Pull Value).
+ * Added a Rotary Encoder to change Max Pull Settings and send to Transmitter.
  * Code Basis of ESP-Now communication by Rui Santos
  * Complete project details at https://RandomNerdTutorials.com/esp-now-esp32-arduino-ide/
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files.
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
+ * Use of Sprites and Progress bar copied from https://github.com/VolosR/PbarrTut
 */
 
 #include "Arduino.h" 
@@ -39,12 +41,12 @@ int currentpull_segments=0; //segments for progress bar of "currentPull"
 #define PIN_POWER_ON 15
 
 // Buttons & Rotary Encoder for Relay, Servo and MaxPull control
-#define BUTTON_A  0 // upper left button - for relay
-#define BUTTON_B  12 // extra button
-#define BUTTON_C  14 // lower left button settings/maxPull control - 
-#define ROTARY_ENCODER_BUTTON_PIN 10
-#define ROTARY_ENCODER_A_PIN 2
-#define ROTARY_ENCODER_B_PIN 3
+#define BUTTON_A  0 // integrated upper left button - for relay
+#define BUTTON_B  11 // extra button - for servo
+#define BUTTON_C  14 // integrated lower left button settings/maxPull control - 
+#define ROTARY_ENCODER_BUTTON_PIN 12 // Button Pin "SW" on Rotary Encoder
+#define ROTARY_ENCODER_A_PIN 2 // CLK Pin on Rotary Encoder
+#define ROTARY_ENCODER_B_PIN 3 // DT Pin on Torary Encoder
 
 #define ROTARY_ENCODER_STEPS 4 //depending on your encoder - try 1,2 or 4 to get expected behaviour
 
@@ -99,33 +101,15 @@ struct EspNowTxMessage EspNowTxMessage;
 esp_now_peer_info_t peerInfo;
 
 // Variables for Settings Control
-// const int potPin = 16;     // Pin connected to the potentiometer & 3,3V, reads a value between 0 and 4095
-// int potValue = 0;          // Variable to store the potentiometer value
-// int mappedValue = 0;       // Variable to store the mapped value
-bool settingsIsActive = false;     // Flag to track the state of the potentiometer
+bool settingsIsActive = false;     // Flag to track the state of settings mode
 int rotaryDialValue=0; // variable for rotaryEncoder
 
 
-// callback function that will be executed when data is sent
-// void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-// Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-// if (status ==0) {
-//   success = "Delivery Success :)";
-// }
-//   else {
-//     success = "Delivery Fail";
-//   }
-// }
-
 // callback function that will be executed when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
-//   if (!settingsIsActive) {
-    // Only update EspNowTxMessage if settings are not active
   memcpy(&EspNowTxMessage, incomingData, sizeof(EspNowTxMessage));
   // Serial.print("Bytes received: ");
   // Serial.println(len);
-  //draw();
-  // }
 }
 
 // function to read Encoder
@@ -143,16 +127,13 @@ void setup() {
   pinMode(PIN_POWER_ON, OUTPUT);
   digitalWrite(PIN_POWER_ON, HIGH);
 
-  // tft.begin();
   tft.init();
   tft.fillScreen(TFT_BLACK);
   tft.setRotation(1);
   sprite.createSprite(320,170);
-  // tft.setSwapBytes(true);
 
   ledcSetup(0, 10000, 8);
   ledcAttachPin(38, 0);
-  // ledcWrite(0, 110);
   ledcWrite(0, 160);
 
   // Set device as a Wi-Fi Station
@@ -164,9 +145,6 @@ void setup() {
   // Once ESPNow is successfully Init, we will register for recv CB to
   // get recv packer info
   esp_now_register_recv_cb(OnDataRecv);
-
-  // Register for the OnDataSent callback function
-  //esp_now_register_send_cb(OnDataSent);
 
   // Register Peer (Remote Control) to receive Data
   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
@@ -180,9 +158,6 @@ void setup() {
   }
   // Setup Buttons
   btnA.setPressedHandler(btnAPressed);
-  // btnA.setLongClickTime(500);
-  // btnA.setLongClickDetectedHandler(btnALongClickDetected);
-
   btnB.setPressedHandler(btnBPressed);
   btnB.setDoubleClickTime(400);
   btnB.setDoubleClickHandler(btnBDoubleClick);
@@ -195,7 +170,6 @@ void setup() {
   rotaryEncoder.setAcceleration(10);
 }
 
-
  void draw()
   {
    sprite.setTextSize(1);
@@ -205,11 +179,11 @@ void setup() {
       sprite.drawString("Set Maximum Pull:",10,10, 4);
       int xpos = 0;
       xpos += sprite.drawString(String(setMaxPull),10,50,7); // ,x,y,z -> x = x position, y = y position, z = size of text
-      for(int i=0;i<12;i++)
+      for(int i=0;i<22;i++)
         if(i<maxpull_segments)
-         {sprite.drawWedgeLine(60+(i*18), 160, 68+(i*18), 140, 5, 5, TFT_WHITE,TFT_BLACK);}
+         {sprite.drawWedgeLine(4+(i*14), 160, 12+(i*14), 140, 4, 4, TFT_WHITE,TFT_BLACK);}
           else
-        {sprite.drawWedgeLine(60+(i*18), 160, 68+(i*18), 140, 5, 5, gray,TFT_BLACK);}
+        {sprite.drawWedgeLine(4+(i*14), 160, 12+(i*14), 140, 4, 4, gray,TFT_BLACK);}
       sprite.drawString("kg", xpos + 10,80, 4);
     } else {
       sprite.setTextColor(TFT_WHITE);
@@ -238,16 +212,10 @@ void setup() {
  
 void loop() {
 
-    // Update maxPull value only if potentiometer is active
+    // Update maxPull value only if settings is active
   if (settingsIsActive) {
-    // // Read the value from the potentiometer
-    // potValue = analogRead(potPin);
-    // // Map the potentiometer value to the range of possible maxPull values
-    // mappedValue = map(potValue, 0, 4095, 0, 18);
     // Read value from Rotary Encoder and assign it to variable rotarydialValue
     rotaryDialValue = rotaryEncoder.readEncoder();
-    // Map the values of Rotary Dial to 
-    // mappedValue = map(rotaryDialValue, 0,18,0,18);
     
     // Select the corresponding maxPull value from the list
     switch (rotaryDialValue) {
@@ -311,18 +279,21 @@ void loop() {
     }
   }
 
-
   btnA.loop();
   btnB.loop();
   btnC.loop();
-  // Serial.println(setMaxPull);
 
-      if (rotaryEncoder.isEncoderButtonClicked())
-    {
-      settingsIsActive = !settingsIsActive; // Flip the value of settingsIsActive;
-    }
+if (rotaryEncoder.isEncoderButtonClicked()) {
+    settingsIsActive = !settingsIsActive; // Flip the value of settingsIsActive;
+    if (settingsIsActive) {
+    // Serial.println("Rotary Encoder Button pressed / Settings Active\n");
+  } else {
+    sendEspNowMessage(); // send the values to the transmitter
+    // Serial.println("Inactived via Rotary Encoder\n");
+  }
+}
 
-  maxpull_segments = map(setMaxPull,30,120,0,12); // map the max Pull values to the 12 segments
+  maxpull_segments = map(setMaxPull,30,120,0,22); // map the max Pull values to the 12 segments
   currentpull_segments = map(EspNowTxMessage.currentPull,0,setMaxPull,0,22); // map the max Pull values to the 12 segments
 
   draw();
@@ -335,42 +306,32 @@ void btnAPressed(Button2& btn) {
   if (relay == true) {
   // Serial.println("Fan and Light turned off");
   relay = false; // turns relay off, which will deactivate Vesc Cooling Fan and Warning Light
-  // lastStateSwitchMillis = millis();
-  // stateChanged = true;
   } else {
   // Serial.println("Fan and Light turned on");
   relay = true; // turns relay on, cooling and warning runs again
-  // lastStateSwitchMillis = millis();
-  // stateChanged = true;
   }
   sendEspNowMessage(); // Send ESP-Now message when button A is pressed
  }
 
 void btnBPressed(Button2& btn) {
  Serial.println("Button B Pressed");
-  servo = true; // use only in emergency, this will trigger a line cutter, yet to be built -> Bernd, deine Aufgabe!
+  servo = true; // use only in emergency, this will trigger a line cutter
   sendEspNowMessage(); // Send ESP-Now message when button B is pressed
-    // currentState = -2;    //hard brake, when line is being cut, of course!
-    // lastStateSwitchMillis = millis();
-    // stateChanged = true;
   }
 
 void btnBDoubleClick(Button2& btn) {
   Serial.println("Double Click on Button B");
   servo = false; // returns servo to neutral
   sendEspNowMessage(); // Send ESP-Now message when button B is double clicked
-  // lastStateSwitchMillis = millis();
-  // stateChanged = true;
   }
 
 void btnCPressed(Button2& btn) {
   settingsIsActive = !settingsIsActive; // Flip the value of settingsIsActive
   if (settingsIsActive) {
-    // draw(); // Execute draw() when settingsIsActive is true
-    Serial.println("Button C Pressed / Settings Active\n");
+    // Serial.println("Button C Pressed / Settings Active\n");
   } else {
     sendEspNowMessage(); // send the values to the transmitter
-    Serial.println("Inactive\n");
+    // Serial.println("Inactive\n");
   }
 }
 
@@ -382,9 +343,9 @@ void sendEspNowMessage () {
     // Send message via ESP-NOW
     esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowButtonMessage, sizeof(EspNowButtonMessage));
     // Check whether sending the ESP-NOW Message was successful 
-        if (result == ESP_OK) {
-          Serial.println("Sent with success");
-          } else {
-          Serial.println("Error sending the data");
-        }
+        // if (result == ESP_OK) {
+        //   Serial.println("Sent with success");
+        //   } else {
+        //   Serial.println("Error sending the data");
+        // }
 }
