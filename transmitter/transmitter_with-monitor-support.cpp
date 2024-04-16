@@ -56,10 +56,8 @@ String packet ;
 */
 #include <esp_now.h>
 #include <WiFi.h>
-// MAC of my Paxcounter receiver/transmitter: 0x4C, 0x75, 0x25, 0xD7, 0x0A, 0xC0 
-// MAC T-display receiver: 0xDC, 0xDA, 0x0C, 0x5A, 0x59, 0x58
 // Replace with your ESP-Now Receiver/Monitor MAC Address:
-uint8_t broadcastAddress[] = {0xDC, 0xDA, 0x0C, 0x5A, 0x59, 0x58}; 
+uint8_t broadcastAddress[] = {0xDC, 0xDA, 0x0C, 0x58, 0xFE, 0xB8}; 
 
 // battery measurement
 //#define CONV_FACTOR 1.7
@@ -155,7 +153,7 @@ struct EspNowTxMessage {
   bool relay;
   uint8_t tachometer;
   uint8_t dutyCycleNow;
-  bool loraConnect;
+  bool loraConnect = true;
 } ;
 
 // Create a struct message called EspNowTxMessage for ESP-Now Communication
@@ -342,6 +340,7 @@ void loop() {
         currentPull = loraRxMessage.pullValue;
 	// send info to Monitor T-Display that LoRa Connection is established
 	loraConnect = true;
+  Serial.println(loraConnect ? "LoRa Connected" : "LoRa Not Connected");
         // vescBatteryPercentage and vescTempMotor are alternated on lora link to reduce packet size
           if (loraRxMessage.vescBatteryOrTempMotor == 1){
             vescBattery = loraRxMessage.vescBatteryOrTempMotorValue;
@@ -366,6 +365,8 @@ void loop() {
         display.display();
 	//also send info to T-Display Monitor by change the variable
 	loraConnect = false;
+  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowTxMessage, sizeof(EspNowTxMessage));
+  Serial.println(loraConnect ? "LoRa Connected" : "LoRa Not Connected");
         // log connection error
        if (millis() > loraErrorMillis + 5000) {
             loraErrorMillis = millis();
@@ -430,7 +431,7 @@ void loop() {
       
       // send ESP-NOW Message every 1 Second OR on State Change, i.e. pull Value or Brake change to T-Display Monitor on Cockpit
        //if (millis() > lastTxLoraMessageMillis + 500 || stateChanged) {
-        if (loopStep % 50 == 0 || stateChanged) {
+        if (loopStep % 20 == 0 || stateChanged) {
             EspNowTxMessage.pullValue = targetPull;
             EspNowTxMessage.currentPull = currentPull;
             EspNowTxMessage.currentState = currentState;
@@ -438,7 +439,7 @@ void loop() {
             EspNowTxMessage.relay = relay;
             EspNowTxMessage.tachometer = loraRxMessage.tachometer;
             EspNowTxMessage.dutyCycleNow = loraRxMessage.dutyCycleNow;
-	    EspNowTxMessage.loraConnect = loraConnect;
+      	    EspNowTxMessage.loraConnect = loraConnect;
         // Send message via ESP-NOW
         esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowTxMessage, sizeof(EspNowTxMessage));
         // Check whether sending the ESP-NOW Message was successful 
