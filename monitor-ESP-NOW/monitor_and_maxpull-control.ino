@@ -67,6 +67,7 @@ AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, 
   bool relay;
   uint8_t tachometer;
   uint8_t dutyCycleNow;
+  bool loraConnect;
 
 //Variable for Serial.Print Success Message
 String success;
@@ -92,6 +93,7 @@ struct EspNowTxMessage {
   bool relay;
   uint8_t tachometer;
   uint8_t dutyCycleNow;
+  bool loraConnect;
 } ;
 
 // Create a struct message called EspNowTXMessage
@@ -170,8 +172,9 @@ void setup() {
   rotaryEncoder.setAcceleration(10);
 }
 
- void draw()
-  {
+ void draw() {
+  // if LoRa Connection on Transmitter is established, show valuable info on monitor and allow maxPull changes via Settings
+  if (loraConnect) {
    sprite.setTextSize(1);
    sprite.fillSprite(TFT_BLACK);
     if (settingsIsActive) {
@@ -206,7 +209,11 @@ void setup() {
       xpos += sprite.drawString("Fan: " + String(EspNowTxMessage.relay ? "ON" : "OFF") + " | ", 0, 140, 2); // Display servo state
       sprite.drawString("LineCutter: " + String(EspNowTxMessage.servo ? "EMERGENCY" : "Ready!"), xpos, 140, 2); // Display servo state
     }
-  sprite.pushSprite(0,0);
+  } else {
+   // if no LoRa connection is available, fill screen with red
+   sprite.fillSprite(TFT_RED);
+  }
+   sprite.pushSprite(0,0);
  }
 
  
@@ -314,13 +321,13 @@ void btnAPressed(Button2& btn) {
  }
 
 void btnBPressed(Button2& btn) {
- Serial.println("Button B Pressed");
+// Serial.println("Button B Pressed");
   servo = true; // use only in emergency, this will trigger a line cutter
   sendEspNowMessage(); // Send ESP-Now message when button B is pressed
   }
 
 void btnBDoubleClick(Button2& btn) {
-  Serial.println("Double Click on Button B");
+//  Serial.println("Double Click on Button B");
   servo = false; // returns servo to neutral
   sendEspNowMessage(); // Send ESP-Now message when button B is double clicked
   }
