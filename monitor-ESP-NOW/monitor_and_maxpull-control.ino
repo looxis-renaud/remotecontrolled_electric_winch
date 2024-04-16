@@ -110,6 +110,8 @@ int rotaryDialValue=0; // variable for rotaryEncoder
 // callback function that will be executed when data is received
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   memcpy(&EspNowTxMessage, incomingData, sizeof(EspNowTxMessage));
+  loraConnect = EspNowTxMessage.loraConnect;
+  Serial.print(loraConnect ? "Connected" : "Not Connected");
   // Serial.print("Bytes received: ");
   // Serial.println(len);
 }
@@ -174,7 +176,7 @@ void setup() {
 
  void draw() {
   // if LoRa Connection on Transmitter is established, show valuable info on monitor and allow maxPull changes via Settings
-  if (loraConnect) {
+   if (loraConnect) {
    sprite.setTextSize(1);
    sprite.fillSprite(TFT_BLACK);
     if (settingsIsActive) {
@@ -204,16 +206,21 @@ void setup() {
       xpos = 0;
       xpos += sprite.drawString("Line: " + String(EspNowTxMessage.tachometer) + "m |", 0, 100, 4); // Display deployed line length in meters
       sprite.drawString("Speed: " + String(EspNowTxMessage.dutyCycleNow) + "%", xpos + 5 ,100, 4);  // Display %of max Speed before VESC goes bust
-      sprite.setTextColor(TFT_MAGENTA);
+      sprite.setTextColor(TFT_YELLOW);
       xpos = 0;
       xpos += sprite.drawString("Fan: " + String(EspNowTxMessage.relay ? "ON" : "OFF") + " | ", 0, 140, 2); // Display servo state
-      sprite.drawString("LineCutter: " + String(EspNowTxMessage.servo ? "EMERGENCY" : "Ready!"), xpos, 140, 2); // Display servo state
+      xpos += sprite.drawString("LineCutter: " + String(EspNowTxMessage.servo ? "EMERGENCY" : "Ready!"), xpos, 140, 2); // Display servo state
+      sprite.drawString(" | " + String(EspNowTxMessage.loraConnect ? "LoRa Connected" : "No LoRa Connection!!"), xpos, 140, 2);
     }
-  } else {
-   // if no LoRa connection is available, fill screen with red
-   sprite.fillSprite(TFT_RED);
-  }
-   sprite.pushSprite(0,0);
+    } else {
+      // if Lora Connection is interrupted, show error
+      sprite.fillSprite(TFT_RED);
+      sprite.setTextSize(1);
+      sprite.setTextColor(TFT_WHITE);
+      sprite.drawString("LoRa Connection Failed!",10,80, 4);
+
+    }
+    sprite.pushSprite(0,0);
  }
 
  
@@ -304,7 +311,7 @@ if (rotaryEncoder.isEncoderButtonClicked()) {
   currentpull_segments = map(EspNowTxMessage.currentPull,0,setMaxPull,0,22); // map the max Pull values to the 12 segments
 
   draw();
-
+  delay(10);
 }
 
 //handle Button Presses
