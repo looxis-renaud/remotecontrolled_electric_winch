@@ -7,15 +7,13 @@
  * Added support for a third button to control a Relay and a Servo.
  * The Relay can turn the VESC Cooling Fan and Warning Light (DHV Regulations) on and off
  * The Servo can trigger an Emergency Line Cutter (DHV Regulations)
- *
- * +++ Almost done, needs testing +++ Adding support to connect a Liligo T-Display S-3
+ * Added support to connect a Liligo T-Display S-3
  * as a Monitor via ESP-NOW Protocol (over Wifi) and as an option to control Relay,
  * Servo and maxPull Settings via Transmitter. Monitor acts as a transmitter extension.
  */
 
 static int myID = 8;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
-// UPDATE the maxPull Variable can now be updated with a potentionmeter on the Lilygo T-Display Monitor
-static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings
+static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings / can be updated with a rotary encoder on the Lilygo T-Display Monitor
 
 #include <Pangodream_18650_CL.h>
 #include <SPI.h>
@@ -105,6 +103,9 @@ uint8_t vescTempMotor = 0;
 bool servo = false;
 bool relay = true;
 
+// Variable to inform Monitor whether the LoRa communication is lost
+bool loraConnect = false;
+
 /*
 * Copyright 2015 - 2017 Andreas Chaitidis Andreas.Chaitidis@gmail.com
 * This program is free software : you can redistribute it and / or modify
@@ -154,6 +155,7 @@ struct EspNowTxMessage {
   bool relay;
   uint8_t tachometer;
   uint8_t dutyCycleNow;
+  bool loraConnect;
 } ;
 
 // Create a struct message called EspNowTxMessage for ESP-Now Communication
@@ -338,6 +340,8 @@ void loop() {
     if (LoRa.parsePacket() == sizeof(loraRxMessage) ) {
         LoRa.readBytes((uint8_t *)&loraRxMessage, sizeof(loraRxMessage));
         currentPull = loraRxMessage.pullValue;
+	// send info to Monitor T-Display that LoRa Connection is established
+	loraConnect = true;
         // vescBatteryPercentage and vescTempMotor are alternated on lora link to reduce packet size
           if (loraRxMessage.vescBatteryOrTempMotor == 1){
             vescBattery = loraRxMessage.vescBatteryOrTempMotorValue;
@@ -360,6 +364,8 @@ void loop() {
         //TODO red display - not possible with onboard OLED display!
         display.clear();
         display.display();
+	//also send info to T-Display Monitor by change the variable
+	loraConnect = false;
         // log connection error
        if (millis() > loraErrorMillis + 5000) {
             loraErrorMillis = millis();
@@ -432,6 +438,7 @@ void loop() {
             EspNowTxMessage.relay = relay;
             EspNowTxMessage.tachometer = loraRxMessage.tachometer;
             EspNowTxMessage.dutyCycleNow = loraRxMessage.dutyCycleNow;
+	    EspNowTxMessage.loraConnect = loraConnect;
         // Send message via ESP-NOW
         esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowTxMessage, sizeof(EspNowTxMessage));
         // Check whether sending the ESP-NOW Message was successful 
@@ -515,5 +522,5 @@ void btnThreeDoubleClick(Button2& btn) {
 
 void btnThreeLongClickDetected(Button2& btn) {
   // Serial.println("Long Click on Third Button");
-    servo = true; // use only in emergency, this will trigger a line cutter, yet to be built -> Bernd, deine Aufgabe!
+    servo = true; // use only in emergency, this will trigger a line cutter
   }
