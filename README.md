@@ -56,11 +56,10 @@ IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRA
 IO 14 (BUTTON_THREE ) // additional /optional Button for Relay and Servo Control. Click once to deactivate Relay (Fan and Warning light), Click again to turn on again. Long Click to trigger the Emergency Line Cutter (Servo). Doubleclick to move Servo to Neutral Position again. By default, the Servo is in neutral position, and Relay is off. Turning on the Remote will turn on the Relay automatically.
 
 ## Monitor with LilyGo T-Display
-I am adding a Monitor for the paraglider cockpit to better view winch values in your eye-sight,
-based on a LilyGo T-Display S-3 board with integrated color TFT Display.
-This monitor also serves to control some (additional) functions on the transmitter,
-such as deploying an emergency line cutter, turning on and off a relay (that controls a cooling fan and a warning light)
-and setting the maxPull Value. The Monitor communicates with the Transmitter over Wifi via ESP-NOW Protocol.
+https://www.lilygo.cc/products/t-display-s3 
+- a monitor on your paraglider cockpit to have winch values in eyesight
+- a control unit for the emergency line cutter and fan / warning light
+- a control unit to change the settings for "maxPull" with the help of a potentiometer
 
 ## Pin Setup Monitor
 IO 16 Connect a Potentiometer to PIN 16 (dont forget GND and +3,3V)
@@ -90,15 +89,14 @@ The transmitter and receiver code now supports the connection of a Servo (on PIN
 The servo rotates 90 degrees when the third button on the transmitter is "long pressed" (one full second).
 This servo should be attached to an emergency line cutter, that cuts the dyneema line in an emergency.
 Note: Activating the line cutter also triggers the full brake (-20kg)
-TODO - Design and build a lightweight and efficient line cutter! Bernd O., this one is on you :-)
 
-## Work in Progress
-I am currently working on adding a Lilygo T-Display S3 ( https://www.lilygo.cc/products/t-display-s3 )
-to use as
-- a monitor on your paraglider cockpit to have winch values in eyesight
-- a control unit for the emergency line cutter and fan / warning light
-- a control unit to change the settings for "maxPull" with the help of a potentiometer
-Work in Progress as of march '24
+## Battery
+16P10S Battery using 160 Lithium Ion 21700 cells with 4.000 mAh each.
+ - 3,7V nominal per cell, max 4,2V, min 2,5V
+ - ~60V total, max 67,2V, min 40V
+ - 4Ah per cell = 40Ah total
+ - 2,4 kWh
+ - 
 
 ## Default Config for VESC
 Default VESC app config is vesc_app_config.xml
