@@ -143,3 +143,8 @@ Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly 
 - set up some way to calibrate PWM Settings and Pull Values.
 - add Bernd's line cutter
 - improve mechanics and mounting on the bike trailer
+
+# Big "Thank You"
+
+A big "Thank You" goes to Robert Zach, from whom I copied this project (and forked his code).
+https://github.com/robertzach/ewinch_remote_controller
