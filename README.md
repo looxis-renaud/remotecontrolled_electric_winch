@@ -1,13 +1,26 @@
+# Remote Controlled Electric Paraglider Winch
+
+  - https://www.youtube.com/shorts/iNt1cCAZv0I
+
+This is not a step by step guide of how to build your own electrical paraglider winch, but it contains
+most resources needed to build your own, including links to the most important components
+- see doc/winch-schema.jpg for a simplified overview of all components needed
+- doc/parts-list.md contains a list of the main parts and where to purchase it
+
+This is not a finished project, rather a "work in progress" (as of May '24)
+
+In the video above you can see the winch hanging on a steel post. Hauling it around
+(getting into the trunk of my car, getting it out again, carrying) was extremely stressful,
+since the winch is quite heavy, so I spent the winter of '23/'24 to move the winch onto a bike trailer.
+
+As of today, I plain to keep this repo updated
+
 # ewinch_remote_controller
  transmitter and receiver code for remote controlling a paragliding winch
  Based on LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED
  (http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3) 
 
 Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
- 
- see 
-  - https://www.youtube.com/watch?v=5IkagHkxbxY
-  - https://www.youtube.com/shorts/iNt1cCAZv0I
   
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/ - Note: Line length seems to not be correctly transmitted, falls short by a factor of ~0,7
@@ -128,3 +141,5 @@ Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly 
 ## ToDo
 - set up some sort of encryption or password for a secure connection between transmitter and receiver
 - set up some way to calibrate PWM Settings and Pull Values.
+- add Bernd's line cutter
+- improve mechanics and mounting on the bike trailer
