@@ -144,6 +144,15 @@ Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly 
 - add Bernd's line cutter
 - improve mechanics and mounting on the bike trailer
 
+## Notes
+from Robert's "Issue Section"
+- calibrate PWM Settings for pull Values: Depending on your motor (power, KV value, diameter, etc.) you need to scale the resulting kg pull on your line.
+I think the best way is to adapt the "Motor Current Max" and "Motor Current Max Brake" value in the Vesc Motor Settings (General -> Current).
+You could also adapt the "Pulselength Start" and "Pulselength End" in the Vesc App settings (PPM -> Mapping) to reach the same goal.
+I used a suitcase scale to measure the real pull on the line.
+With my QS260 hub motor I have around ~3,6A/kg pull.
+- Motor amount of Poles: 32
+
 # Big "Thank You"
 
 A big "Thank You" goes to Robert Zach, from whom I copied this project (and forked his code).
