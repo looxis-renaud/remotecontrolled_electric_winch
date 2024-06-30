@@ -1,19 +1,19 @@
-# Remote Controlled Electric Paraglider Winch
+# Remote Controlled Electric Paraglider & Hangglider Winch
 
   - https://www.youtube.com/shorts/iNt1cCAZv0I
 
-This is not a step by step guide of how to build your own electrical paraglider winch, but it contains
+This is not a step by step guide of how to build your own electrical paraglider and hangglider winch, but it contains
 most resources needed to build your own, including links to the most important components
 - see doc/winch-schema.jpg for a simplified overview of all components needed
 - doc/parts-list.md contains a list of the main parts and where to purchase it
 
-This is not a finished project, rather a "work in progress" (as of May '24)
+This is not a finished project, rather a "work in progress" (as of June '24)
 
 In the video above you can see the winch hanging on a steel post. Hauling it around
 (getting into the trunk of my car, getting it out again, carrying) was extremely stressful,
 since the winch is quite heavy, so I spent the winter of '23/'24 to move the winch onto a bike trailer.
 
-As of today, I plain to keep this repo updated
+As of today, I plan to keep this repo updated
 
 # ewinch_remote_controller
  transmitter and receiver code for remote controlling a paragliding winch
