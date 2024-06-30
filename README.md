@@ -60,7 +60,6 @@ IO 15 (Servo Signal) // connect red wire to 5V, black or brown wire to GND and y
 
 IO 12 (Relay Signal) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire your Warning Light and VESC Cooling Fan through the relay module. Relay is off by default, will be turned on once the Remote/Transmitter is turned on. // note to self: yellow to yellow (signal), red to red/blue, brown to black/green.
 
-
 ## PIN Setup Transmitter:
 IO 15 (BUTTON_UP) //together with GND connect with push button for UP Command
 
@@ -84,12 +83,9 @@ IO 14 Button B - Button B should be a large and easily reachable button on your 
 IO 12 Button C - Press Button C once to enter "settings mode". You can now turn the potentiometer to set the Max Pull Value to the transmitter (set Value according to Pilot's Take-Off weight) Press Button once more to exit settings mode and confirm the selected value. It is then sent
 to the transmitter over Wifi via ESP-Now Protocol.
 
-## Line auto stop in VESC
-Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
-
-For this to work properly, either connect a Potentiometer to ADC2 and GND to manually control the winch. E.g. To wind up the last meters of the line when finishing. Or to manually set a tension when used as a rewind winch. Note that the potentiometer only reduces tension/speed of the motor when it is running one of the pull programs as controlled via the transmitter!
-
-IMPORTANT: If you do not install a Potentionmeter, connect ADC2 to GND.
+# VESC
+VESC is the Open Source Electronic Speed Controler developed by Benjamin Vedder ( **V**edder **E**lectronic **S**peed **C**ontroller)
+Topic has been moved here: https://github.com/looxis-renaud/ewinch_remote_controller/tree/main/vesc#readme
 
 ## Remote Control of cooling fan and warning light (DHV Regulations)
 The transmitter and receiver code now supports a Relay that is automatically turned on when the
@@ -103,21 +99,14 @@ The servo rotates 90 degrees when the third button on the transmitter is "long p
 This servo should be attached to an emergency line cutter, that cuts the dyneema line in an emergency.
 Note: Activating the line cutter also triggers the full brake (-20kg)
 
-## Battery
+# Battery
 16P10S Battery using 160 Lithium Ion 21700 cells with 4.000 mAh each.
  - 3,7V nominal per cell, max 4,2V, min 2,5V
  - ~60V total, max 67,2V, min 40V
  - 4Ah per cell = 40Ah total
  - 2,4 kWh
- - 
 
-## Default Config for VESC
-Default VESC app config is vesc_app_config.xml
-Default Motor config is vesc_motor_config_12kw_260_V4.xml or vesc_motor_config_12kw_273.xml
-**PLEASE NOTE:** don't just take the standard motor config and upload to your VESC. Take it as an example only.
-Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly detect internal resistances and other values.
-
-## usage:
+# usage:
 - A) prepare:
   1 - turn the VESC and receiver on
   2 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
@@ -138,13 +127,13 @@ Make sure to run the **"Setup Motor FOC"** wizard for the VESC tool to properly 
 - D) Neutral
   You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it.
  
-## ToDo
+# ToDo
 - set up some sort of encryption or password for a secure connection between transmitter and receiver
 - set up some way to calibrate PWM Settings and Pull Values.
 - add Bernd's line cutter
 - improve mechanics and mounting on the bike trailer
 
-## Notes
+# Notes
 from Robert's "Issue Section"
 - calibrate PWM Settings for pull Values: Depending on your motor (power, KV value, diameter, etc.) you need to scale the resulting kg pull on your line.
 I think the best way is to adapt the "Motor Current Max" and "Motor Current Max Brake" value in the Vesc Motor Settings (General -> Current).
