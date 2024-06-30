@@ -43,6 +43,6 @@ This is a list of parts including sourcing links
 
 ## Azimuth System
 * Steel Pipe E235, 20x4mm (20mm outer diameter, 4mm wall thickness = 12mm inner diameter) https://www.ebay.de/itm/112957195210
-* 2x Flanged Bearing (Flanschlager) UCFC (4 holes), Wellen Ø 20mm (UC204) https://www.ebay.de/itm/362712761631
+* 2x Flanged Bearing (Flanschlager) UCFL (2 holes, oval), Wellen Ø 20mm (UC204) https://www.ebay.de/itm/362712761631
 * Cable Pulley (Seilrolle) Ø 59mm, Nabe Ø 10mm, Thickness 15mm, for 6mm rope, zinc-plated https://e-rader.de/mit-kugellager/1850-cm446l-profil-rollen-fuer-seil-mit-kugellager-.html
 * 2x Pipe Roller ( Tragrolle ) 
