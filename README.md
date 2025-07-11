@@ -1,19 +1,26 @@
 # Remote Controlled Electric Paraglider & Hangglider Winch
 
-  - https://www.youtube.com/shorts/iNt1cCAZv0I
+  - https://www.youtube.com/shorts/iNt1cCAZv0I (outdated video, will need to make a new one)
 
 This is not a step by step guide of how to build your own electrical paraglider and hangglider winch, but it contains
 most resources needed to build your own, including links to the most important components
 - see doc/winch-schema.jpg for a simplified overview of all components needed
-- doc/parts-list.md contains a list of the main parts and where to purchase it
+- doc/parts-list.md contains a list of the main parts and where to purchase them
 
-This is not a finished project, rather a "work in progress" (as of June '24)
+This is not a finished project, rather a "work in progress", however as of July '25,
+the winch is working well and pretty much everything is dialled in.
 
 In the video above you can see the winch hanging on a steel post. Hauling it around
 (getting into the trunk of my car, getting it out again, carrying) was extremely stressful,
 since the winch is quite heavy, so I spent the winter of '23/'24 to move the winch onto a bike trailer.
+The winch was able to rotate around it's Z-Axis, and fitted with the same arm to guide the line upwards
+during the winch process. In Summer '24 this proved to not be ideal. A friend ( Bernd ) developed
+a compact "Azimuth System", which is supposed to guide the line up and down and sideways during the winch-process.
 
-As of today, I plan to keep this repo updated
+During the winter 24/25 the rotary support and the arm were removed, a new frame and the azimuth system was built
+and added to the system. I have done since then multiple step tows quite successfully and am really happy with the system.
+
+As of today (July 25), I plan to keep this repo updated
 
 # ewinch_remote_controller
  transmitter and receiver code for remote controlling a paragliding winch
@@ -29,7 +36,7 @@ Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired 
 - In Arduino IDE open File > Preferences
 - in additional boards manager URLS field copy: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 - click OK
-- go to Go to Tools > Board > Boards Manager
+- Go to Tools > Board > Boards Manager
 - In Boards Manager Search for ESP32 and press install button for the “ESP32 by Espressif Systems“
 - Go To Tools > Board > ESP32 and select the TTGO LoRa32-OLED Board
 
@@ -38,16 +45,17 @@ Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired 
 - [Button2](https://github.com/LennartHennigs/Button2)
 - [VescUart](https://github.com/SolidGeek/VescUart)
 - [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
-- [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/)
+- [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/) 
 - [TFT_eSPI](https://www.arduino.cc/reference/en/libraries/tft_espi/) / If you want to use the Lilygo T-Display S3 as a monitor
 
 ## Moving to Visual Studio Code and PlatformIO
 
-I am moving to Visual Studio Code and PlatformIO to introduce Version control with Github and Git.
-The main difference is that with VS Code and PlatformIO the main program files don't have the *.ino file extension
-but *.cpp. If you want to compile and upload the code to the ESP32 boards just download all files and rename
-them from *.cpp to *.ino. There are some other challenges with Visual Studio Code and PlatformIO that may require
-to move the code for each platform to it's own repository, i.e. "transmitter", "receiver" and "monitor"
+UPDATE (July 25): I haven't really completed the switch to visual studio code and done plan on completing it.
+// I am moving to Visual Studio Code and PlatformIO to introduce Version control with Github and Git.
+// The main difference is that with VS Code and PlatformIO the main program files don't have the *.ino file extension
+// but *.cpp. If you want to compile and upload the code to the ESP32 boards just download all files and rename
+// them from *.cpp to *.ino. There are some other challenges with Visual Studio Code and PlatformIO that may require
+// to move the code for each platform to it's own repository, i.e. "transmitter", "receiver" and "monitor"
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
@@ -68,6 +76,11 @@ IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRA
 IO 14 (BUTTON_THREE ) // additional /optional Button for Relay and Servo Control. Click once to deactivate Relay (Fan and Warning light), Click again to turn on again. Long Click to trigger the Emergency Line Cutter (Servo). Doubleclick to move Servo to Neutral Position again. By default, the Servo is in neutral position, and Relay is off. Turning on the Remote will turn on the Relay automatically.
 
 ## Monitor with LilyGo T-Display
+
+UPDATE (July 25): I have lost in mid flight the monitor, and noticed
+that it just introduces additional tech to be taken care of. I may not rebuild a new one
+and may remove / comment out(ToDo) any code that connects the remote with the monitor
+
 https://www.lilygo.cc/products/t-display-s3 
 - a monitor on your paraglider cockpit to have winch values in eyesight
 - a control unit for the emergency line cutter and fan / warning light
@@ -109,8 +122,10 @@ Note: Activating the line cutter also triggers the full brake (-20kg)
 # usage:
 - A) prepare:
   1 - turn the VESC and receiver on
-  2 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
-  3 - go through your pre-flight preparations and clip in
+  2 - MAKE SURE to have the Potentiometer connected to ADC turned fully left (in my setup! need to measure whether this is open or closed :-) )
+      If the Poti is rotated to the right, either partially or fully, the winch will not operate with the predefined Pull Torque!
+  3 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
+  4 - go through your pre-flight preparations and clip in
 - B) launch:
   1 - switch to defaultPull (7kg pull value) and prePull (to tighten the line (~13kg pull value) to assist you to launch the glider
   2 - go to takeOffPull (~40kg pull value) to assist you with launching the glider and gently getting into the air with a slight pull towards a safety margin of 15-30m height
@@ -121,17 +136,25 @@ Note: Activating the line cutter also triggers the full brake (-20kg)
   3 - after successful turn, go to fullPull again
  
 - C) Release
-  Go To defaultPull (7kg pull value) before you release
+  Go To defaultPull (7kg pull value) before you release. Release and move back to fullPull to rewind the line.
   The winch will autorewind the line IF AutoStop feature is enabled (modified VESC Firmware is required, see vesc/vesc_ppm_auto_stop.patch)
  
 - D) Neutral
-  You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it.
- 
+  You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it. It's useful to
+  Pull the line out of the winch toward the launch area.
+
+- E) Rewinding the Cable
+  If something does not go as expected ( during one flight, I turned off the remote too soon after release, the winch stopped pulling, as it should, the line fell on the ground):
+  - use the Potentiometer, which should be on the far left position, to gently rotate it towards the right. The motor will start to rewind the line, regardless of the measured distance.
+
+# Done ToDo's
+- add Bernd's line cutter // Done! has been physically added within the new frame as of winter 24/25, but I haven't wired it up as of yet, and currently don't plan to do so
+- improve mechanics and mounting on the bike trailer // Done - need to upload some photos
+
 # ToDo
 - set up some sort of encryption or password for a secure connection between transmitter and receiver
-- set up some way to calibrate PWM Settings and Pull Values.
-- add Bernd's line cutter
-- improve mechanics and mounting on the bike trailer
+- set up some way to calibrate PWM Settings and Pull Values
+- redo the remote-case and switch battery from 18650 Lithium Ion to LiPo Pouch Cells, upload STL files
 
 # Notes
 from Robert's "Issue Section"
@@ -146,3 +169,5 @@ With my QS260 hub motor I have around ~3,6A/kg pull.
 
 A big "Thank You" goes to Robert Zach, from whom I copied this project (and forked his code).
 https://github.com/robertzach/ewinch_remote_controller
+Many Thanks to Bernd Otterpohl for designing the Azimuth System and making the files available
+Many Thanks to Nico Stucke and Hans Werner Stucke for making the frame and the actual azimuth system.
