@@ -39,7 +39,7 @@ This is a list of parts including sourcing links
 # Frame
 
 ## Winding Mechanism
-* I am using a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - I used this part (with modifications): https://www.ebinger-gmbh.com/ Automatische Schlauchführung 1/2" - 5/8" Artikel-Nr (SKU).: 1.610.010
+* I am using a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - I used this part (with modifications): https://www.ebinger-gmbh.com/aufroller/zubehoer-aufrolltechnik/automatische-schlauchf%C3%BChrung-1-2-5-8-1-610-010.html - Artikel-Nr (SKU).: 1.610.010
 
 ## Azimuth System
 * Steel Pipe E235, 20x4mm (20mm outer diameter, 4mm wall thickness = 12mm inner diameter) https://www.ebay.de/itm/112957195210
