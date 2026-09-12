@@ -64,9 +64,9 @@ IO 14 (VESC_RX)   //connect to COMM Port "TX" on Vesc
 
 IO 2 (VESC_TX)   //connect to COMM Port "RX" on Vesc
 
-IO 15 (Servo Signal) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15. Servo is in neutral state by default // info to self: white cable to "S", black/green to "-", red/blue to "+"
+IO 15 (Servo Signal) (for line cutter) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15. Servo is in neutral state by default // info to self: white cable to "S", black/green to "-", red/blue to "+"
 
-IO 12 (Relay Signal) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire your Warning Light and VESC Cooling Fan through the relay module. Relay is off by default, will be turned on once the Remote/Transmitter is turned on. // note to self: yellow to yellow (signal), red to red/blue, brown to black/green.
+IO 12 (Relay Signal) (for fan) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire your Warning Light and VESC Cooling Fan through the relay module. Relay is off by default, will be turned on once the Remote/Transmitter is turned on. // note to self: White (signal) from Relay to yellow from receiver (IO12), red from relay to red or blue from receiver (5V+), black to black or green from receiver (GND).
 
 ## PIN Setup Transmitter:
 IO 15 (BUTTON_UP) //together with GND connect with push button for UP Command
