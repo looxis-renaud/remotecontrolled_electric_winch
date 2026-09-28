@@ -1,0 +1,52 @@
+# WINCH-07: Automatic cooling fan by operating mode
+
+**Status:** Planned
+**Type:** FW
+**Priority:** P1
+**Safety-relevant:** Yes (LoRa struct change; a VESC overheating would cut power during a tow)
+**Depends on:** WINCH-05, WINCH-06
+**Created:** 2026-09-28 · **Last updated:** 2026-09-28
+
+## Motivation
+Today the transmitter turns the relay (fan) ON at startup, and a short press on the 3rd button toggles it. Manual toggling is unnecessary. The fan should simply run while the winch is working and stop afterwards.
+
+## Scope
+- **Receiver** decides alone:
+  - Relay (IO12) **ON** as soon as a pull state (`currentState >= 1`) is active.
+  - Relay **OFF** only after `FAN_RUN_ON_MS` (default **60 s**, a named constant at the top of `receiver.ino`) without any pull state. The run-on lets the VESC cool down and avoids flapping during step tows (default pull ↔ brake).
+  - Failsafe states count as pull (fan stays on).
+- **Transmitter:** remove the relay toggle (3rd-button short press) and the `relay` field from `LoraTxMessage` (same struct change as WINCH-05, one flash for both).
+- **Receiver:** remove the `relay` field; OLED shows "Fan ON/OFF".
+- README.md: describe the automatic behaviour, update the IO12 pin description.
+
+## Out of scope
+- Temperature-based fan control (possible later idea: also keep the fan on while motor/MOSFET temperature from UART is above a threshold).
+- Removing the 3rd button hardware.
+
+## Changes
+- **Firmware transmitter:** remove relay handling and field.
+- **Firmware receiver:** new fan logic, remove field.
+- **Docs:** README.md.
+
+## Test plan
+### Bench
+- [ ] Power-on in soft brake: fan OFF.
+- [ ] State 1 → fan ON immediately.
+- [ ] Back to brake: fan stays on for about 60 s, then OFF.
+- [ ] Brake ↔ pull within 60 s: fan stays on without switching off.
+- [ ] Transmitter off during pull (failsafe): fan stays on.
+- [ ] Receiver boots normally with the relay connected to IO12 (strapping pin, see WINCH-15).
+### Field
+- [ ] Full tow session: fan behaviour as expected, no VESC temperature problems.
+
+## Open questions
+- [ ] Is 60 s run-on right, or longer (e.g. 120 s) after hard tows?
+
+## Decision log
+| Decision | Rationale | Date |
+|----------|-----------|------|
+| Fan ON while pull state active, OFF after run-on | Etienne's choice: no manual toggling; run-on for cooling and against flapping during step tows | 2026-09-28 |
+| Logic lives in the receiver only | Receiver knows the actual state, including failsafe; no protocol field needed | 2026-09-28 |
+
+## Log
+- 2026-09-28: created

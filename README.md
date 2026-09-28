@@ -136,8 +136,17 @@ Note: Activating the line cutter also triggers the full brake (-20kg)
   3 - after successful turn, go to fullPull again
  
 - C) Release
-  Go To defaultPull (7kg pull value) before you release. Release and move back to fullPull to rewind the line.
-  The winch will autorewind the line IF AutoStop feature is enabled (modified VESC Firmware is required, see vesc/vesc_ppm_auto_stop.patch)
+  Go To defaultPull (7kg pull value) before you release. After releasing, rewind the line with LOW pull only:
+  **maximum state 2 (prePull, ~15kg) - never higher.**
+  The AutoStop feature (modified VESC Firmware is required, see vesc/vesc_ppm_auto_stop.patch) brakes the drum
+  when approx. 15m of line are left - but only reliably at low rewind speed.
+
+  > ⚠️ **WARNING - rewind with max. state 2 only!**
+  > AutoStop only works reliably if the line is rewound with little pull (max. state 2 / prePull) after releasing.
+  > With more pull, the brake is not strong enough to stop the drum in time: the carabiner is pulled into the
+  > azimuth system and destroys it, or the line snaps. **This has already happened once** - the line broke and
+  > tangled and the whole winch had to be rebuilt. (An earlier version of this README wrongly said to rewind
+  > with fullPull.)
  
 - D) Neutral
   You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it. It's useful to
