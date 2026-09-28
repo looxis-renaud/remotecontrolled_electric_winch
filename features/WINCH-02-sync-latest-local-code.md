@@ -1,6 +1,6 @@
 # WINCH-02: Sync repo with latest local code
 
-**Status:** In Progress
+**Status:** Done
 **Type:** FW
 **Priority:** P0
 **Safety-relevant:** Yes (the flashed code is what pilots rely on)
@@ -24,8 +24,9 @@ The repo code is about two years old (last sketch changes: `receiver.ino` 2024-0
 - **Firmware transmitter / receiver:** replace with the in-use versions (no logic changes by Claude).
 
 ## Test plan
-- [ ] Diff reviewed together; every difference explained.
-- [ ] Baseline compiles in the Arduino IDE (Etienne).
+- [x] Diff reviewed together; every difference explained.
+- [ ] Baseline compiles in the Arduino IDE (Etienne). → Deferred by Etienne (2026-09-28); to be done in WINCH-03 when the sketch folder is cleaned up.
+- [ ] OLED shows `3-B: …` on the handheld (confirms ID 3 / maxPull 95 is flashed). → Deferred by Etienne (2026-09-28).
 
 ## Open questions
 - [x] Where are the newer files (machine, path)? → Etienne's other machine; pasted into the session 2026-09-28.
@@ -64,3 +65,4 @@ The repo code is about two years old (last sketch changes: `receiver.ino` 2024-0
 - 2026-09-28: local receiver files diffed: identical to repo.
 - 2026-09-28: `transmitter/transmitter_with-monitor-support.cpp` replaced with Etienne's local version. Not compiled yet.
 - 2026-09-28: README.md and CLAUDE.md updated (current transmitter file, pull values for `myMaxPull = 95`). Committed. Remaining: compile in Arduino IDE, verify ID 3 on the handheld OLED.
+- 2026-09-28: set to Done by Etienne. Compile and on-device check deferred (see Test plan); baseline is not compile-verified.
