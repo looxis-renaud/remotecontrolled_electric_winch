@@ -32,7 +32,7 @@ OLED                                     battery, temp)          IO2 TX--       
 
 | Path | Content |
 |------|---------|
-| `transmitter/` | Handheld remote sketch (`transmitter.ino`). `transmitter_with-monitor-support.cpp` is an obsolete PlatformIO/monitor variant (see WINCH-03/04) |
+| `transmitter/` | Handheld remote sketch. **`transmitter_with-monitor-support.cpp` is the in-use version** (synced in WINCH-02; ID 3, `myMaxPull = 95`, with ESP-NOW monitor code). `transmitter.ino` is an older variant without monitor support. File naming / cleanup in WINCH-03/04 |
 | `receiver/` | Winch-side sketch (`receiver.ino`) + helper module `LiPoCheck.cpp/.h` (battery % from cell voltage) |
 | `vesc/` | Patched VESC firmware binaries, VESC app/motor configs (XML), `vesc_ppm_auto_stop.patch` (reference only) |
 | `doc/` | Parts list, DXF/STL files, photos, motor manuals |
@@ -66,12 +66,12 @@ OLED                                     battery, temp)          IO2 TX--       
 | -1 | soft brake | `softBrake = -7` kg (start state) |
 | 0 | neutral (no pull, no brake) | 0, reachable only from brake via double click on DOWN |
 | 1 | default pull | `defaultPull = 7` kg |
-| 2 | pre pull | `prePullScale = 18` % of `myMaxPull` (≈15 kg) |
+| 2 | pre pull | `prePullScale = 18` % of `myMaxPull` (≈17 kg) |
 | 3 | take-off pull | `takeOffPullScale = 55` % |
 | 4 | full pull | `fullPullScale = 80` % |
 | 5 | strong pull | `strongPullScale = 100` % |
 
-`myMaxPull = 85` (0–127 "kg", scaled via VESC PPM/current settings; roughly 3.6 A/kg on this motor).
+`myMaxPull = 95` (0–127 "kg", scaled via VESC PPM/current settings; roughly 3.6 A/kg on this motor). Etienne sets it to roughly his take-off weight. With 95: state 2 = 17, 3 = 52, 4 = 76, 5 = 95 kg (integer math). The ESP-NOW monitor can overwrite `myMaxPull` at runtime (no range check).
 
 Buttons: UP (IO15) moves one state up (at most once per second, skips neutral). DOWN (IO12) goes from any pull >1 back to default pull (1), or from 0/-1 one step down; a short press in state 1 does nothing. DOWN long press (500 ms) → soft brake. DOWN double click from brake → neutral. The 3rd button (IO14) currently toggles the relay (short), fires the line cutter (long) and resets it (double). It is being removed in WINCH-05/07.
 
@@ -116,7 +116,8 @@ Found while reading the code. Not fixed yet. The repo may also be behind Etienne
 - Failsafe comment says 10 s, the code uses 20 s.
 - Receiver autostop tachometer thresholds (2–40) vs. the patch (1500 ≈ 15 m) use different units.
 - *Etienne's observation:* the reported line length is about 0.7× the real length, although the drum diameter and related settings in the VESC app appear to be entered correctly.
-- `transmitter_with-monitor-support.cpp` (newer, 2024-04-16, includes ESP-NOW monitor code) sits in the same sketch folder as `transmitter.ino` (2024-02-16).
+- `transmitter_with-monitor-support.cpp` (in-use version, includes ESP-NOW monitor code) sits in the same sketch folder as `transmitter.ino` (older, 2024-02-16), so the folder does not compile as-is (WINCH-03).
+- Transmitter: if ESP-NOW init or add-peer fails, `setup()` returns before the OLED and button handlers are set up.
 
 ## Workflow
 

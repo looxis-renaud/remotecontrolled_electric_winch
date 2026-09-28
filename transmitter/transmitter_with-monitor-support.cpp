@@ -7,13 +7,15 @@
  * Added support for a third button to control a Relay and a Servo.
  * The Relay can turn the VESC Cooling Fan and Warning Light (DHV Regulations) on and off
  * The Servo can trigger an Emergency Line Cutter (DHV Regulations)
- * Added support to connect a Liligo T-Display S-3
+ *
+ * +++ Almost done, needs testing +++ Adding support to connect a Liligo T-Display S-3
  * as a Monitor via ESP-NOW Protocol (over Wifi) and as an option to control Relay,
  * Servo and maxPull Settings via Transmitter. Monitor acts as a transmitter extension.
  */
 
-static int myID = 8;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
-static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings / can be updated with a rotary encoder on the Lilygo T-Display Monitor
+static int myID = 3;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
+// UPDATE the maxPull Variable can now be updated with a potentionmeter on the Lilygo T-Display Monitor
+static int myMaxPull = 95;  // 0 - 127 [kg], must be scaled with VESC ppm settings
 
 #include <Pangodream_18650_CL.h>
 #include <SPI.h>
@@ -32,7 +34,7 @@ SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL - SDA and SCL usuall
 #define SS      18   // GPIO18 -- SX1278's CS
 #define RST     14   // GPIO14 -- SX1278's RESET
 #define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
-#define BAND  868E6  //frequency in Hz (433E6, 868E6, 915E6) 
+#define BAND  868E6  //frequency in Hz (433E6, 868E6, 915E6)
 
 int rssi = 0;
 float snr = 0;
@@ -57,7 +59,7 @@ String packet ;
 #include <esp_now.h>
 #include <WiFi.h>
 // Replace with your ESP-Now Receiver/Monitor MAC Address:
-uint8_t broadcastAddress[] = {0xDC, 0xDA, 0x0C, 0x58, 0xFE, 0xB8}; 
+uint8_t broadcastAddress[] = {0xDC, 0xDA, 0x0C, 0x5A, 0x59, 0x58};
 
 // battery measurement
 //#define CONV_FACTOR 1.7
@@ -76,7 +78,7 @@ Button2 btnDown = Button2(BUTTON_DOWN);
 * The Relay controls the fan and warning light
 */
 
-#define BUTTON_THREE  14 // Third button on pin14, 
+#define BUTTON_THREE  14 // Third button on pin14,
 Button2 btnThree = Button2(BUTTON_THREE);
 
 static int loopStep = 0;
@@ -85,7 +87,7 @@ int8_t targetPull = 0;   // pull value range from -127 to 127
 int currentPull = 0;          // current active pull on vesc
 bool stateChanged = false;
 int currentState = -1;   // status to start with: -2 = hard brake, -1 = soft brake, 0 = no pull/no brake, 1 = default pull (~3kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
-int hardBrake = -20;  //in kg - status -2 this status is 20kg brake - 
+int hardBrake = -20;  //in kg - status -2 this status is 20kg brake -
 int softBrake = -7;  //in kg - status -1 this status is 7kg brake - activated with a long stop press on "buttonDown"
 int defaultPull = 7;  //in kg - status 1 this will always be activated when the "brake-button" (buttonDown) is pressed (unless a long press, which activates the "soft-break" status)
 int prePullScale = 18;      //in %, calculated in code below: "targetPull = myMaxPull * prePullScale / 100;" - status 2 this is to help you launch your glider up into the air, approx 13kg pull value
@@ -100,9 +102,6 @@ uint8_t vescTempMotor = 0;
 // Servo and Relay variables
 bool servo = false;
 bool relay = true;
-
-// Variable to inform Monitor whether the LoRa communication is lost
-bool loraConnect = false;
 
 /*
 * Copyright 2015 - 2017 Andreas Chaitidis Andreas.Chaitidis@gmail.com
@@ -143,7 +142,7 @@ struct LoraTxMessage loraTxMessage;
 struct LoraRxMessage loraRxMessage;
 
 // ESP-Now communication to Liligo T-Display Monitor
-// Structure example to send data via ESP-Now to Monitor 
+// Structure example to send data via ESP-Now to Monitor
 // Must match the receiver / monitor structure
 struct EspNowTxMessage {
   int8_t pullValue;
@@ -153,7 +152,6 @@ struct EspNowTxMessage {
   bool relay;
   uint8_t tachometer;
   uint8_t dutyCycleNow;
-  bool loraConnect = true;
 } ;
 
 // Create a struct message called EspNowTxMessage for ESP-Now Communication
@@ -168,7 +166,7 @@ struct EspNowButtonMessage {
 } ;
 
 // Create a struct message called EspNowButtonMessage
-struct EspNowButtonMessage EspNowButtonMessage; 
+struct EspNowButtonMessage EspNowButtonMessage;
 
 //Variable that holds Information about the peer
 esp_now_peer_info_t peerInfo;
@@ -190,7 +188,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 }
 
 // Time Management using Millis - instead of using delay()
-unsigned long lastTxLoraMessageMillis = 0;    //last message send
+unsigned long lastTxLoraMessageMillis = 0;    //last message sent
 unsigned long lastRxLoraMessageMillis = 0;    //last message received
 unsigned long previousRxLoraMessageMillis = 0;
 
@@ -198,6 +196,7 @@ unsigned int loraErrorCount = 0;
 unsigned long loraErrorMillis = 0;
 
 // steps to execute when the line cutter is deployed, i.e. the servo is triggered
+// ToDo: implement this function also when the trigger is received via button press on monitor !!!
 void LineCutter() {
     currentState = -2;    //hard brake, when line is being cut, of course!
     lastStateSwitchMillis = millis();
@@ -216,7 +215,7 @@ void setServo(bool value) {
 
 void setup() {
   Serial.begin(115200);
-  
+
   // LoRa init
   SPI.begin(SCK,MISO,MOSI,SS);
   LoRa.setPins(SS,RST,DI0);
@@ -241,13 +240,13 @@ void setup() {
   // Once ESP-NOW is successfully Init, we will register for Send CB to
   // get the status of transmitted packet
   esp_now_register_send_cb(OnDataSent);
-  
+
   // Register peer for ESP-NOW Communication
   memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;  
+  peerInfo.channel = 0;
   peerInfo.encrypt = false;
-  
-  // Add peer for ESP-NOW       
+
+  // Add peer for ESP-NOW
   if (esp_now_add_peer(&peerInfo) != ESP_OK){
     Serial.println("Failed to add peer");
     return;
@@ -257,7 +256,7 @@ void setup() {
 
   // OLED display init
   display.init();
-  //display.flipScreenVertically();  
+  //display.flipScreenVertically();
 
   //Serial.println(" Longpress Time: " + String(btnUp.getLongClickTime()) + "ms");
   //Serial.println(" DoubleClick Time: " + String(btnUp.getDoubleClickTime()) + "ms");
@@ -267,13 +266,13 @@ void setup() {
   btnDown.setLongClickDetectedHandler(btnDownLongClickDetected);
   btnDown.setDoubleClickTime(400);
   btnDown.setDoubleClickHandler(btnDownDoubleClick);
-  
+
   btnThree.setPressedHandler(btnThreePressed);
   btnThree.setDoubleClickTime(400);
   btnThree.setDoubleClickHandler(btnThreeDoubleClick);
   btnThree.setLongClickTime(500);
   btnThree.setLongClickDetectedHandler(btnThreeLongClickDetected);
-    
+
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_10);
@@ -302,7 +301,7 @@ void setup() {
                 //exit search loop
                 lastTxLoraMessageMillis = millis() - 4000;
             }
-          } 
+          }
           delay(10);
        }
    }
@@ -313,7 +312,7 @@ void setup() {
 void loop() {
 
     loopStep++;
-  
+
     // function to display info on the onboard OLED Display
     if (loopStep % 100 == 0) {
       toogleSlow = !toogleSlow;
@@ -323,24 +322,21 @@ void loop() {
       display.setTextAlignment(TEXT_ALIGN_LEFT);
       display.setFont(ArialMT_Plain_16);  //10, 16, 24
       if (toogleSlow) {
-          display.drawString(0, 0, loraTxMessage.id + String("-B: ") + vescBattery + "%, T: " + vescTempMotor + " C");        
+          display.drawString(0, 0, loraTxMessage.id + String("-B: ") + vescBattery + "%, T: " + vescTempMotor + " C");
       } else {
-          display.drawString(0, 0, loraTxMessage.id + String("-T: ") + BL.getBatteryChargeLevel() + "%, " + rssi + "dBm, " + snr + ")");        
+          display.drawString(0, 0, loraTxMessage.id + String("-T: ") + BL.getBatteryChargeLevel() + "%, " + rssi + "dBm, " + snr + ")");
       }
       display.setFont(ArialMT_Plain_24);  //10, 16, 24
       display.drawString(0, 14, String(currentState) + String(" (") + targetPull + "/" + currentPull + String("kg)"));
       display.drawString(0, 36, String(loraRxMessage.tachometer * 10) + "m| " + String(loraRxMessage.dutyCycleNow) + "%" );
       display.display();
     }
-    
+
     // LoRa data available?
     //==acknowledgement from receiver?
     if (LoRa.parsePacket() == sizeof(loraRxMessage) ) {
         LoRa.readBytes((uint8_t *)&loraRxMessage, sizeof(loraRxMessage));
         currentPull = loraRxMessage.pullValue;
-	// send info to Monitor T-Display that LoRa Connection is established
-	loraConnect = true;
-  Serial.println(loraConnect ? "LoRa Connected" : "LoRa Not Connected");
         // vescBatteryPercentage and vescTempMotor are alternated on lora link to reduce packet size
           if (loraRxMessage.vescBatteryOrTempMotor == 1){
             vescBattery = loraRxMessage.vescBatteryOrTempMotorValue;
@@ -360,13 +356,8 @@ void loop() {
   // if no lora message for more then 1,5s --> show error on screen + acustic
   if (millis() > lastRxLoraMessageMillis + 1500 ) {
         //TODO acustic information - needs a piezo speaker
-        //TODO red display - not possible with onboard OLED display!
         display.clear();
         display.display();
-	//also send info to T-Display Monitor by change the variable
-	loraConnect = false;
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowTxMessage, sizeof(EspNowTxMessage));
-  Serial.println(loraConnect ? "LoRa Connected" : "LoRa Not Connected");
         // log connection error
        if (millis() > loraErrorMillis + 5000) {
             loraErrorMillis = millis();
@@ -385,10 +376,10 @@ void loop() {
             case 0:
               targetPull = 0; // -> neutral, no pull / no brake
               break;
-            case 1: 
+            case 1:
               targetPull = defaultPull;   //independent of max pull
               break;
-            case 2: 
+            case 2:
               targetPull = myMaxPull * prePullScale / 100;
               break;
             case 3:
@@ -400,7 +391,7 @@ void loop() {
             case 5:
               targetPull = myMaxPull * strongPullScale / 100;
               break;
-            default: 
+            default:
               targetPull = softBrake;
               // Serial.println("no valid state");
               break;
@@ -423,15 +414,15 @@ void loop() {
                 LoRa.write((uint8_t*)&loraTxMessage, sizeof(loraTxMessage));
                 LoRa.endPacket();
                 // Serial.printf("sending value %d: \n", targetPull);
-                lastTxLoraMessageMillis = millis();  
+                lastTxLoraMessageMillis = millis();
             } else {
                 Serial.println("Lora send busy");
             }
         }
-      
+
       // send ESP-NOW Message every 1 Second OR on State Change, i.e. pull Value or Brake change to T-Display Monitor on Cockpit
        //if (millis() > lastTxLoraMessageMillis + 500 || stateChanged) {
-        if (loopStep % 20 == 0 || stateChanged) {
+        if (loopStep % 50 == 0 || stateChanged) {
             EspNowTxMessage.pullValue = targetPull;
             EspNowTxMessage.currentPull = currentPull;
             EspNowTxMessage.currentState = currentState;
@@ -439,10 +430,9 @@ void loop() {
             EspNowTxMessage.relay = relay;
             EspNowTxMessage.tachometer = loraRxMessage.tachometer;
             EspNowTxMessage.dutyCycleNow = loraRxMessage.dutyCycleNow;
-      	    EspNowTxMessage.loraConnect = loraConnect;
         // Send message via ESP-NOW
         esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &EspNowTxMessage, sizeof(EspNowTxMessage));
-        // Check whether sending the ESP-NOW Message was successful 
+        // Check whether sending the ESP-NOW Message was successful
         //if (result == ESP_OK) {
         //   Serial.println("Sent with success");
         //   } else {
@@ -523,5 +513,5 @@ void btnThreeDoubleClick(Button2& btn) {
 
 void btnThreeLongClickDetected(Button2& btn) {
   // Serial.println("Long Click on Third Button");
-    servo = true; // use only in emergency, this will trigger a line cutter
+    servo = true; // use only in emergency, this will trigger a line cutter, yet to be built -> Bernd, deine Aufgabe!
   }

@@ -29,6 +29,11 @@ As of today (July 25), I plan to keep this repo updated
 
 Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
   
+Which transmitter file is current: `transmitter/transmitter_with-monitor-support.cpp` (synced Sept '26 with the version
+flashed on my remote: ID 3, `myMaxPull = 95`, includes ESP-NOW monitor code). `transmitter/transmitter.ino` is an older
+variant without monitor support. Both sit in the same folder, so copy the one you want into its own sketch folder
+(renamed to `<folder>.ino`) before compiling in the Arduino IDE. This will be cleaned up.
+
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/ - Note: Line length seems to not be correctly transmitted, falls short by a factor of ~0,7
  
@@ -120,6 +125,10 @@ Note: Activating the line cutter also triggers the full brake (-20kg)
  - 2,4 kWh
 
 # usage:
+Pull values below are for `myMaxPull = 95` in the transmitter (set it to roughly the pilot's take-off weight).
+States 2-5 scale with it: prePull 18 %, takeOffPull 55 %, fullPull 80 %, strongPull 100 %.
+defaultPull (7kg) and the brakes (-7kg / -20kg) are fixed values.
+
 - A) prepare:
   1 - turn the VESC and receiver on
   2 - MAKE SURE to have the Potentiometer connected to ADC turned fully left (in my setup! need to measure whether this is open or closed :-) )
@@ -127,17 +136,17 @@ Note: Activating the line cutter also triggers the full brake (-20kg)
   3 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
   4 - go through your pre-flight preparations and clip in
 - B) launch:
-  1 - switch to defaultPull (7kg pull value) and prePull (to tighten the line (~13kg pull value) to assist you to launch the glider
-  2 - go to takeOffPull (~40kg pull value) to assist you with launching the glider and gently getting into the air with a slight pull towards a safety margin of 15-30m height
+  1 - switch to defaultPull (7kg pull value) and prePull (to tighten the line (~17kg pull value) to assist you to launch the glider
+  2 - go to takeOffPull (~52kg pull value) to assist you with launching the glider and gently getting into the air with a slight pull towards a safety margin of 15-30m height
   4 - click "Up" Button to increase Pull
 - C) Step Towing:
   1 - switch to defaultPull (7kg pull value) before you turn away from winch to fly back to launch site
-  2 - go to prePull (~15kg pull value) during turn towards next step (towards winch) to avoid line sag
+  2 - go to prePull (~17kg pull value) during turn towards next step (towards winch) to avoid line sag
   3 - after successful turn, go to fullPull again
  
 - C) Release
   Go To defaultPull (7kg pull value) before you release. After releasing, rewind the line with LOW pull only:
-  **maximum state 2 (prePull, ~15kg) - never higher.**
+  **maximum state 2 (prePull, ~17kg) - never higher.**
   The AutoStop feature (modified VESC Firmware is required, see vesc/vesc_ppm_auto_stop.patch) brakes the drum
   when approx. 15m of line are left - but only reliably at low rewind speed.
 
