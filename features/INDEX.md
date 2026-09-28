@@ -21,7 +21,7 @@
 
 | ID | Feature | Type | Status | Priority | Safety | Depends | Spec |
 |----|---------|------|--------|----------|--------|---------|------|
-| WINCH-01 | ⚠ Fix dangerous README rewind instruction (max. state 2) | Doc | In Progress | P0 | Yes | – | [WINCH-01](WINCH-01-fix-readme-rewind-instruction.md) |
+| WINCH-01 | ⚠ Fix dangerous README rewind instruction (max. state 2) | Doc | Done | P0 | Yes | – | [WINCH-01](WINCH-01-fix-readme-rewind-instruction.md) |
 | WINCH-02 | Sync repo with latest local code (other machine) | FW | Done | P0 | Yes | – | [WINCH-02](WINCH-02-sync-latest-local-code.md) |
 | WINCH-03 | Source-file cleanup (one `.ino` per sketch) & drop PlatformIO | FW/Doc | Planned | P0 | No | WINCH-02 | [WINCH-03](WINCH-03-source-cleanup-drop-platformio.md) |
 | WINCH-04 | Archive cockpit monitor → `old/` | Doc/FW | Planned | P0 | No | WINCH-03 | [WINCH-04](WINCH-04-archive-cockpit-monitor.md) |

@@ -1,6 +1,6 @@
 # WINCH-01: ⚠ Fix dangerous README rewind instruction
 
-**Status:** In Progress
+**Status:** Done
 **Type:** Doc
 **Priority:** P0
 **Safety-relevant:** Yes
@@ -28,8 +28,8 @@ This is **wrong and dangerous**. It was Etienne's own earlier assumption. Rewind
 - **Docs:** README.md, section "usage → C) Release" only.
 
 ## Test plan
-- [ ] `git diff README.md` shows only the release section changed.
-- [ ] Etienne reads and approves the wording.
+- [x] `git diff README.md` shows only the release section changed.
+- [x] Etienne reads and approves the wording. (Set to Done by Etienne, 2026-09-28.)
 
 ## Open questions
 - [ ] Should the transmitter firmware *enforce* this later (e.g. cap at state 2 once line length is short, or after a release is detected)? → new feature if yes.
@@ -43,3 +43,5 @@ This is **wrong and dangerous**. It was Etienne's own earlier assumption. Rewind
 ## Log
 - 2026-09-28: created
 - 2026-09-28: README "C) Release" rewritten + warning block added; awaiting Etienne's review of the wording
+- 2026-09-28: prePull value in the rule updated to ~17 kg (WINCH-02: `myMaxPull = 95`). Rule itself unchanged: max. state 2.
+- 2026-09-28: set to Done by Etienne. Open question on firmware enforcement stays open for a possible future feature.
