@@ -1,6 +1,6 @@
-# WINCH-10: Add Trampa VESC 75/300 user manual to `doc/`
+# WINCH-10: Add Trampa VESC 75/300 user manual to `vesc/`
 
-**Status:** Planned
+**Status:** Done
 **Type:** Doc
 **Priority:** P2
 **Safety-relevant:** No
@@ -19,7 +19,10 @@ The controller in use is the Trampa VESC 75/300. Its manual (connectors, COMM/PP
 - **Docs:** `doc/`, `vesc/readme.md`, `doc/parts-list.md`.
 
 ## Open questions
-- [ ] Does Etienne already have a copy?
+- [x] Does Etienne already have a copy? Yes, added as `vesc/VESC-75-300-MKIV-MANUAL.pdf`
+- [ ] The manual is titled "MKIV", while the firmware binary targets hardware `75_300_R3`. Check which revision is printed on the controller and whether the manual matches (pinouts may differ between revisions).
 
 ## Log
 - 2026-09-28: created
+- 2026-09-28: manufacturer specs (product page) added to vesc/readme.md; the PDF manual itself is still open
+- 2026-09-28: manual PDF added by Etienne as vesc/VESC-75-300-MKIV-MANUAL.pdf and linked from vesc/readme.md

@@ -30,7 +30,7 @@
 | WINCH-07 | Automatic cooling fan by operating mode | FW | Planned | P1 | Yes | WINCH-05, WINCH-06 | [WINCH-07](WINCH-07-automatic-cooling-fan.md) |
 | WINCH-08 | Autostop documentation & verification (poti, ADC, FW version) | Doc/VESC | Planned | P0 | Yes | WINCH-01 | [WINCH-08](WINCH-08-autostop-docs-verification.md) |
 | WINCH-09 | User & maintenance manual | Doc | Planned | P1 | Yes | WINCH-01, WINCH-08 | [WINCH-09](WINCH-09-user-maintenance-manual.md) |
-| WINCH-10 | Add Trampa VESC 75/300 user manual to `doc/` | Doc | Planned | P2 | No | – | [WINCH-10](WINCH-10-vesc-75-300-manual.md) |
+| WINCH-10 | Add Trampa VESC 75/300 user manual to `vesc/` | Doc | Done | P2 | No | – | [WINCH-10](WINCH-10-vesc-75-300-manual.md) |
 | WINCH-11 | New enclosure & cable management | HW | Idea | P1 | No | – | [WINCH-11](WINCH-11-enclosure-cable-management.md) |
 | WINCH-12 | Remote case redesign + LiPo pouch cells | HW | Idea | P2 | No | – | [WINCH-12](WINCH-12-remote-case-lipo.md) |
 | WINCH-13 | TX/RX pairing / encryption | FW | Idea | P3 | Yes | WINCH-02 | [WINCH-13](WINCH-13-tx-rx-pairing-encryption.md) |
