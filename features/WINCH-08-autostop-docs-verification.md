@@ -4,7 +4,7 @@
 **Type:** Doc / VESC (read-only)
 **Priority:** P0
 **Safety-relevant:** Yes
-**Depends on:** WINCH-01
+**Depends on:** WINCH-01, WINCH-16 (tachometer / UART must be understood first)
 **Created:** 2026-09-28 · **Last updated:** 2026-09-28
 
 ## Motivation

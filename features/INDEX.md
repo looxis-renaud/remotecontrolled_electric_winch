@@ -15,7 +15,7 @@
 **Safety-relevant** = touches pull/brake behaviour, failsafe, autostop, the LoRa protocol or anything a pilot relies on. These always need Etienne's explicit confirmation and a bench test before a field test.
 
 ## Suggested order
-**WINCH-01** → 02 → 03 → 04 → 08 → 05 + 06 + 07 (one flash, struct change) → 09 → rest
+**WINCH-01** → 02 → 03 → 04 → 16 → 08 → 05 + 06 + 07 (one flash, struct change) → 09 → rest
 
 ## Features
 
@@ -28,7 +28,7 @@
 | WINCH-05 | Drop emergency line cutter | FW/Doc | Planned | P1 | Yes | WINCH-02, WINCH-03 | [WINCH-05](WINCH-05-drop-emergency-line-cutter.md) |
 | WINCH-06 | Drop warning light (relay = fan only) | HW/Doc | Planned | P1 | No | – | [WINCH-06](WINCH-06-drop-warning-light.md) |
 | WINCH-07 | Automatic cooling fan by operating mode | FW | Planned | P1 | Yes | WINCH-05, WINCH-06 | [WINCH-07](WINCH-07-automatic-cooling-fan.md) |
-| WINCH-08 | Autostop documentation & verification (poti, ADC, FW version) | Doc/VESC | Planned | P0 | Yes | WINCH-01 | [WINCH-08](WINCH-08-autostop-docs-verification.md) |
+| WINCH-08 | Autostop documentation & verification (poti, ADC, FW version) | Doc/VESC | Planned | P0 | Yes | WINCH-01, WINCH-16 | [WINCH-08](WINCH-08-autostop-docs-verification.md) |
 | WINCH-09 | User & maintenance manual | Doc | Planned | P1 | Yes | WINCH-01, WINCH-08 | [WINCH-09](WINCH-09-user-maintenance-manual.md) |
 | WINCH-10 | Add Trampa VESC 75/300 user manual to `vesc/` | Doc | Done | P2 | No | – | [WINCH-10](WINCH-10-vesc-75-300-manual.md) |
 | WINCH-11 | New enclosure & cable management | HW | Idea | P1 | No | – | [WINCH-11](WINCH-11-enclosure-cable-management.md) |
@@ -37,6 +37,8 @@
 | WINCH-14 | Pull-value calibration procedure | Doc | Idea | P2 | Yes | – | [WINCH-14](WINCH-14-pull-value-calibration.md) |
 | WINCH-15 | Pin / board review (tech-debt list) | FW | Idea | P2 | Yes | WINCH-02 | [WINCH-15](WINCH-15-pin-board-review.md) |
 
+| WINCH-16 | Line length & duty cycle stay at 0 (UART telemetry) | FW/VESC/HW | Planned | P0 | Yes | – | [WINCH-16](WINCH-16-uart-telemetry-zero.md) |
+
 <!-- Add features above this line -->
 
-## Next Available ID: WINCH-16
+## Next Available ID: WINCH-17
