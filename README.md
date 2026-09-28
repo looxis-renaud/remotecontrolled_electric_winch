@@ -7,8 +7,8 @@ most resources needed to build your own, including links to the most important c
 - see doc/winch-schema.jpg for a simplified overview of all components needed
 - doc/parts-list.md contains a list of the main parts and where to purchase them
 
-This is not a finished project, rather a "work in progress", however as of July '25,
-the winch is working well and pretty much everything is dialled in.
+This is not a finished project, rather a "work in progress". As of Sept. '26 I am currently improving some things, cleaning up,
+changing the controller's case to a 3D-printed version, added a Daly BMS to the Battery. More on this later.
 
 In the video above you can see the winch hanging on a steel post. Hauling it around
 (getting into the trunk of my car, getting it out again, carrying) was extremely stressful,
@@ -138,14 +138,8 @@ defaultPull (7kg) and the brakes (-7kg / -20kg) are fixed values.
   If something does not go as expected ( during one flight, I turned off the remote too soon after release, the winch stopped pulling, as it should, the line fell on the ground):
   - use the Potentiometer, which should be on the far left position, to gently rotate it towards the right. The motor will start to rewind the line, regardless of the measured distance.
 
-# Done ToDo's
-- add Bernd's line cutter // Done! has been physically added within the new frame as of winter 24/25, but I haven't wired it up as of yet, and currently don't plan to do so
-- improve mechanics and mounting on the bike trailer // Done - need to upload some photos
-
-# ToDo
-- set up some sort of encryption or password for a secure connection between transmitter and receiver
-- set up some way to calibrate PWM Settings and Pull Values
-- redo the remote-case and switch battery from 18650 Lithium Ion to LiPo Pouch Cells, upload STL files
+# Roadmap / ToDo
+Planned changes, open bugs and ideas are tracked in [features/INDEX.md](features/INDEX.md), one file per feature.
 
 # Notes
 from Robert's "Issue Section"

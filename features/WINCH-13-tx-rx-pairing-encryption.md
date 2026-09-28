@@ -16,3 +16,4 @@ From the old README ToDo: some form of encryption or password so that only the p
 
 ## Log
 - 2026-09-28: created as idea (from old README ToDo)
+- 2026-09-28: ToDo removed from README.md; this file is now the only place it is tracked.

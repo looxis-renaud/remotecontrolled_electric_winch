@@ -17,3 +17,4 @@ From the old README ToDo and Robert's notes: the "kg" values in the code only ma
 
 ## Log
 - 2026-09-28: created as idea (from old README ToDo)
+- 2026-09-28: ToDo removed from README.md; this file is now the only place it is tracked.

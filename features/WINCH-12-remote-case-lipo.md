@@ -16,3 +16,4 @@ From the old README ToDo: redo the remote case, switch the battery from 18650 Li
 
 ## Log
 - 2026-09-28: created as idea (from old README ToDo)
+- 2026-09-28: ToDo removed from README.md; this file is now the only place it is tracked.
