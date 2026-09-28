@@ -10,7 +10,21 @@
 ## Motivation
 Today the transmitter turns the relay (fan) ON at startup, and a short press on the 3rd button toggles it. Manual toggling is unnecessary. The fan should simply run while the winch is working and stop afterwards.
 
+## ⚠ Known bug (TODO, fix first)
+**Fan does not switch on, although the receiver OLED shows "Fan/Light ON"** after the remote has connected (reported by Etienne, 2026-09-28).
+
+The OLED text only shows the software variable `relay`, so the receiver has received `relay = true` and writes IO12 HIGH every loop. The fault is therefore most likely between IO12 and the fan, not in the LoRa logic. Not yet diagnosed. Candidates to check (bench, winch not in use):
+- [ ] **Relay module polarity:** many relay modules are *active-low* (IN = LOW → relay on). Then HIGH would mean OFF. Hint: does the fan run right after the receiver boots, *before* the remote is connected (IO12 LOW then)? Does the module's LED light up?
+- [ ] **Trigger level:** a 5 V relay module may not switch reliably with the ESP32's 3.3 V signal. Measure IO12 against GND (expect ~3.3 V when "ON") and check whether the relay clicks.
+- [ ] **Relay module supply:** 5 V and GND actually present at the module.
+- [ ] **Load side:** fan wired through COM/NO (not NC), fan supply present, fan itself OK (test directly on its supply).
+- [ ] **IO12 strapping pin** (see WINCH-15): check nothing on the module pulls IO12 in a way that interferes.
+- [ ] Wiring vs. README "PIN Setup Receiver" note (white = signal → IO12, red → 5V, black → GND).
+
+Whatever the cause, the new fan logic below must drive the relay with the correct polarity (possibly a named constant for active-high/low). Bench test must confirm the fan **actually runs**, not only the OLED text.
+
 ## Scope
+- **Fix the bug above** (hardware/wiring and/or output polarity in `receiver.ino`).
 - **Receiver** decides alone:
   - Relay (IO12) **ON** as soon as a pull state (`currentState >= 1`) is active.
   - Relay **OFF** only after `FAN_RUN_ON_MS` (default **60 s**, a named constant at the top of `receiver.ino`) without any pull state. The run-on lets the VESC cool down and avoids flapping during step tows (default pull ↔ brake).
@@ -30,6 +44,7 @@ Today the transmitter turns the relay (fan) ON at startup, and a short press on 
 
 ## Test plan
 ### Bench
+- [ ] Known bug diagnosed and fixed: when the OLED shows Fan ON, the fan physically runs (and vice versa).
 - [ ] Power-on in soft brake: fan OFF.
 - [ ] State 1 → fan ON immediately.
 - [ ] Back to brake: fan stays on for about 60 s, then OFF.
@@ -50,3 +65,4 @@ Today the transmitter turns the relay (fan) ON at startup, and a short press on 
 
 ## Log
 - 2026-09-28: created
+- 2026-09-28: known bug added: fan does not run although OLED shows "Fan/Light ON" (Etienne). Diagnosis checklist added.
