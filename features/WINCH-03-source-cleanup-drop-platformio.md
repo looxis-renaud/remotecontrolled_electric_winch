@@ -1,6 +1,6 @@
 # WINCH-03: Source-file cleanup & drop PlatformIO
 
-**Status:** Planned
+**Status:** In Progress
 **Type:** FW / Doc
 **Priority:** P0
 **Safety-relevant:** No (file organisation only, no logic changes)
@@ -28,15 +28,18 @@ The move to VS Code + PlatformIO was never completed and won't be. Etienne works
 
 ## Test plan
 - [ ] `transmitter/` and `receiver/` each open and compile in the Arduino IDE without errors (Etienne).
-- [ ] `grep -ri platformio` finds nothing outside `old/` and `features/`.
+- [ ] `transmitter/` compile check also covers the WINCH-02 baseline, which was never compiled.
+- [x] `grep -ri platformio` finds nothing outside `old/` and `features/`. (Only the "No PlatformIO" rule in CLAUDE.md remains.)
 
 ## Open questions
-- [ ] Which transmitter variant becomes `transmitter.ino` (see WINCH-02)?
+- [x] Which transmitter variant becomes `transmitter.ino` (see WINCH-02)? → The in-use `transmitter_with-monitor-support.cpp` (Etienne, 2026-09-28).
 
 ## Decision log
 | Decision | Rationale | Date |
 |----------|-----------|------|
 | Arduino IDE only, no PlatformIO | Simpler for Etienne: open, compile, flash | 2026-09-28 |
+| `transmitter_with-monitor-support.cpp` → `transmitter.ino`; old `transmitter.ino` deleted (not moved to `old/`) | The `.cpp` is the flashed version (WINCH-02). The old file is the same code without ESP-NOW and stays available in git history. ESP-NOW removal is a code change → WINCH-04. | 2026-09-28 |
 
 ## Log
 - 2026-09-28: created
+- 2026-09-28: `transmitter/` now contains only `transmitter.ino` (renamed `.cpp`, content unchanged). README PlatformIO section removed, sketch note updated. CLAUDE.md updated. `receiver/` already fine. `monitor-ESP-NOW/mac-address.cpp` sits next to the monitor `.ino` (same problem) → handled with WINCH-04. Awaiting compile check (Etienne).

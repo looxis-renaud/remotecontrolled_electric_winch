@@ -29,10 +29,9 @@ As of today (July 25), I plan to keep this repo updated
 
 Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
   
-Which transmitter file is current: `transmitter/transmitter_with-monitor-support.cpp` (synced Sept '26 with the version
-flashed on my remote: ID 3, `myMaxPull = 95`, includes ESP-NOW monitor code). `transmitter/transmitter.ino` is an older
-variant without monitor support. Both sit in the same folder, so copy the one you want into its own sketch folder
-(renamed to `<folder>.ino`) before compiling in the Arduino IDE. This will be cleaned up.
+Sketches: `transmitter/transmitter.ino` (handheld remote) and `receiver/receiver.ino` (winch, together with its helper
+`LiPoCheck.cpp/.h`). Open the `.ino` in the Arduino IDE, compile and flash. The transmitter is the version flashed on my
+remote (synced Sept '26: ID 3, `myMaxPull = 95`, still includes the ESP-NOW monitor code).
 
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/ - Note: Line length seems to not be correctly transmitted, falls short by a factor of ~0,7
@@ -52,15 +51,6 @@ variant without monitor support. Both sit in the same folder, so copy the one yo
 - [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
 - [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/) 
 - [TFT_eSPI](https://www.arduino.cc/reference/en/libraries/tft_espi/) / If you want to use the Lilygo T-Display S3 as a monitor
-
-## Moving to Visual Studio Code and PlatformIO
-
-UPDATE (July 25): I haven't really completed the switch to visual studio code and done plan on completing it.
-// I am moving to Visual Studio Code and PlatformIO to introduce Version control with Github and Git.
-// The main difference is that with VS Code and PlatformIO the main program files don't have the *.ino file extension
-// but *.cpp. If you want to compile and upload the code to the ESP32 boards just download all files and rename
-// them from *.cpp to *.ino. There are some other challenges with Visual Studio Code and PlatformIO that may require
-// to move the code for each platform to it's own repository, i.e. "transmitter", "receiver" and "monitor"
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc

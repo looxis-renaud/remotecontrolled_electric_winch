@@ -32,7 +32,7 @@ OLED                                     battery, temp)          IO2 TX--       
 
 | Path | Content |
 |------|---------|
-| `transmitter/` | Handheld remote sketch. **`transmitter_with-monitor-support.cpp` is the in-use version** (synced in WINCH-02; ID 3, `myMaxPull = 95`, with ESP-NOW monitor code). `transmitter.ino` is an older variant without monitor support. File naming / cleanup in WINCH-03/04 |
+| `transmitter/` | Handheld remote sketch `transmitter.ino`: the in-use version (synced in WINCH-02, renamed from `transmitter_with-monitor-support.cpp` in WINCH-03; ID 3, `myMaxPull = 95`, still with ESP-NOW monitor code → WINCH-04) |
 | `receiver/` | Winch-side sketch (`receiver.ino`) + helper module `LiPoCheck.cpp/.h` (battery % from cell voltage) |
 | `vesc/` | Patched VESC firmware binaries, VESC app/motor configs (XML), `vesc_ppm_auto_stop.patch` (reference only) |
 | `doc/` | Parts list, DXF/STL files, photos, motor manuals |
@@ -116,7 +116,6 @@ Found while reading the code. Not fixed yet. The repo may also be behind Etienne
 - Failsafe comment says 10 s, the code uses 20 s.
 - Receiver autostop tachometer thresholds (2–40) vs. the patch (1500 ≈ 15 m) use different units.
 - *Etienne's observation:* the reported line length is about 0.7× the real length, although the drum diameter and related settings in the VESC app appear to be entered correctly.
-- `transmitter_with-monitor-support.cpp` (in-use version, includes ESP-NOW monitor code) sits in the same sketch folder as `transmitter.ino` (older, 2024-02-16), so the folder does not compile as-is (WINCH-03).
 - Transmitter: if ESP-NOW init or add-peer fails, `setup()` returns before the OLED and button handlers are set up.
 
 ## Workflow
