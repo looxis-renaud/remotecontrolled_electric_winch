@@ -32,13 +32,12 @@ OLED                                     battery, temp)          IO2 TX--       
 
 | Path | Content |
 |------|---------|
-| `transmitter/` | Handheld remote sketch `transmitter.ino`: the in-use version (synced in WINCH-02, renamed from `transmitter_with-monitor-support.cpp` in WINCH-03; ID 3, `myMaxPull = 95`, still with ESP-NOW monitor code → WINCH-04) |
+| `transmitter/` | Handheld remote sketch `transmitter.ino`: the in-use version (synced in WINCH-02, renamed from `transmitter_with-monitor-support.cpp` in WINCH-03; ID 3, `myMaxPull = 95`). ESP-NOW monitor code is commented out in four `[WINCH-04]` blocks; the flashed remote may still run it until reflashed |
 | `receiver/` | Winch-side sketch (`receiver.ino`) + helper module `LiPoCheck.cpp/.h` (battery % from cell voltage) |
 | `vesc/` | Patched VESC firmware binaries, VESC app/motor configs (XML), `vesc_ppm_auto_stop.patch` (reference only) |
 | `doc/` | Parts list, DXF/STL files, photos, motor manuals |
-| `monitor-LoRa/`, `monitor-ESP-NOW/` | Cockpit monitor, **being retired** → moves to `old/` (WINCH-04) |
 | `features/` | Roadmap and feature tracking ([features/INDEX.md](features/INDEX.md)) |
-| `old/` | (planned) archived code/docs that are no longer active |
+| `old/` | Archived, unmaintained code/docs (see [old/README.md](old/README.md)): cockpit monitor (`monitor-LoRa/`, `monitor-ESP-NOW/`), retired in WINCH-04 |
 
 ## Toolchain: Arduino IDE only
 
@@ -71,7 +70,7 @@ OLED                                     battery, temp)          IO2 TX--       
 | 4 | full pull | `fullPullScale = 80` % |
 | 5 | strong pull | `strongPullScale = 100` % |
 
-`myMaxPull = 95` (0–127 "kg", scaled via VESC PPM/current settings; roughly 3.6 A/kg on this motor). Etienne sets it to roughly his take-off weight. With 95: state 2 = 17, 3 = 52, 4 = 76, 5 = 95 kg (integer math). The ESP-NOW monitor can overwrite `myMaxPull` at runtime (no range check).
+`myMaxPull = 95` (0–127 "kg", scaled via VESC PPM/current settings; roughly 3.6 A/kg on this motor). Etienne sets it to roughly his take-off weight. With 95: state 2 = 17, 3 = 52, 4 = 76, 5 = 95 kg (integer math). (While the ESP-NOW monitor code was active, the monitor could overwrite `myMaxPull` at runtime without a range check; commented out since WINCH-04.)
 
 Buttons: UP (IO15) moves one state up (at most once per second, skips neutral). DOWN (IO12) goes from any pull >1 back to default pull (1), or from 0/-1 one step down; a short press in state 1 does nothing. DOWN long press (500 ms) → soft brake. DOWN double click from brake → neutral. The 3rd button (IO14) currently toggles the relay (short), fires the line cutter (long) and resets it (double). It is being removed in WINCH-05/07.
 
@@ -116,7 +115,6 @@ Found while reading the code. Not fixed yet. The repo may also be behind Etienne
 - Failsafe comment says 10 s, the code uses 20 s.
 - Receiver autostop tachometer thresholds (2–40) vs. the patch (1500 ≈ 15 m) use different units.
 - *Etienne's observation:* the reported line length is about 0.7× the real length, although the drum diameter and related settings in the VESC app appear to be entered correctly.
-- Transmitter: if ESP-NOW init or add-peer fails, `setup()` returns before the OLED and button handlers are set up.
 
 ## Workflow
 

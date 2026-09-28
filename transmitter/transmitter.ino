@@ -11,10 +11,14 @@
  * +++ Almost done, needs testing +++ Adding support to connect a Liligo T-Display S-3
  * as a Monitor via ESP-NOW Protocol (over Wifi) and as an option to control Relay,
  * Servo and maxPull Settings via Transmitter. Monitor acts as a transmitter extension.
+ *
+ * [WINCH-04] The monitor has been retired. All ESP-NOW monitor code is commented out
+ * in four blocks marked "[WINCH-04]". To re-enable it, delete the comment start and
+ * comment end lines of all four blocks.
  */
 
 static int myID = 3;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
-// UPDATE the maxPull Variable can now be updated with a potentionmeter on the Lilygo T-Display Monitor
+// UPDATE the maxPull Variable can now be updated with a potentionmeter on the Lilygo T-Display Monitor (disabled, see [WINCH-04])
 static int myMaxPull = 95;  // 0 - 127 [kg], must be scaled with VESC ppm settings
 
 #include <Pangodream_18650_CL.h>
@@ -56,10 +60,13 @@ String packet ;
 *  The above copyright notice and this permission notice shall be included in all
 *  copies or substantial portions of the Software.
 */
+// [WINCH-04] ESP-NOW monitor disabled (block 1 of 4: includes + MAC)
+/*
 #include <esp_now.h>
 #include <WiFi.h>
 // Replace with your ESP-Now Receiver/Monitor MAC Address:
 uint8_t broadcastAddress[] = {0xDC, 0xDA, 0x0C, 0x5A, 0x59, 0x58};
+*/
 
 // battery measurement
 //#define CONV_FACTOR 1.7
@@ -141,6 +148,8 @@ struct LoraRxMessage {
 struct LoraTxMessage loraTxMessage;
 struct LoraRxMessage loraRxMessage;
 
+// [WINCH-04] ESP-NOW monitor disabled (block 2 of 4: structs + callbacks)
+/*
 // ESP-Now communication to Liligo T-Display Monitor
 // Structure example to send data via ESP-Now to Monitor
 // Must match the receiver / monitor structure
@@ -186,6 +195,7 @@ void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
   relay = EspNowButtonMessage.relay;
   myMaxPull = EspNowButtonMessage.setMaxPull;
 }
+*/
 
 // Time Management using Millis - instead of using delay()
 unsigned long lastTxLoraMessageMillis = 0;    //last message sent
@@ -228,6 +238,8 @@ void setup() {
   LoRa.enableCrc();
   //LoRa.setSignalBandwidth(500E3);   //signalBandwidth - signal bandwidth in Hz, defaults to 125E3. Supported values are 7.8E3, 10.4E3, 15.6E3, 20.8E3, 31.25E3, 41.7E3, 62.5E3, 125E3, 250E3, and 500E3.
 
+  // [WINCH-04] ESP-NOW monitor disabled (block 3 of 4: WiFi / ESP-NOW init)
+  /*
   // Set device as a Wi-Fi Station for ESP-NOW Communication
   WiFi.mode(WIFI_STA);
 
@@ -253,6 +265,7 @@ void setup() {
   }
   // Register for a callback function that will be called when data is received via ESP-Now from Monitor
   esp_now_register_recv_cb(OnDataRecv);
+  */
 
   // OLED display init
   display.init();
@@ -420,6 +433,8 @@ void loop() {
             }
         }
 
+      // [WINCH-04] ESP-NOW monitor disabled (block 4 of 4: send to monitor)
+      /*
       // send ESP-NOW Message every 1 Second OR on State Change, i.e. pull Value or Brake change to T-Display Monitor on Cockpit
        //if (millis() > lastTxLoraMessageMillis + 500 || stateChanged) {
         if (loopStep % 50 == 0 || stateChanged) {
@@ -439,6 +454,7 @@ void loop() {
         //   Serial.println("Error sending the data");
         // }
       }
+      */
 
         btnUp.loop();
         btnDown.loop();

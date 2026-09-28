@@ -27,16 +27,16 @@ As of today (July 25), I plan to keep this repo updated
  Based on LILYGO® TTGO ESP32-Paxcounter LoRa32 V2.1 1.6 Version 915MHZ LoRa ESP-32 OLED
  (http://www.lilygo.cn/prod_view.aspx?TypeId=50060&Id=1271&FId=t3:50060:3) 
 
-Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino, monitor.ino & receiver.ino)
+Note: The 915MHz Version can transmit/receive in 868MHz and 915MHz, the desired frequency is defined in the code (transmitter.ino & receiver.ino)
   
 Sketches: `transmitter/transmitter.ino` (handheld remote) and `receiver/receiver.ino` (winch, together with its helper
 `LiPoCheck.cpp/.h`). Open the `.ino` in the Arduino IDE, compile and flash. The transmitter is the version flashed on my
-remote (synced Sept '26: ID 3, `myMaxPull = 95`, still includes the ESP-NOW monitor code).
+remote (synced Sept '26: ID 3, `myMaxPull = 95`), except that the ESP-NOW monitor code is now commented out.
 
  receiver uses PPM (Pulse Position Modulation) for driving the winch and (optional) UART to read additional information (line length, battery %, dutycycle)
  VESC UART communication depends on https://github.com/SolidGeek/VescUart/ - Note: Line length seems to not be correctly transmitted, falls short by a factor of ~0,7
  
-## To use Arduino IDE with the Lilygo TTGO ESP32 Paxcounter LoRa32 / (and Lilygo T-Display S3)
+## To use Arduino IDE with the Lilygo TTGO ESP32 Paxcounter LoRa32
 - In Arduino IDE open File > Preferences
 - in additional boards manager URLS field copy: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 - click OK
@@ -50,7 +50,6 @@ remote (synced Sept '26: ID 3, `myMaxPull = 95`, still includes the ESP-NOW moni
 - [VescUart](https://github.com/SolidGeek/VescUart)
 - [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
 - [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/) 
-- [TFT_eSPI](https://www.arduino.cc/reference/en/libraries/tft_espi/) / If you want to use the Lilygo T-Display S3 as a monitor
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
@@ -70,26 +69,10 @@ IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRA
 
 IO 14 (BUTTON_THREE ) // additional /optional Button for Relay and Servo Control. Click once to deactivate Relay (Fan and Warning light), Click again to turn on again. Long Click to trigger the Emergency Line Cutter (Servo). Doubleclick to move Servo to Neutral Position again. By default, the Servo is in neutral position, and Relay is off. Turning on the Remote will turn on the Relay automatically.
 
-## Monitor with LilyGo T-Display
-
-UPDATE (July 25): I have lost in mid flight the monitor, and noticed
-that it just introduces additional tech to be taken care of. I may not rebuild a new one
-and may remove / comment out(ToDo) any code that connects the remote with the monitor
-
-https://www.lilygo.cc/products/t-display-s3 
-- a monitor on your paraglider cockpit to have winch values in eyesight
-- a control unit for the emergency line cutter and fan / warning light
-- a control unit to change the settings for "maxPull" with the help of a potentiometer
-
-## Pin Setup Monitor
-IO 16 Connect a Potentiometer to PIN 16 (dont forget GND and +3,3V)
-
-IO 0 Button A - Relay and cooling fan are on by default. Press Button A once to turn off, and on again
-
-IO 14 Button B - Button B should be a large and easily reachable button on your cockpit. This triggers the emergency line cutter. A double press resets the Servo / Line Cutter back to neutral/ready position
-
-IO 12 Button C - Press Button C once to enter "settings mode". You can now turn the potentiometer to set the Max Pull Value to the transmitter (set Value according to Pilot's Take-Off weight) Press Button once more to exit settings mode and confirm the selected value. It is then sent
-to the transmitter over Wifi via ESP-Now Protocol.
+## Cockpit monitor (retired)
+I lost the cockpit monitor (LilyGO T-Display S3) in mid flight, and it added extra tech to take care of,
+so I won't rebuild it. Its code and docs are archived in [old/](old/README.md). The matching ESP-NOW code in the
+transmitter is commented out.
 
 # VESC
 VESC is the Open Source Electronic Speed Controler developed by Benjamin Vedder ( **V**edder **E**lectronic **S**peed **C**ontroller)
