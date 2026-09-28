@@ -22,7 +22,7 @@ This is a list of parts including sourcing links
 # Battery
 * Battery - 2x 8S10P built with samsung inr21700-40t 4000mah 35A - connected in series to result in 16S10P = 57,6V. The reason is 8s can be charged with common RC chargers.
 * 10 AWG Silicone Cable going to the VESC Controller, 3x pairs of cable with 3x XT90 Connectors
-* 16S Balancer Board https://de.aliexpress.com/item/1005004553750067.html
+* ~~16S Balancer Board https://de.aliexpress.com/item/1005004553750067.html~~ (no longer used: replaced by the Daly BMS below with active balancing, August '26)
 * BMS - Daly Smart BMS, version R24TS, 7-17 cells (7S-17S), 300A, with active balancing. Added in August '26
 * 1x2 Plastic Battery Holder for 21700 LiIon Cells https://de.aliexpress.com/item/1005004377607379.html (160 pieces for 160 Cells - 8S16P)
 * 2P 0,15 Nickel Strip
