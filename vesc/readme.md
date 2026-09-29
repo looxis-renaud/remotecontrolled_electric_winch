@@ -21,6 +21,49 @@ Product page: https://trampaboards.com/vesc-75v-300a-black-anodised-non-conducti
 | Real-time data | Motor temperature, current, voltage | The receiver reads battery voltage, motor temperature, tachometer and duty cycle via UART and shows them on the remote. |
 | Aux power outputs | 12V 1A (switchable), 5V 1A, 3.3V 0.5A; **all combined max. 1A** | Everything powered from these outputs (e.g. cooling fan, relay, potentiometer, receiver, depending on the build) shares this 1A budget. |
 
+## From the manual: wiring & safety notes
+
+Winch-relevant points from the manufacturer manual ([PDF](VESC-75-300-MKIV-MANUAL.pdf)). The PDF is the authoritative source; this is only a summary.
+
+> **Note:** The manual describes a **newer revision (MKVI)** than the controller on this winch. Connector types and positions differ: the winch's controller has **Mini-USB** instead of USB-C, and its power-switch connector sits in a different place. The general wiring and safety rules still apply, but check port positions and pinouts on the actual device, not in the manual's drawings.
+
+**Manufacturer warning.** Trampa states the VESC "may not be used for applications requiring fulfillment of special safety standards", explicitly naming aircraft and safety-critical environments. A tow winch is exactly such an application. The winch uses the controller anyway, so the other safety layers (VESC autostop, receiver failsafe, the rewind rule in the main README) must never be weakened or skipped.
+
+**Minimum power path (battery → VESC):**
+- Safety power cut-off.
+- Fuse rated for the weakest part of the electrical system.
+- Anti-spark / pre-charge: anti-spark connectors (e.g. XT90S) and/or an anti-spark switch. **Never power the VESC without pre-charge**; the capacitors must charge slowly, otherwise permanent damage may result.
+- A BMS is required when the motor is used for regenerative braking. On the winch this is always the case (brake states and autostop).
+- All 3 battery input cables and all 3 motor phase wires must be connected and properly insulated; wire gauge must match the current.
+- Keep the controller dry; the enclosure must protect it against water.
+
+**Connectors** (as described for the MKVI: signal ports JST-PH, 2 mm pitch. On the winch's older controller USB is Mini-USB and connector positions differ):
+
+| Port | Manual | On this winch |
+|------|--------|---------------|
+| PPM | Input from an RC receiver. Never connect one receiver to several VESCs (Y-PPM); use opto decouplers. | PPM signal from the LoRa receiver (IO13). |
+| COMM | UART, I²C and ADC; on the MKVI also the power-switch pin. | UART telemetry to the receiver; potentiometer on ADC2 (see "Line auto stop in VESC"). |
+| Sensors | Hall, ABI or AS5047P motor position sensors (3.3 V or 5 V). | *TODO (Etienne): confirm whether the motor's hall sensors are connected.* |
+| Motor A/B/C | Phase colours: A = yellow, B = blue, C = red (for correct display in VESC Tool). | QS Motor phases. |
+| CAN | Only connect CAN H and CAN L; all devices on the same battery GND. | Not used. |
+| USB | Configuration, firmware update, real-time data (USB-C on the MKVI). | VESC Tool via **Mini-USB**. |
+| AUX | 12 V out (SIG, software-switched). | Counts towards the 1 A aux budget above. |
+
+**LED codes** (useful for troubleshooting):
+
+| LED | Meaning |
+|-----|---------|
+| Blue | Powered up |
+| Green, dim | Firmware running |
+| Green, bright | Driving the motor |
+| **Red** | **Fault.** Connect VESC Tool and read out the fault code before the next tow. |
+
+**Power switch.** For the MKVI, the manual describes a momentary **normally closed (NC)** switch on the COMM power-switch pin, with three wiring options (illuminated NC switch, plain NC switch, or a separate soft-start switch without auto power-off). This does not apply 1:1 to the winch's older controller, whose power-switch connector is in a different place.
+
+**On this winch:** an on/off switch on the controller's power-switch connector. **Switch open = VESC off, switch closed = VESC on.**
+
+*Source: Trampa VESC 75/300 manual, pages 1, 3 and 4.*
+
 ## Technical specifications (manufacturer data)
 
 **Voltage**
