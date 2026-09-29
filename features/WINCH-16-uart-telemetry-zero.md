@@ -5,7 +5,7 @@
 **Priority:** P0
 **Safety-relevant:** Yes (the receiver-side autostop taper uses the UART tachometer; the pilot/operator relies on the line length)
 **Depends on:** –
-**Created:** 2026-09-28 · **Last updated:** 2026-09-28
+**Created:** 2026-09-28 · **Last updated:** 2026-09-29
 
 ## Motivation
 The transmitter's bottom OLED line (`<line length>m| <duty cycle>%`) always shows 0 / 0 (Etienne, 2026-09-28). The values come from the VESC via UART to the receiver, then via LoRa ack to the transmitter. The motor's temperature sensor and hall sensors are currently not connected to the VESC. Unclear whether (a) the UART link is broken, or (b) UART works but the VESC reports 0.
@@ -81,3 +81,4 @@ This must be clarified before WINCH-08 (autostop verification), because autostop
 ## Log
 - 2026-09-28: created (reported by Etienne).
 - 2026-09-28: first findings added: UART works (B 45 %), tacho stopped ~2 days ago, sensor cable unplugged after VESC error, autostop seems to still work. Debugging postponed.
+- 2026-09-29: reconnecting the hall / temperature sensors and switching to FOC hall mode split out as [WINCH-17](WINCH-17-hall-sensors-foc.md); background in vesc/readme.md.

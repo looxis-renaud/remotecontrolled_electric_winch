@@ -38,7 +38,8 @@
 | WINCH-15 | Pin / board review (tech-debt list) | FW | Idea | P2 | Yes | WINCH-02 | [WINCH-15](WINCH-15-pin-board-review.md) |
 
 | WINCH-16 | Line length & duty cycle stay at 0 (UART telemetry) | FW/VESC/HW | Planned | P0 | Yes | – | [WINCH-16](WINCH-16-uart-telemetry-zero.md) |
+| WINCH-17 | Reconnect hall & motor temp sensors, FOC hall mode | HW/VESC/Doc | Planned | P1 | Yes | WINCH-16 | [WINCH-17](WINCH-17-hall-sensors-foc.md) |
 
 <!-- Add features above this line -->
 
-## Next Available ID: WINCH-17
+## Next Available ID: WINCH-18
