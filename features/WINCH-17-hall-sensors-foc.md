@@ -16,7 +16,7 @@ Background and procedure are documented in [vesc/readme.md](../vesc/readme.md) (
 
 ## Scope
 1. Find the cause of the VESC fault that appeared when the repaired sensor cable was connected (fault code, WINCH-16).
-2. Check the sensor cable wire by wire (5 V, GND, H1, H2, H3, TEMP) and the sensor supply voltage.
+2. Check the sensor cable wire by wire (5 V, GND, H1, H2, H3, TEMP) and the sensor supply voltage. Test procedure (German): [doc/motor-sensors-troubleshooting.md](../doc/motor-sensors-troubleshooting.md).
 3. Determine the motor's temperature sensor type and set `m_motor_temp_sens_type` accordingly.
 4. Hall detection (Setup Motor FOC or hall detection only), check the hall table, set sensor mode to Hall.
 5. Save before/after XML backups to `vesc/` with a date prefix.
@@ -54,3 +54,4 @@ Background and procedure are documented in [vesc/readme.md](../vesc/readme.md) (
 
 ## Log
 - 2026-09-29: created. Background, recommendation and procedure written in vesc/readme.md.
+- 2026-09-29: sensor test procedure added as doc/motor-sensors-troubleshooting.md (German, at Etienne's request).

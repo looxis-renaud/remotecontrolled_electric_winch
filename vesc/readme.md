@@ -173,7 +173,7 @@ Recommended because the winch spends its most critical moments (start, pre-pull,
 
 **Before you start**
 1. Find out why the VESC showed a fault when the repaired sensor cable was connected last time ([WINCH-16](../features/WINCH-16-uart-telemetry-zero.md)): read the fault code in VESC Tool.
-2. Check the sensor cable wire by wire (5 V, GND, H1, H2, H3, TEMP) against the motor's pinout and the VESC sensor port. Check the sensor supply voltage the motor's hall sensors need.
+2. Check the sensor cable wire by wire (5 V, GND, H1, H2, H3, TEMP) against the motor's pinout and the VESC sensor port. Check the sensor supply voltage the motor's hall sensors need. Test procedure for the temperature sensor and the three hall sensors (German): [doc/motor-sensors-troubleshooting.md](../doc/motor-sensors-troubleshooting.md).
 3. Find out which temperature sensor the QS motor has (e.g. from the QS order/spec sheet) and set `m_motor_temp_sens_type` to match. The configs differ here: Robert's uses `2`, Etienne's 2024 config `0`.
 
 **Procedure**
