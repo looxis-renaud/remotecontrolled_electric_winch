@@ -36,10 +36,10 @@
 | WINCH-13 | TX/RX pairing / encryption | FW | Idea | P3 | Yes | WINCH-02 | [WINCH-13](WINCH-13-tx-rx-pairing-encryption.md) |
 | WINCH-14 | Pull-value calibration procedure | Doc | Idea | P2 | Yes | – | [WINCH-14](WINCH-14-pull-value-calibration.md) |
 | WINCH-15 | Pin / board review (tech-debt list) | FW | Idea | P2 | Yes | WINCH-02 | [WINCH-15](WINCH-15-pin-board-review.md) |
-
 | WINCH-16 | Line length & duty cycle stay at 0 (UART telemetry) | FW/VESC/HW | Planned | P0 | Yes | – | [WINCH-16](WINCH-16-uart-telemetry-zero.md) |
 | WINCH-17 | Reconnect hall & motor temp sensors, FOC hall mode | HW/VESC/Doc | Planned | P1 | Yes | WINCH-16 | [WINCH-17](WINCH-17-hall-sensors-foc.md) |
+| WINCH-18 | Potentiometer wiring & part spec (ADC2 manual mode) | HW/Doc | In Progress | P1 | Yes | – | [WINCH-18](WINCH-18-potentiometer-wiring.md) |
 
 <!-- Add features above this line -->
 
-## Next Available ID: WINCH-18
+## Next Available ID: WINCH-19

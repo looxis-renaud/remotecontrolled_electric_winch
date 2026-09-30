@@ -13,7 +13,7 @@ Autostop protects the azimuth system and the line at the end of the rewind, but 
 ## Scope
 - Verify on the real winch (VESC Tool, multimeter), **read-only; no firmware or config changes**:
   - [ ] actually flashed firmware version (VESC Tool → Firmware), expected 5.x patched
-  - [ ] poti wiring: which pins go to 3.3 V / GND / ADC2 on the COMM port
+  - [ ] poti wiring: which pins go to 3.3 V / GND / ADC2 on the COMM port (poti side documented in [WINCH-18](WINCH-18-potentiometer-wiring.md); VCC voltage and COMM pin positions still open)
   - [ ] ADC1: connected? To what? Does ADC1 > 3 V really enable autostop in manual mode (patch line 34)?
   - [ ] voltage at ADC2 with poti fully at the "off" end (must be < 0.5 V)
   - [ ] direction: which way is "off" (Etienne's notes say "fully left", to be confirmed)

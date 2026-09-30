@@ -287,4 +287,47 @@ Line auto stop can be implemented within VESC with vesc_ppm_auto_stop.patch
 
 For this to work properly, either connect a Potentiometer to ADC2 and GND to manually control the winch. E.g. To wind up the last meters of the line when finishing. Or to manually set a tension when used as a rewind winch. Note that the potentiometer only reduces tension/speed of the motor when it is running one of the pull programs as controlled via the transmitter!
 
-IMPORTANT: If you do not install a Potentionmeter, connect ADC2 to GND.
+> ⚠ **IMPORTANT: If you do not install a potentiometer, connect ADC2 to GND.** An open (floating) ADC2 input can read above 0.5 V. The VESC then switches to manual mode and ignores the remote: **the winch starts to pull on its own.** The same applies to a broken wire at the potentiometer (see failure modes below).
+
+### Potentiometer: wiring
+
+The potentiometer sits on the **COMM** port of the VESC (JST-PH connector). It divides the VESC's supply voltage and feeds the result to ADC2. The firmware patch compares the ADC2 voltage against the 3.3 V reference: **below 0.5 V = normal PPM operation (remote in control), above 0.5 V = manual mode** (current proportional to the potentiometer position, PPM input ignored).
+
+Wiring on this winch (Etienne, 2026-09-30), potentiometer **viewed from below**:
+
+| Potentiometer pin | VESC COMM signal | Wire colour (JST cable on this winch) |
+|-------------------|------------------|---------------------------------------|
+| left | GND | yellow |
+| middle (wiper) | ADC2 | orange |
+| right | VCC | red |
+
+- The wire colours are those of the JST cables used on this winch. Pre-made JST cables come in different colours: go by the signal on the COMM port, not by colour.
+- **VCC must be 3.3 V, not 5 V.** The ADC measures up to 3.3 V. Check the voltage on the VCC wire with a multimeter before connecting the potentiometer. *To be completed:* confirmed voltage and pin position on the COMM port of this controller (the Trampa manual shows a newer revision).
+- **Direction:** swapping the two outer pins reverses the direction. The "off" end is the end where ADC2 reads **0 V**. According to Etienne's notes that is **fully left (counter-clockwise)**. *To be verified* (WINCH-08).
+
+**Check after wiring (winch secured, line without load):**
+
+1. Turn the potentiometer to the "off" end. VESC Tool → Realtime Data (or multimeter between ADC2 and GND): ADC2 must read about **0 V** (well below 0.5 V).
+2. Turn it slowly to the other end: the voltage must rise smoothly up to about 3.3 V. Above 0.5 V the motor starts to pull in manual mode.
+3. Back to the "off" end: the winch must follow the remote again.
+
+### Potentiometer: which part
+
+| Property | Recommendation | Why |
+|----------|----------------|-----|
+| Resistance | **10 kΩ** (5–10 kΩ is fine) | Only ~0.3 mA from the 3.3 V supply (the aux outputs share a 1 A budget). Much higher values make the ADC reading noisy. |
+| Taper | **linear** (marked "B", e.g. "B10K") | Pull increases evenly with the rotation angle. A logarithmic ("A") taper makes the range near the off end very insensitive and then very steep. |
+| Type | single-turn rotary potentiometer, 3 pins, panel mount (thread + nut), 6 mm shaft | Can be mounted securely in the enclosure wall. |
+| Robustness | sealed / dust- and splash-proof if possible, solid metal housing | The winch is used outdoors. A dirty track can make the wiper jump. |
+| Knob | knob with a clear pointer, "OFF" end marked on the enclosure | The "off" position must be recognisable at a glance before every tow (pre-flight check). |
+
+### Potentiometer: failure modes
+
+| Fault | ADC2 reads | Effect |
+|-------|------------|--------|
+| ADC2 not connected / wiper wire broken | undefined (floating) | may switch to manual mode at random: **winch pulls on its own** |
+| GND wire to the potentiometer broken | ~3.3 V | **full manual current**, remote ignored |
+| VCC wire broken | ~0 V | manual mode no longer possible, remote works normally |
+| Potentiometer not at the "off" end | > 0.5 V | manual mode, remote ignored |
+
+Connectors and wires to the potentiometer therefore need strain relief and must be checked regularly.
