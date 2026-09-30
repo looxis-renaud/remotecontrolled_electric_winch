@@ -19,7 +19,7 @@ Product page: https://trampaboards.com/vesc-75v-300a-black-anodised-non-conducti
 | Regenerative braking | Energy is recovered during braking | Brake states (-1 soft / -2 hard) and autostop brake with motor current; see voltage note above. |
 | Protection | Under/over voltage, over current, over temperature (motor and ESC) | If a limit is hit, the VESC reduces or cuts motor power, including **during a tow**. Keep the battery charged and the controller cool. |
 | Real-time data | Motor temperature, current, voltage | The receiver reads battery voltage, motor temperature, tachometer and duty cycle via UART and shows them on the remote. |
-| Aux power outputs | 12V 1A (switchable), 5V 1A, 3.3V 0.5A; **all combined max. 1A** | Everything powered from these outputs (e.g. cooling fan, relay, potentiometer, receiver, depending on the build) shares this 1A budget. |
+| Aux power outputs | 12V 1A (switchable), 5V 1A, 3.3V 0.5A; **all combined max. 1A** | Everything powered from these outputs (e.g. cooling fan, relay, potentiometer, receiver, the winch camera from WINCH-19, depending on the build) shares this 1A budget. |
 
 ## From the manual: wiring & safety notes
 
