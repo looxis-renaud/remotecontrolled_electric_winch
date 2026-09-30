@@ -1,11 +1,11 @@
 # WINCH-06: Drop warning light
 
-**Status:** Planned
+**Status:** Done
 **Type:** HW / Doc
 **Priority:** P1
 **Safety-relevant:** No
 **Depends on:** –
-**Created:** 2026-09-28 · **Last updated:** 2026-09-28
+**Created:** 2026-09-28 · **Last updated:** 2026-09-30
 
 ## Motivation
 The relay on receiver IO12 was meant to switch the VESC cooling fan **and** a warning light (DHV regulations). The warning light won't be implemented; the relay becomes fan-only (automated in WINCH-07).
@@ -26,7 +26,7 @@ The relay on receiver IO12 was meant to switch the VESC cooling fan **and** a wa
 - [ ] Fan still switches via the relay (verified in WINCH-07).
 
 ## Open questions
-- [ ] Is anything else connected to the relay today?
+- [x] Is anything else connected to the relay today? → No. The warning light never existed (Etienne, 2026-09-30).
 
 ## Decision log
 | Decision | Rationale | Date |
@@ -35,3 +35,5 @@ The relay on receiver IO12 was meant to switch the VESC cooling fan **and** a wa
 
 ## Log
 - 2026-09-28: created
+- 2026-09-30: code comments, OLED text ("Fan ON/OFF") and README updated together with WINCH-07. Hardware: the warning light never existed (Etienne, 2026-09-30).
+- 2026-09-30: set to Done. The warning light never existed, all references removed from code and README (archived code in `old/` untouched). Fan switching is tested in WINCH-07.

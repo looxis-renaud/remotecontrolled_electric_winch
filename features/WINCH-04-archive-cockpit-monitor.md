@@ -36,12 +36,12 @@ The cockpit monitor (LilyGO T-Display S3, via LoRa or ESP-NOW) was lost in fligh
 
 ## Test plan
 - [x] `grep -ri monitor` on README.md / parts-list only finds intentional mentions (pointer to `old/`).
-- [ ] `transmitter/transmitter.ino` compiles in the Arduino IDE (Etienne).
+- [x] `transmitter/transmitter.ino` compiles (arduino-cli, 2026-09-30, together with WINCH-05/06/07).
 - [ ] After flashing: remote starts normally (OLED, buttons, LoRa link to receiver, all pull states) (Etienne, bench).
 
 ## Open questions
 - [x] Anything else in `doc/` only relevant for the monitor? → No. `5442780104968238496.jpg` is a line pulley, `photo1665499714.jpeg` is the LoRa32 board.
-- [ ] Flash now, or together with WINCH-05/06/07 (which change the transmitter again)?
+- [x] Flash now, or together with WINCH-05/06/07 (which change the transmitter again)? → Together with WINCH-05/06/07 (Etienne, 2026-09-30).
 
 ## Decision log
 | Decision | Rationale | Date |
@@ -53,3 +53,4 @@ The cockpit monitor (LilyGO T-Display S3, via LoRa or ESP-NOW) was lost in fligh
 - 2026-09-28: created
 - 2026-09-28: monitor folders + T-Display pinout moved to `old/`, `old/README.md` added, ESP-NOW code in transmitter commented out, README / parts list / CLAUDE.md updated. Not compiled.
 - 2026-09-30: set to Bench Test (Etienne). Repo work complete. Open: compile in the Arduino IDE, flash the remote, bench check (see Test plan). The remote still runs the old firmware with ESP-NOW until reflashed.
+- 2026-09-30: `transmitter.ino` compiles (arduino-cli, esp32 core 2.0.15, TTGO LoRa32-OLED), checked together with the WINCH-05/06/07 changes. Flash + bench check follow with the WINCH-05/06/07 flash.

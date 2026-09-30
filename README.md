@@ -41,15 +41,16 @@ remote (synced Sept '26: ID 3, `myMaxPull = 95`), except that the ESP-NOW monito
 - in additional boards manager URLS field copy: https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
 - click OK
 - Go to Tools > Board > Boards Manager
-- In Boards Manager Search for ESP32 and press install button for the “ESP32 by Espressif Systems“
+- In Boards Manager Search for ESP32 and install **version 2.0.15** of “ESP32 by Espressif Systems“ (pick the version in the drop-down; 3.x is not tested with this code)
 - Go To Tools > Board > ESP32 and select the TTGO LoRa32-OLED Board
 
-## Install the following Arduino libraries:
-- [18650CL](https://github.com/pangodream/18650CL)
-- [Button2](https://github.com/LennartHennigs/Button2)
-- [VescUart](https://github.com/SolidGeek/VescUart)
-- [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306)
-- [Servo](https://www.arduino.cc/reference/en/libraries/esp32servo/) 
+## Install the Arduino libraries
+Use the pinned library versions from [arduino-libs/](arduino-libs/README.md): copy the folders into your Arduino library folder (Windows: `Documents\Arduino\libraries\`). Don't update them casually, see the README there.
+- [18650CL](https://github.com/pangodream/18650CL) 1.0.1
+- [Button2](https://github.com/LennartHennigs/Button2) 2.3.2
+- [VescUart](https://github.com/SolidGeek/VescUart) 1.0.1
+- [OLED-SSD1306](https://github.com/ThingPulse/esp8266-oled-ssd1306) 4.5.0
+- [LoRa](https://github.com/sandeepmistry/arduino-LoRa) 0.8.0
 
 ## PIN Setup Receiver:
 IO 13 (PWM_PIN_OUT) // connect to PPM Port "Servo" on Vesc
@@ -58,16 +59,14 @@ IO 14 (VESC_RX)   //connect to COMM Port "TX" on Vesc
 
 IO 2 (VESC_TX)   //connect to COMM Port "RX" on Vesc
 
-IO 15 (Servo Signal) (for line cutter) // connect red wire to 5V, black or brown wire to GND and yellow or white cable to Pin 15. Servo is in neutral state by default // info to self: white cable to "S", black/green to "-", red/blue to "+"
-
-IO 12 (Relay Signal) (for fan) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire your Warning Light and VESC Cooling Fan through the relay module. Relay is off by default, will be turned on once the Remote/Transmitter is turned on. // note to self: White (signal) from Relay to yellow from receiver (IO12), red from relay to red or blue from receiver (5V+), black to black or green from receiver (GND).
+IO 12 (Relay Signal) (for the VESC cooling fan) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire the VESC cooling fan through the relay module. The receiver switches the fan automatically, see "Cooling fan" below. If your relay module is active-low, set `RELAY_ACTIVE_HIGH` to `false` in `receiver.ino`. // note to self: White (signal) from Relay to yellow from receiver (IO12), red from relay to red or blue from receiver (5V+), black to black or green from receiver (GND).
 
 ## PIN Setup Transmitter:
 IO 15 (BUTTON_UP) //together with GND connect with push button for UP Command
 
 IO 12 (BUTTON_DOWN ) //together with GND connect with a push button for STOP/BRAKE Command
 
-IO 14 (BUTTON_THREE ) // additional /optional Button for Relay and Servo Control. Click once to deactivate Relay (Fan and Warning light), Click again to turn on again. Long Click to trigger the Emergency Line Cutter (Servo). Doubleclick to move Servo to Neutral Position again. By default, the Servo is in neutral position, and Relay is off. Turning on the Remote will turn on the Relay automatically.
+A third button (IO 14) was used for the fan relay and the line cutter. It has no function any more.
 
 ## Cockpit monitor (retired)
 I lost the cockpit monitor (LilyGO T-Display S3) in mid flight, and it added extra tech to take care of,
@@ -78,17 +77,14 @@ transmitter is commented out.
 VESC is the Open Source Electronic Speed Controler developed by Benjamin Vedder ( **V**edder **E**lectronic **S**peed **C**ontroller)
 Topic has been moved here: https://github.com/looxis-renaud/ewinch_remote_controller/tree/main/vesc#readme
 
-## Remote Control of cooling fan and warning light (DHV Regulations)
-The transmitter and receiver code now supports a Relay that is automatically turned on when the
-remote is switched on. The relay can control the cooling fan of the VESC and a warning light (as required by DHV regulations)
-A a single click on a third button on the remote turns the Relay (Fan and warning light) off - usefull when you launched yourself
-and want to fly away and leave the winch behind.
+## Cooling fan
+The VESC cooling fan is switched by a relay on receiver IO 12. The receiver decides by itself, there is no button for it:
+- Fan **ON** as soon as a pull state (state 1 or higher) is active, including the failsafe default pull.
+- Fan **OFF** 120 s after the last pull state (`FAN_RUN_ON_MS` in `receiver.ino`). The run-on lets the VESC cool down and keeps the fan from switching on and off during step tows.
+- After power-up (soft brake) the fan stays off.
+- The receiver OLED shows "Fan ON", "Fan ON (off in … s)" during the run-on, or "Fan OFF".
 
-## Remote Control of an Emergency Line Cutter (DHV Regulations)
-The transmitter and receiver code now supports the connection of a Servo (on PIN 15 on Receiver).
-The servo rotates 90 degrees when the third button on the transmitter is "long pressed" (one full second).
-This servo should be attached to an emergency line cutter, that cuts the dyneema line in an emergency.
-Note: Activating the line cutter also triggers the full brake (-20kg)
+The emergency line cutter was dropped (WINCH-05).
 
 # Battery
 16P10S Battery using 160 Lithium Ion 21700 cells with 4.000 mAh each.
@@ -106,7 +102,16 @@ defaultPull (7kg) and the brakes (-7kg / -20kg) are fixed values.
   1 - turn the VESC and receiver on
   2 - MAKE SURE to have the Potentiometer connected to ADC turned fully left (in my setup! need to measure whether this is open or closed :-) )
       If the Poti is rotated to the right, either partially or fully, the winch will not operate with the predefined Pull Torque!
-  3 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work)
+  3 - pull the line out to the desired length (the VESC measures the line length that is being unwound, needed for the autostop to work).
+      **Always pull the line out with the soft brake active (state -1, the start state), never in neutral (state 0).**
+
+  > ⚠️ **WARNING - pull the line out with soft brake only!**
+  > In neutral nothing holds the drum. When you walk faster and then stop, the drum keeps turning and unwinds
+  > line right at the drum (overrun). On launch the loose turns cause a line wrap. **This has already happened
+  > once:** the wrap destroyed the line and the (3D-printed) gear of the winch. The soft brake keeps the line
+  > under light tension so the drum stops when you stop.
+  > (The winding gears have since been replaced: first printed in plastic to check function and fit,
+  > now laser-sintered steel for permanent use.)
   4 - go through your pre-flight preparations and clip in
 - B) launch:
   1 - switch to defaultPull (7kg pull value) and prePull (to tighten the line (~17kg pull value) to assist you to launch the glider
@@ -131,12 +136,21 @@ defaultPull (7kg) and the brakes (-7kg / -20kg) are fixed values.
   > with fullPull.)
  
 - D) Neutral
-  You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it. It's useful to
-  Pull the line out of the winch toward the launch area.
+  You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it.
+  **Do not use neutral to pull the line out** (see the warning in A: the drum overruns and the line wraps).
+  Use the soft brake instead. (An earlier version of this README recommended neutral for pulling the line out.)
 
 - E) Rewinding the Cable
   If something does not go as expected ( during one flight, I turned off the remote too soon after release, the winch stopped pulling, as it should, the line fell on the ground):
   - use the Potentiometer, which should be on the far left position, to gently rotate it towards the right. The motor will start to rewind the line, regardless of the measured distance.
+
+## Several pilots / several remotes
+- **One pilot:** flash `transmitter/transmitter.ino` onto one remote with any ID from 1 to 15 (`myID`) and the pilot's take-off weight as `myMaxPull`. That's all you need to tow yourself.
+- **Several pilots:** prepare one remote per pilot. For each remote, change `myID` (unique, 1-15) and `myMaxPull` (that pilot's take-off weight) in the code and flash it. Put a label with ID and max pull on each remote.
+- **Who controls the winch:** the receiver follows only one remote at a time. The remote that is sending keeps control as long as it is switched on (it sends every 400 ms). Another remote can only take over after the active one has been **silent for 5 s** (switched off or out of range).
+- **Admin remote (ID 0):** takes over immediately, at any time. When switched on, it listens for 4 s, starts in the state the winch is currently in, and from then on its buttons control the winch. Build it so it can't be confused with the others (Etienne's admin remote has a **red case**).
+- ⚠️ When the admin remote is switched off again, the receiver keeps the last state; if it was a pull state, it goes to failsafe after 1.5 s (default pull, soft brake after 20 s). After 5 s **any other remote that is still switched on takes over with whatever state it is sending**. Before switching the admin remote off, make sure the other remotes are off or in a safe state (soft brake).
+- All remotes and the receiver must run the same code version (same LoRa message format), see [features/INDEX.md](features/INDEX.md).
 
 # Roadmap / ToDo
 Planned changes, open bugs and ideas are tracked in [features/INDEX.md](features/INDEX.md), one file per feature.

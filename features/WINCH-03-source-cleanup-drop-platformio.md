@@ -44,3 +44,4 @@ The move to VS Code + PlatformIO was never completed and won't be. Etienne works
 - 2026-09-28: created
 - 2026-09-28: `transmitter/` now contains only `transmitter.ino` (renamed `.cpp`, content unchanged). README PlatformIO section removed, sketch note updated. CLAUDE.md updated. `receiver/` already fine. `monitor-ESP-NOW/mac-address.cpp` sits next to the monitor `.ino` (same problem) → handled with WINCH-04. Awaiting compile check (Etienne).
 - 2026-09-30: set to Done by Etienne. Repo work complete (one `.ino` per sketch folder, no PlatformIO references). Compile check deferred; the sketches are not compile-verified.
+- 2026-09-30: during WINCH-05/06/07, both sketches (with those changes) were compiled with arduino-cli (esp32 core 2.0.15, board TTGO LoRa32-OLED, the IDE's installed libraries): no errors.

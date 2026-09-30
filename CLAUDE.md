@@ -19,7 +19,7 @@ Remote-controlled electric winch for paragliders and hang gliders (step towing /
 ```
 Transmitter (handheld)                Receiver (on winch)                    Winch
 TTGO LoRa32 V2.1_1.6  --LoRa 868MHz-->  TTGO LoRa32 V2.1_1.6  --PPM IO13-->   Trampa VESC 75/300  -->  QS Motor 12kW 260 V4 (hub motor)
-2 buttons (+ optional 3rd)            <--ack (pull, tacho,   <--UART IO14 RX/    (patched firmware)        drum + barrel-cam winding
+2 buttons                             <--ack (pull, tacho,   <--UART IO14 RX/    (patched firmware)        drum + barrel-cam winding
 OLED                                     battery, temp)          IO2 TX--                                  azimuth system (Bernd)
                                                               IO12 relay -> VESC cooling fan
 ```
@@ -37,13 +37,15 @@ OLED                                     battery, temp)          IO2 TX--       
 | `vesc/` | Patched VESC firmware binaries, VESC app/motor configs (XML), `vesc_ppm_auto_stop.patch` (reference only) |
 | `doc/` | Parts list, DXF/STL files, photos. `doc/qs-motor/`: motor data, sensor wiring, QS manuals, sensor test procedure |
 | `features/` | Roadmap and feature tracking ([features/INDEX.md](features/INDEX.md)) |
+| `arduino-libs/` | Pinned copies of the Arduino libraries used by both sketches ([README](arduino-libs/README.md), WINCH-20) |
 | `old/` | Archived, unmaintained code/docs (see [old/README.md](old/README.md)): cockpit monitor (`monitor-LoRa/`, `monitor-ESP-NOW/`), retired in WINCH-04 |
 
 ## Toolchain: Arduino IDE only
 
 - **No PlatformIO.** Etienne opens or copies the sketch into the Arduino IDE, compiles it and flashes the ESP32 board.
-- Board package: "esp32 by Espressif Systems". Board: **TTGO LoRa32-OLED**.
-- Libraries: LoRa (sandeepmistry), Button2, VescUart (SolidGeek), ESP8266-OLED-SSD1306 (ThingPulse), Pangodream 18650CL. (ESP32Servo is only needed while the line cutter code exists; it is being removed in WINCH-05.)
+- **Pinned toolchain (WINCH-20):** Arduino IDE 2.3.2 (old IDE 1.8.x removed 2026-09-30), board package "esp32 by Espressif Systems" **2.0.15**, board **TTGO LoRa32-OLED** (`esp32:esp32:ttgo-lora32`).
+- Libraries, pinned copies in [arduino-libs/](arduino-libs/README.md): LoRa 0.8.0 (sandeepmistry), Button2 2.3.2, VescUart 1.0.1 (SolidGeek), ESP8266-OLED-SSD1306 4.5.0 (ThingPulse), Pangodream 18650CL 1.0.1. **Never update core or libraries casually**: one at a time, as its own feature, with a bench test.
+- **Compile check (Claude):** Claude can compile, not flash, with the IDE's bundled CLI: `"/c/Program Files/Arduino IDE/resources/app/lib/backend/resources/arduino-cli.exe" compile --fqbn esp32:esp32:ttgo-lora32 --libraries arduino-libs <sketch-folder>` (build path in the scratchpad). Run it after every code change and report "compiles", never "works".
 - **File format rule:** every sketch folder contains exactly **one** main file named `<folder>.ino`. The Arduino IDE compiles *all* `.cpp`/`.ino` files in a sketch folder together, so a second main file breaks the build. `.cpp` main files are PlatformIO leftovers: keep the newer version, delete the older one, rename to `.ino`. Real helper modules such as `LiPoCheck.cpp/.h` stay `.cpp/.h`.
 - Keep code copy-paste friendly: no build flags, no custom partition tables, no extra tooling.
 
@@ -72,17 +74,18 @@ OLED                                     battery, temp)          IO2 TX--       
 
 `myMaxPull = 95` (0–127 "kg", scaled via VESC PPM/current settings; roughly 3.6 A/kg on this motor). Etienne sets it to roughly his take-off weight. With 95: state 2 = 17, 3 = 52, 4 = 76, 5 = 95 kg (integer math). (While the ESP-NOW monitor code was active, the monitor could overwrite `myMaxPull` at runtime without a range check; commented out since WINCH-04.)
 
-Buttons: UP (IO15) moves one state up (at most once per second, skips neutral). DOWN (IO12) goes from any pull >1 back to default pull (1), or from 0/-1 one step down; a short press in state 1 does nothing. DOWN long press (500 ms) → soft brake. DOWN double click from brake → neutral. The 3rd button (IO14) currently toggles the relay (short), fires the line cutter (long) and resets it (double). It is being removed in WINCH-05/07.
+Buttons: UP (IO15) moves one state up (at most once per second, skips neutral). DOWN (IO12) goes from any pull >1 back to default pull (1), or from 0/-1 one step down; a short press in state 1 does nothing. DOWN long press (500 ms) → soft brake. DOWN double click from brake → neutral. A former 3rd button (IO14, fan relay and line cutter) was removed from the code in WINCH-05/07.
 
 The receiver keeps its **own** copies of some values (`softBrake = -8`, `defaultPull = 8`, scale values differing slightly). It uses them for failsafe and autostop, not for the normal pull states, which come from the transmitter.
 
 ### LoRa link
 
 - 868 MHz, TX power 20 dBm, CRC enabled.
-- `LoraTxMessage` (TX→RX): `id:4`, `currentState:4`, `pullValue`, `pullValueBackup`, `servo`, `relay`. `LoraRxMessage` (RX→TX ack): `pullValue`, `tachometer` (×10 m), `dutyCycleNow`, battery/motor-temp alternating in 1+7 bits.
-- **Both structs must be byte-identical in both sketches.** Packets are matched by `sizeof`, so any struct change requires flashing transmitter and receiver together.
+- `LoraTxMessage` (TX→RX): `id:4`, `currentState:4`, `pullValue`, `pullValueBackup` (3 bytes; `servo` and `relay` removed in WINCH-05/07). `LoraRxMessage` (RX→TX ack): `pullValue`, `tachometer` (×10 m), `dutyCycleNow`, battery/motor-temp alternating in 1+7 bits (4 bytes).
+- **Both structs must be byte-identical in both sketches.** Packets are matched by `sizeof` (exact size), so any struct change requires flashing transmitter and receiver together. `static_assert`s in both sketches check the sizes at compile time.
 - Transmitter sends every 400 ms and immediately on a state change. The receiver acks every valid packet.
 - ID lock: the receiver only follows one transmitter ID. A different ID can take over after 5 s of silence. Admin ID 0 can always take over.
+- Usage: one remote per pilot, each flashed with its own `myID` (1–15) and `myMaxPull` (take-off weight). Etienne's admin remote (ID 0) has a red case. On power-up the admin listens 4 s and adopts the current state. When the admin is switched off, any other remote still on takes over after 5 s with the state it is sending.
 
 ### Receiver behaviour
 
@@ -90,6 +93,7 @@ The receiver keeps its **own** copies of some values (`softBrake = -8`, `default
 - **Smoothing:** pull increases at max ~65 kg/s and decreases at ~90 kg/s. Brake values (<0) apply immediately.
 - **PPM output** on IO13: `(currentPull + 127) * (2000 − 950) / 254 + 950` µs, one pulse per loop (~20 ms).
 - UART to VESC every 20 loops: battery %, motor temp, tachometer, duty cycle.
+- **Cooling fan** (relay IO12, WINCH-07): ON while `currentState >= 1` (incl. failsafe), OFF `FAN_RUN_ON_MS` (120 s) after the last pull state; off after power-up. Relay polarity via `RELAY_ACTIVE_HIGH`.
 
 ## Autostop
 
@@ -105,11 +109,15 @@ Autostop exists on two layers:
 
 **After releasing, rewind the line with low pull only: maximum state 2 (prePull).** With more pull the autostop brake cannot stop the drum in time: the carabiner gets pulled into the azimuth system and destroys it, or the line snaps. **This has already happened once**, and the whole winch had to be rebuilt. The old README text ("release and move back to fullPull to rewind") was wrong and is corrected in WINCH-01.
 
+### ⚠ Pull-out rule (safety)
+
+**Pull the line out only with the soft brake active (state -1), never in neutral (state 0).** In neutral the drum overruns when the pilot stops walking, loose turns form at the drum, and on launch the line wraps. **This has already happened once**: the wrap destroyed the line and the 3D-printed gear (the winding gears are now laser-sintered steel). The old README text recommending neutral for pulling the line out was wrong and was corrected on 2026-09-30. Camera and overwrap protection: WINCH-19.
+
 ## Known quirks / tech debt
 
 Found while reading the code. Not fixed yet. The repo may also be behind Etienne's local versions (WINCH-02); review in WINCH-15.
 
-- `#define RST 14` (LoRa reset) collides with `VESC_RX 14` on the receiver and `BUTTON_THREE 14` on the transmitter. On the TTGO LoRa32 V2.1_1.6 the LoRa reset is probably GPIO23.
+- `#define RST 14` (LoRa reset) collides with `VESC_RX 14` on the receiver (and collided with the former `BUTTON_THREE 14` on the transmitter). On the TTGO LoRa32 V2.1_1.6 the LoRa reset is probably GPIO23.
 - IO12 is an ESP32 strapping pin (flash voltage), used for the relay (receiver) and BUTTON_DOWN (transmitter).
 - `LoRa.begin(868E6)` is hardcoded, so the `BAND` define is unused.
 - Failsafe comment says 10 s, the code uses 20 s.

@@ -4,9 +4,8 @@
  * communication is locked to a specific transmitter for 5 seconds after his last message
  * admin ID 0 can always take over communication
  *
- * Added support for a third button to control a Relay and a Servo.
- * The Relay can turn the VESC Cooling Fan and Warning Light (DHV Regulations) on and off
- * The Servo can trigger an Emergency Line Cutter (DHV Regulations)
+ * [WINCH-05/07] The third button, the line cutter (servo) and the manual relay (fan) control
+ * were removed. The receiver now switches the cooling fan by itself.
  *
  * +++ Almost done, needs testing +++ Adding support to connect a Liligo T-Display S-3
  * as a Monitor via ESP-NOW Protocol (over Wifi) and as an option to control Relay,
@@ -14,7 +13,8 @@
  *
  * [WINCH-04] The monitor has been retired. All ESP-NOW monitor code is commented out
  * in four blocks marked "[WINCH-04]". To re-enable it, delete the comment start and
- * comment end lines of all four blocks.
+ * comment end lines of all four blocks. The blocks still reference the removed servo and
+ * relay variables, so those lines would have to be removed as well.
  */
 
 static int myID = 3;    // set to your desired transmitter id, "0" is for admin 1 - 15 is for additional transmitters [unique number from 1 - 15]
@@ -80,14 +80,6 @@ Pangodream_18650_CL BL(35); // pin 34 old / 35 new v2.1 hw
 Button2 btnUp = Button2(BUTTON_UP);
 Button2 btnDown = Button2(BUTTON_DOWN);
 
-/* optional third button for controlling a Servo and a Relay.
-* The Servo triggers a line cutter in an emergency.
-* The Relay controls the fan and warning light
-*/
-
-#define BUTTON_THREE  14 // Third button on pin14,
-Button2 btnThree = Button2(BUTTON_THREE);
-
 static int loopStep = 0;
 bool toogleSlow = true;
 int8_t targetPull = 0;   // pull value range from -127 to 127
@@ -105,10 +97,6 @@ unsigned long lastStateSwitchMillis = 0;
 
 uint8_t vescBattery = 0;
 uint8_t vescTempMotor = 0;
-
-// Servo and Relay variables
-bool servo = false;
-bool relay = true;
 
 /*
 * Copyright 2015 - 2017 Andreas Chaitidis Andreas.Chaitidis@gmail.com
@@ -131,8 +119,8 @@ struct LoraTxMessage {
    int8_t currentState : 4;    // -2 --> -2 = hard brake -1 = soft brake, 0 = no pull / no brake, 1 = default pull (2kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
    int8_t pullValue;           // target pull value,  -127 - 0 --> 5 brake, 0 - 127 --> pull
    int8_t pullValueBackup;     // to avoid transmission issues, TODO remove, CRC is enough??
-   bool servo = false;         // Servo position for emergency line cutter
-   bool relay = true;       // turn relay on and off. Fan and warning light will be connected to relay
+   // [WINCH-05/07] servo and relay fields removed: 3 bytes instead of 5. Transmitter and
+   // receiver must be flashed together; packets of the old size are ignored.
 };
 
 // send by receiver (acknowledgement) over LoRa
@@ -147,6 +135,10 @@ struct LoraRxMessage {
 
 struct LoraTxMessage loraTxMessage;
 struct LoraRxMessage loraRxMessage;
+
+// Packets are matched by size: both sketches must have the same sizes [WINCH-05/07]
+static_assert(sizeof(LoraTxMessage) == 3, "LoraTxMessage must be 3 bytes, same as in receiver.ino");
+static_assert(sizeof(LoraRxMessage) == 4, "LoraRxMessage must be 4 bytes, same as in receiver.ino");
 
 // [WINCH-04] ESP-NOW monitor disabled (block 2 of 4: structs + callbacks)
 /*
@@ -205,24 +197,6 @@ unsigned long previousRxLoraMessageMillis = 0;
 unsigned int loraErrorCount = 0;
 unsigned long loraErrorMillis = 0;
 
-// steps to execute when the line cutter is deployed, i.e. the servo is triggered
-// ToDo: implement this function also when the trigger is received via button press on monitor !!!
-void LineCutter() {
-    currentState = -2;    //hard brake, when line is being cut, of course!
-    lastStateSwitchMillis = millis();
-    stateChanged = true;
-  }
-
-// function to execute when servo is triggered, i.e. set to true
-void setServo(bool value) {
-  if (servo != value) { // Check if the value is different from the current value
-    servo = value; // Update the servo variable
-    if (servo) { // Check if servo is set to true
-      LineCutter(); // Call the LineCutter function
-    }
-  }
-}
-
 void setup() {
   Serial.begin(115200);
 
@@ -280,12 +254,6 @@ void setup() {
   btnDown.setDoubleClickTime(400);
   btnDown.setDoubleClickHandler(btnDownDoubleClick);
 
-  btnThree.setPressedHandler(btnThreePressed);
-  btnThree.setDoubleClickTime(400);
-  btnThree.setDoubleClickHandler(btnThreeDoubleClick);
-  btnThree.setLongClickTime(500);
-  btnThree.setLongClickDetectedHandler(btnThreeLongClickDetected);
-
   display.clear();
   display.setTextAlignment(TEXT_ALIGN_LEFT);
   display.setFont(ArialMT_Plain_10);
@@ -304,7 +272,8 @@ void setup() {
       lastTxLoraMessageMillis = millis();
       while (millis() < lastTxLoraMessageMillis + 4000) {
           // packet from transmitter
-          if (LoRa.parsePacket() >= sizeof(loraTxMessage) ) {
+          // exact size only: the receiver's 4-byte ack must not be read as a 3-byte transmitter message [WINCH-05/07]
+          if (LoRa.parsePacket() == sizeof(loraTxMessage) ) {
             LoRa.readBytes((uint8_t *)&loraTxMessage, sizeof(loraTxMessage));
             if (loraTxMessage.pullValue == loraTxMessage.pullValueBackup) {
                 //found --> read state and exit
@@ -419,8 +388,6 @@ void loop() {
             loraTxMessage.currentState = currentState;
             loraTxMessage.pullValue = targetPull;
             loraTxMessage.pullValueBackup = targetPull;
-            loraTxMessage.servo = servo;
-            loraTxMessage.relay = relay;
 
 	    // here we'll send everything in binary format over LoRa:
             if (LoRa.beginPacket()) {
@@ -458,7 +425,6 @@ void loop() {
 
         btnUp.loop();
         btnDown.loop();
-      	btnThree.loop();
         delay(10);
 }
 
@@ -505,29 +471,3 @@ void btnDownDoubleClick(Button2& btn) {
     stateChanged = true;
 	}
 }
-//additional functions to handle Button Three (Servo and Relay)
-void btnThreePressed(Button2& btn) {
-  if (relay == true) {
-  // Serial.println("Fan and Light turned off");
-  relay = false; // turns relay off, which will deactivate Vesc Cooling Fan and Warning Light
-  lastStateSwitchMillis = millis();
-  stateChanged = true;
-  } else {
-  // Serial.println("Fan and Light turned on");
-  relay = true; // turns relay on, cooling and warning runs again
-  lastStateSwitchMillis = millis();
-  stateChanged = true;
-  }
- }
-
-void btnThreeDoubleClick(Button2& btn) {
-  // Serial.println("DoubleClick on Third Button");
-  servo = false; // returns servo to neutral
-  lastStateSwitchMillis = millis();
-  stateChanged = true;
-  }
-
-void btnThreeLongClickDetected(Button2& btn) {
-  // Serial.println("Long Click on Third Button");
-    servo = true; // use only in emergency, this will trigger a line cutter, yet to be built -> Bernd, deine Aufgabe!
-  }

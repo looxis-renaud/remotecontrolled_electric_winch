@@ -1,11 +1,11 @@
 # WINCH-05: Drop emergency line cutter
 
-**Status:** Planned
+**Status:** Bench Test
 **Type:** FW / Doc
 **Priority:** P1
 **Safety-relevant:** Yes (changes the LoRa struct and the 3rd-button behaviour, which includes a forced hard brake)
 **Depends on:** WINCH-02, WINCH-03
-**Created:** 2026-09-28 · **Last updated:** 2026-09-28
+**Created:** 2026-09-28 · **Last updated:** 2026-09-30
 
 ## Motivation
 Bernd's line cutter was physically mounted in the new frame (winter 24/25) but never wired, and there is no plan to do so. The servo code, the 3rd-button long/double click and the `servo` field in the LoRa message are dead weight.
@@ -43,3 +43,4 @@ Bernd's line cutter was physically mounted in the new frame (winter 24/25) but n
 
 ## Log
 - 2026-09-28: created
+- 2026-09-30: implemented together with WINCH-06/07 (one flash). Transmitter: 3rd button (IO14), servo variable, `LineCutter()`/`setServo()` and the `servo` field removed. Receiver: ESP32Servo, servo object/pin 15 and the "Line Cutter" OLED line removed. `LoraTxMessage` is now 3 bytes (was 5); `static_assert`s in both sketches check 3/4 bytes. Additional safety fix: the admin transmitter's (ID 0) startup scan accepted packets `>=` the TX size; with 3 bytes it would have read the receiver's 4-byte ack as a transmitter message (possibly a wrong start state). Changed to `==`. README, CLAUDE.md updated. Both sketches compile (arduino-cli, esp32 core 2.0.15, board TTGO LoRa32-OLED). Not flashed, not bench-tested.

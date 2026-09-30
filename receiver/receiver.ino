@@ -3,9 +3,9 @@
  * sends acknowlegement on lora with current parameters
  * writes target pull with PWM signal to vesc
  * reads current parameters (tachometer, battery %, motor temp) with UART from vesc, based on (https://github.com/SolidGeek/VescUart/)
- * Added Support for a Relay and a Servo
- * The Relay controls the VESC Cooling Fan and a Warning Light (DHV Regulations)
- * The Servo triggers an Emergency Line Cutter
+ * A relay on IO12 switches the VESC cooling fan. The receiver switches it on by itself
+ * while a pull state is active and off again after FAN_RUN_ON_MS without pull [WINCH-07].
+ * (The emergency line cutter was removed [WINCH-05].)
  */
 
 //vesc battery number of cells
@@ -46,18 +46,18 @@ String packet ;
 //#define READS 20
 Pangodream_18650_CL BL(35); // pin 34 old / 35 new v2.1 hw
 
-// Servo Library
-#include <ESP32Servo.h> // https://www.arduino.cc/reference/en/libraries/esp32servo/
-
-// Set up Servo
-Servo myservo;  // create servo object to control a servo
-int pos = 0;    // variable to store the servo position
-int servoPin = 15; // Pin for Servo / signal cable
-bool servo = false;
- 
-// Set up Relay for Fan and Warning Light Control
+// Relay for the VESC cooling fan [WINCH-07]
 int relayPin = 12; //Connect Relay Red Cable to 5V, Black Cable to GND and White Cable / Signal to Pin 12
-bool relay = false;
+// Relay module polarity: true = IO12 HIGH switches the fan on (active-high module),
+// false = IO12 LOW switches the fan on (active-low module). Check on the bench that the fan
+// physically runs when the OLED shows "Fan ON" (known bug in WINCH-07).
+#define RELAY_ACTIVE_HIGH  true
+// Fan run-on after the last pull state (state >= 1), in ms. Lets the VESC cool down and
+// avoids switching the fan on and off during step tows.
+#define FAN_RUN_ON_MS  120000UL
+bool relay = false;                     // fan on/off, decided by the receiver only
+unsigned long lastPullStateMillis = 0;  // last time a pull state (currentState >= 1) was active
+bool pullStateSeen = false;             // no run-on after power-up in brake
 
 //Using VescUart library to read from Vesc (https://github.com/SolidGeek/VescUart/)
 #include <VescUart.h>
@@ -93,8 +93,8 @@ struct LoraTxMessage {
    int8_t currentState : 4;    // -2 --> -2 = hard brake -1 = soft brake, 0 = no pull / no brake, 1 = default pull (2kg), 2 = pre pull, 3 = take off pull, 4 = full pull, 5 = extra strong pull
    int8_t pullValue;           // target pull value,  -127 - 0 --> 5 brake, 0 - 127 --> pull
    int8_t pullValueBackup;     // to avoid transmission issues, TODO remove, CRC is enough??
-   bool servo;         // is supposed to send Servo position for emergency line cutter
-   bool relay;       // is supposed to turn relay on and off. Fan and warning light will be connected to relay
+   // [WINCH-05/07] servo and relay fields removed: 3 bytes instead of 5. Transmitter and
+   // receiver must be flashed together; packets of the old size are ignored.
 };
 //send by receiver (acknowledgement)
 struct LoraRxMessage {
@@ -107,6 +107,10 @@ struct LoraRxMessage {
 
 struct LoraTxMessage loraTxMessage;
 struct LoraRxMessage loraRxMessage;
+
+// Packets are matched by size: both sketches must have the same sizes [WINCH-05/07]
+static_assert(sizeof(LoraTxMessage) == 3, "LoraTxMessage must be 3 bytes, same as in transmitter.ino");
+static_assert(sizeof(LoraRxMessage) == 4, "LoraRxMessage must be 4 bytes, same as in transmitter.ino");
 
 int smoothStep = 0;    // used to smooth pull changes
 int hardBrake = -20;  //in kg
@@ -154,13 +158,9 @@ void setup() {
   vescUART.setSerialPort(&Serial1);
   //vescUART.setDebugPort(&Serial);
 
-  // Setup Servo
-	myservo.setPeriodHertz(50);    //sets the PWM (Pulse Width Modulation) signal frequency for the servo motor
-	myservo.attach(servoPin, 500, 2500); // attaches the servo on defined pin to the servo object
-	// different servos may require different min/max settings
-
-  // Setup Relay
+  // Setup Relay, fan off at power-up
   pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, RELAY_ACTIVE_HIGH ? LOW : HIGH);
 
   //lora init
   SPI.begin(SCK,MISO,MOSI,SS);
@@ -209,21 +209,17 @@ void loop() {
       display.setFont(ArialMT_Plain_10);  //10, 16, 24
       //display.drawString(0, 36, String("Error / Uptime{min}: ") + loraErrorCount + " / " + millis()/60000);
       // display.drawString(0, 36, String("B: ") + vescBattery + "%, M: " + vescTempMotor + "C");
-      if (relay == true) {
-        display.drawString(0, 36, String("Fan/Light ON "));
-        //Serial.printf("Relay On \n");
+      if (relay == true && currentState >= 1) {
+        display.drawString(0, 36, String("Fan ON"));
+      } else if (relay == true) {
+        // run-on: show remaining seconds
+        unsigned long fanOnSinceMs = millis() - lastPullStateMillis;
+        unsigned long fanRemainingS = fanOnSinceMs < FAN_RUN_ON_MS ? (FAN_RUN_ON_MS - fanOnSinceMs) / 1000 : 0;
+        display.drawString(0, 36, String("Fan ON (off in ") + fanRemainingS + " s)");
       } else {
-        display.drawString(0, 36, String("Fan/Light OFF "));
-        //Serial.printf("Relay OFF \n");
+        display.drawString(0, 36, String("Fan OFF"));
       }
       // display.drawString(0, 48, String("Last TX / RX: ") + lastTxLoraMessageMillis/100 + " / " + lastRxLoraMessageMillis/100);
-      if (servo == false) {
-        display.drawString(0, 48, String("Line Cutter: Ready "));
-        //Serial.printf("Line Cutter Ready \n");
-      } else {
-        display.drawString(0, 48, String("Line Cutter Activated!"));
-        //Serial.printf("EMERGENCY \n");
-      }
       display.display();
     }
     
@@ -248,9 +244,6 @@ void loop() {
               lastTxLoraMessageMillis = millis();
               rssi = LoRa.packetRssi();
               snr = LoRa.packetSnr();
-
-              servo = loraTxMessage.servo; // changes variable servo according to what is received over LoRa
-              relay = loraTxMessage.relay;  // changes variable relay according to what is received over LoRa
 
               // Serial.printf("Value received: %d, RSSI: %d: , SNR: %d \n", loraTxMessage.pullValue, rssi, snr);
               
@@ -391,21 +384,18 @@ void loop() {
       lastWritePWMMillis = millis();
       delay(10);    //RC PWM usually has a signal every 20ms (50 Hz)
 
-  // Emergeny Line Cutter / Servo
-  if (servo) {
-    pos = 90;
-		myservo.write(pos);    // tell servo to go to position in variable 'pos'
-
-  } else {
-    pos = 0;
-		myservo.write(pos);    // tell servo to go to position in variable 'pos'
-  }
-
-  // Relay for Cooling Fan and Warning Light Control
+  // Relay for the VESC cooling fan [WINCH-07]
+  // ON while a pull state is active (including failsafe default pull),
+  // OFF after FAN_RUN_ON_MS without any pull state.
+     if (currentState >= 1) {
+       lastPullStateMillis = millis();
+       pullStateSeen = true;
+     }
+     relay = pullStateSeen && (millis() - lastPullStateMillis < FAN_RUN_ON_MS);
      if (relay) {
-       digitalWrite(relayPin, HIGH); // turn Fan and Warning light on
+       digitalWrite(relayPin, RELAY_ACTIVE_HIGH ? HIGH : LOW); // fan on
      } else {
-       digitalWrite(relayPin, LOW); // turn Fan and Warning light off
+       digitalWrite(relayPin, RELAY_ACTIVE_HIGH ? LOW : HIGH); // fan off
      }
 
       //read actual Vesc values from uart

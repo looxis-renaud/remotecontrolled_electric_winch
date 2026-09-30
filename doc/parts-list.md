@@ -38,6 +38,7 @@ This is a list of parts including sourcing links
 
 ## Winding Mechanism
 * I am using a barrel cam mechanism, following this principle: https://www.youtube.com/shorts/LLIwVdaRViM - I used this part (with modifications): https://www.ebinger-gmbh.com/aufroller/zubehoer-aufrolltechnik/automatische-schlauchf%C3%BChrung-1-2-5-8-1-610-010.html - Artikel-Nr (SKU).: 1.610.010
+* Gears of the winding mechanism: **laser-sintered steel**. They were first 3D-printed in plastic to check function and fit; a plastic gear was destroyed in a line wrap, the steel gears are for permanent use. Source / drawings: *to be completed* (Fusion + STL files, see [WINCH-21](../features/WINCH-21-gear-cad-files.md))
 
 ## Azimuth System
 * Steel Pipe E235, 20x4mm (20mm outer diameter, 4mm wall thickness = 12mm inner diameter) https://www.ebay.de/itm/112957195210
