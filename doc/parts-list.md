@@ -4,7 +4,7 @@ This is a list of parts including sourcing links
 
 # Motor
 
-* Motor - QS Motor, 12kW 260 V4 https://www.aliexpress.com/item/4001237537247.html Version 72V 100kph
+* Motor - QS Motor, 12kW 260 V4 https://www.aliexpress.com/item/4001237537247.html Version 72V 100kph. Motor data, sensor wiring and manuals: [qs-motor/README.md](qs-motor/README.md)
 
 # Controller #
 * Controller - VESC 75/300 https://trampaboards.com/vesc-75v-300a-black-anodised-non-conductive-cnc-housing--the-most-powerful-vedder-electronic-speed-controller-ever-p-26284.html

@@ -1,19 +1,27 @@
 # Motor-Sensoren testen: Temperaturfühler und 3 Hall-Sensoren
 
-> Ausnahmsweise auf Deutsch. Gilt für den QS Motor 12kW 260 V4 der Winde mit 6-poligem Sensorstecker (3 Hall-Sensoren + Temperaturfühler). Hintergrund und Einbindung im VESC: [vesc/readme.md](../vesc/readme.md) ("Background: sensorless vs. hall sensors", "Recommendation: connect and use the hall sensors") und [WINCH-17](../features/WINCH-17-hall-sensors-foc.md).
+> Ausnahmsweise auf Deutsch. Gilt für den QS Motor 12kW 260 V4 der Winde mit 6-poligem Sensorstecker (3 Hall-Sensoren + Temperaturfühler). Hintergrund und Einbindung im VESC: [vesc/readme.md](../../vesc/readme.md) ("Background: sensorless vs. hall sensors", "Recommendation: connect and use the hall sensors") und [WINCH-17](../../features/WINCH-17-hall-sensors-foc.md).
 
 Benötigt: Multimeter, Labornetzteil, 3 Widerstände (4,7 bis 10 kΩ), am besten auch 3 LEDs mit je 1 kΩ Vorwiderstand.
 
 ## Pinbelegung
 
-| Kabelfarbe | Funktion |
-|---|---|
-| Schwarz | GND für Temperaturfühler und Hall (gemeinsamer Minuspol) |
-| Rot | Hall+ (Versorgung) |
-| Pin oben Mitte (Farbe nicht angegeben) | Temperaturfühler+ |
-| Blau, Grün, Gelb | vermutlich die drei Hall-Ausgänge |
+Der Motor hat **zwei Sensorsätze** (je 3 Hall-Sensoren + Temperaturfühler), einer davon ist Reserve. In Benutzung ist **Satz 1** mit selbst angebrachtem Stecker. Satz 2 hat noch den Original-QS-Stecker, war nie angeschlossen und ist ungeprüft.
 
-Hinweis: Die zugrunde liegende Anschlussgrafik zeigt nicht, ob man auf die Steckerseite oder die Kabelseite schaut. Orientiere dich an den Kabelfarben, nicht an der Position im Stecker. Das Kabel für den Temperaturfühler findest du über die Messung in Schritt 2.
+Belegung Satz 1 (von Etienne bestätigt, 2026-09-30):
+
+| Kabelfarbe am Motor | Kabelfarbe am Stecker | Funktion |
+|---|---|---|
+| Gelb | Gelb | Hall A |
+| Grün | Weiß | Hall B |
+| Blau | Rot | Hall C |
+| Schwarz | Schwarz | GND für Temperaturfühler und Hall (gemeinsamer Minuspol) |
+| Rot | Grün | +5 V (Hall-Versorgung) |
+| Silber (im QS-Handbuch "transparent") | Blau | Temperaturfühler |
+
+⚠ **Die Farben am Stecker passen nicht zu den Farben am Motor.** Rot am Stecker ist ein Hall-Signal, Grün am Stecker ist +5 V. Die Farbangaben in den Schritten unten beziehen sich auf die **Kabelfarben am Motor**. Wer am Stecker misst, muss sie über die Tabelle übersetzen.
+
+Weitere Motordaten: [README.md](README.md).
 
 ## Vorbereitung
 
@@ -44,6 +52,8 @@ Bei Raumtemperatur (ca. 25 °C) verrät der Wert den Sensortyp:
 
 KTY83 und PT1000 liegen bei Raumtemperatur nah beieinander. Unterscheiden lassen sie sich über die Änderung beim Erwärmen (KTY83 steigt etwa doppelt so stark) oder über das Datenblatt / die Bestellangaben von QS.
 
+**Messung an der Winde (Etienne, 2026-09-30):** 0,97 kΩ bei ca. 25 °C (Satz 1, Silber/Blau gegen Schwarz). Das passt zum KTY83-122, den auch das QS-Handbuch nennt. Der Erwärmungstest steht noch aus.
+
 Zur Kontrolle den Motor erwärmen, z. B. mit einem Föhn auf das Gehäuse. Weil der Fühler in der Wicklung sitzt, reagiert er träge. Richtwerte für einen 10k-NTC (B3950): 0 °C ≈ 33 kΩ, 40 °C ≈ 5,3 kΩ, 60 °C ≈ 2,5 kΩ.
 
 Ein Fehler liegt vor bei:
@@ -52,7 +62,7 @@ Ein Fehler liegt vor bei:
 - nahe 0 Ω (Kurzschluss),
 - einem Wert, der sich beim Erwärmen nicht ändert.
 
-Den Sensortyp brauchst du später im VESC Tool: Motor Settings, Einstellung `m_motor_temp_sens_type`. Welche Typen dort zur Auswahl stehen, hängt von der Firmware-Version ab. Die Configs im Repo sind hier uneinheitlich (Robert: `2`, Etienne 2024: `0`), siehe [WINCH-17](../features/WINCH-17-hall-sensors-foc.md).
+Den Sensortyp brauchst du später im VESC Tool: Motor Settings, Einstellung `m_motor_temp_sens_type`. Welche Typen dort zur Auswahl stehen, hängt von der Firmware-Version ab. Die Configs im Repo sind hier uneinheitlich (Robert: `2`, Etienne 2024: `0`), siehe [WINCH-17](../../features/WINCH-17-hall-sensors-foc.md).
 
 ## Schritt 3: Hall-Sensoren prüfen
 
@@ -89,9 +99,9 @@ Eine gültige Sequenz sieht z. B. so aus: 001 → 011 → 010 → 110 → 100 �
 
 ## Schritt 4: Abschlusstest am VESC
 
-Sind die Messungen in Ordnung, den Sensorstecker am Sensor-Port des VESC anschließen. Achtung: Das Trampa-Handbuch im Repo beschreibt die neuere MKVI-Revision. Lage und Belegung des Ports am eingebauten Controller vor Ort prüfen (siehe [vesc/readme.md](../vesc/readme.md)).
+Sind die Messungen in Ordnung, den Sensorstecker am Sensor-Port des VESC anschließen. Achtung: Das Trampa-Handbuch im Repo beschreibt die neuere MKVI-Revision. Lage und Belegung des Ports am eingebauten Controller vor Ort prüfen (siehe [vesc/readme.md](../../vesc/readme.md)).
 
-Dann im VESC Tool die Hall-Erkennung durchführen, wie in [vesc/readme.md](../vesc/readme.md) unter "Recommendation: connect and use the hall sensors" beschrieben. **Der Motor dreht sich dabei selbst: Seil entlastet, niemand an der Trommel.**
+Dann im VESC Tool die Hall-Erkennung durchführen, wie in [vesc/readme.md](../../vesc/readme.md) unter "Recommendation: connect and use the hall sensors" beschrieben. **Der Motor dreht sich dabei selbst: Seil entlastet, niemand an der Trommel.**
 
 - Eine erfolgreiche Erkennung erzeugt die Hall-Tabelle: Einträge 1 bis 6 haben Werte, nur 0 und 7 stehen auf 255.
 - Die Zuordnung der drei Signalkabel zu H1, H2 und H3 ist unkritisch, weil die Erkennung die Reihenfolge selbst ermittelt.
@@ -110,4 +120,4 @@ Dann im VESC Tool die Hall-Erkennung durchführen, wie in [vesc/readme.md](../ve
 
 ## Messprotokoll
 
-Ergebnisse bitte mit Datum in [WINCH-17](../features/WINCH-17-hall-sensors-foc.md) eintragen (Temperaturfühler: Pin, Messwert, Temperatur, Sensortyp; Hall: Kanäle, Sequenz, Auffälligkeiten).
+Ergebnisse bitte mit Datum in [WINCH-17](../../features/WINCH-17-hall-sensors-foc.md) eintragen (Temperaturfühler: Pin, Messwert, Temperatur, Sensortyp; Hall: Kanäle, Sequenz, Auffälligkeiten).

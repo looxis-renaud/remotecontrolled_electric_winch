@@ -35,7 +35,7 @@ OLED                                     battery, temp)          IO2 TX--       
 | `transmitter/` | Handheld remote sketch `transmitter.ino`: the in-use version (synced in WINCH-02, renamed from `transmitter_with-monitor-support.cpp` in WINCH-03; ID 3, `myMaxPull = 95`). ESP-NOW monitor code is commented out in four `[WINCH-04]` blocks; the flashed remote may still run it until reflashed |
 | `receiver/` | Winch-side sketch (`receiver.ino`) + helper module `LiPoCheck.cpp/.h` (battery % from cell voltage) |
 | `vesc/` | Patched VESC firmware binaries, VESC app/motor configs (XML), `vesc_ppm_auto_stop.patch` (reference only) |
-| `doc/` | Parts list, DXF/STL files, photos, motor manuals |
+| `doc/` | Parts list, DXF/STL files, photos. `doc/qs-motor/`: motor data, sensor wiring, QS manuals, sensor test procedure |
 | `features/` | Roadmap and feature tracking ([features/INDEX.md](features/INDEX.md)) |
 | `old/` | Archived, unmaintained code/docs (see [old/README.md](old/README.md)): cockpit monitor (`monitor-LoRa/`, `monitor-ESP-NOW/`), retired in WINCH-04 |
 
