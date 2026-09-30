@@ -75,7 +75,7 @@ transmitter is commented out.
 
 # VESC
 VESC is the Open Source Electronic Speed Controler developed by Benjamin Vedder ( **V**edder **E**lectronic **S**peed **C**ontroller)
-Topic has been moved here: https://github.com/looxis-renaud/ewinch_remote_controller/tree/main/vesc#readme
+Topic has been moved here: [vesc/readme.md](vesc/readme.md). Hands-on guide for VESC Tool (faults, realtime data, settings, hall sensors): [vesc/vesc-tool-guide.md](vesc/vesc-tool-guide.md).
 
 ## Cooling fan
 The VESC cooling fan is switched by a relay on receiver IO 12. The receiver decides by itself, there is no button for it:

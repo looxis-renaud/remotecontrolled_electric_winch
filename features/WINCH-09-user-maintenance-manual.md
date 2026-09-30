@@ -44,7 +44,7 @@ Collected here until `doc/manual.md` exists.
 - [ ] Checklists are used in the field once and refined.
 
 ## Open questions
-- [ ] Is a printable one-page checklist (PDF) wanted as well?
+- [x] Is a printable one-page checklist (PDF) wanted as well? → Yes, laminated on the winch: [WINCH-24](WINCH-24-printable-checklist.md).
 - [ ] Is there DHV-relevant documentation to reference?
 
 ## Decision log

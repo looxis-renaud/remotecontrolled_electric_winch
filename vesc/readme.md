@@ -117,6 +117,8 @@ Winch-relevant points from the manufacturer manual ([PDF](VESC-75-300-MKIV-MANUA
 
 The VESC is configured with **VESC Tool** (https://vesc-project.com/vesc_tool) over USB. This section explains the setup steps and the background needed to understand them.
 
+**Hands-on guide** (connecting, read/write, backups, terminal and faults, realtime data, ERPM and hall ranges, temperature sensor, hall detection): [vesc-tool-guide.md](vesc-tool-guide.md).
+
 > ⚠ **Firmware:** The VESC runs **FW 5.3** with the autostop patch (read out in VESC Tool on 2026-09-30, HW `75_300_R3`). Use the matching **VESC Tool 3.01**. A newer VESC Tool may offer a **firmware update: decline it.** An update would replace the patched autostop firmware ([vesc_75_300_auto_stop.bin](vesc_75_300_auto_stop.bin)) with a stock firmware without line autostop.
 >
 > **Backups:** Before and after every change, save the motor and app configuration as XML files in VESC Tool and commit them to this folder with a date prefix, e.g. `260929_motor_config.xml`.

@@ -124,7 +124,7 @@ Found while reading the code. Not fixed yet. The repo may also be behind Etienne
 - `LoRa.begin(868E6)` is hardcoded, so the `BAND` define is unused.
 - Failsafe comment says 10 s, the code uses 20 s.
 - Receiver autostop tachometer thresholds (2–40) vs. the patch (1500 ≈ 15 m) use different units.
-- *Etienne's observation:* the reported line length is about 0.7× the real length, although the drum diameter and related settings in the VESC app appear to be entered correctly.
+- *Etienne's observation:* the reported line length is about 0.7× the real length, although the drum diameter and related settings in the VESC app appear to be entered correctly. **Hypothesis (calculated, to be verified, WINCH-08):** `receiver.ino` assumes 100 tachometer counts per metre and the patch 1500 counts ≈ 15 m, which fits Robert's ~0.97 m drum circumference. With 96 counts per drum turn and this winch's 0.43 m drum (≈ 1.35 m) it is ≈ 71 counts/m → display ≈ 0.71× real length, and the VESC autostop triggers at ≈ 21 m instead of 15 m. The VESC's `si_wheel_diameter` only affects VESC Tool displays, not these raw counts. See [vesc/vesc-tool-guide.md](vesc/vesc-tool-guide.md) section 8.
 
 ## Workflow
 

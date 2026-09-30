@@ -24,6 +24,8 @@ Autostop protects the azimuth system and the line at the end of the rewind, but 
   - ⚠ the rewind rule (max. state 2, from WINCH-01) repeated here
   - recovery procedure: line on the ground / remote switched off too early → gently turn the poti to rewind
 - Document open points (tachometer units RX vs. patch; Etienne's observation that line length reads ~0.7× too short).
+  - **Hypothesis (2026-09-30, calculated):** both come from the drum size. 96 tachometer counts per drum turn (16 pole pairs × 6); `receiver.ino` assumes 100 counts/m and the patch 1500 counts ≈ 15 m, which fits Robert's ~0.97 m drum circumference. This winch's drum: 0.43 m → ≈ 1.35 m circumference → ≈ 71 counts/m → display ≈ 0.71× real length (matches the observation), autostop at ≈ 21 m line left instead of 15 m. Details: [vesc/vesc-tool-guide.md](../vesc/vesc-tool-guide.md) section 8.
+  - [ ] Verify: pull out a measured length (e.g. 10 m, soft brake), read `Tac` in VESC Tool Realtime Data. Expected ≈ 710 counts on the empty drum if the hypothesis is right.
 
 ## Out of scope
 - Any change to VESC firmware, patch or configs (frozen, see CLAUDE.md).
