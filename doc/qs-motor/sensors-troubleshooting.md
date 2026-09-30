@@ -62,7 +62,7 @@ Ein Fehler liegt vor bei:
 - nahe 0 Ω (Kurzschluss),
 - einem Wert, der sich beim Erwärmen nicht ändert.
 
-Den Sensortyp brauchst du später im VESC Tool: Motor Settings, Einstellung `m_motor_temp_sens_type`. Welche Typen dort zur Auswahl stehen, hängt von der Firmware-Version ab. Die Configs im Repo sind hier uneinheitlich (Robert: `2`, Etienne 2024: `0`), siehe [WINCH-17](../../features/WINCH-17-hall-sensors-foc.md).
+Den Sensortyp brauchst du später im VESC Tool: Motor Settings, Einstellung `m_motor_temp_sens_type`. Zu finden unter Motor Settings → General → Advanced → Motor Temperature Sensor Type. **An der Winde ist seit 2026-09-30 KTY83/122 eingestellt** (vorher NTC 10k, was einen dauerhaften Übertemperatur-Fehler ausgelöst hat), siehe [WINCH-17](../../features/WINCH-17-hall-sensors-foc.md).
 
 ## Schritt 3: Hall-Sensoren prüfen
 

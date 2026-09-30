@@ -3,6 +3,18 @@
 Nothing in this folder is used on the winch any more. It is kept for reference only and is **not maintained**.
 Do not flash anything from here without checking it against the current transmitter/receiver code first.
 
+## Superseded VESC config backups (`vesc-configs/`, archived September 2026, WINCH-17)
+
+The current VESC configuration is in [../vesc/](../vesc/readme.md) (`260930_*.xml`: FOC hall mode, KTY83/122 temperature sensor). **Do not write these old configs to the VESC.**
+
+| File | What it is |
+|------|------------|
+| `vesc-configs/240601_motor_config.xml` | Etienne, June 2024: motor config of this winch, **sensorless**, temperature sensor type NTC 10k (wrong for this motor; caused `FAULT_CODE_OVER_TEMP_MOTOR` with the sensor cable connected). |
+| `vesc-configs/240601_app_config.xml` | Etienne, June 2024: app config (identical to the current one). |
+| `vesc-configs/vesc_motor_config_12kw_260_V4.xml` | Robert Zach, 2022: QS 12 kW 260 V4, hall mode (his motor). |
+| `vesc-configs/vesc_motor_config_12kw_273.xml` | Robert Zach, 2022: QS 12 kW 273, hall mode. |
+| `vesc-configs/vesc_app_config.xml` | Robert Zach, 2022: app config (different PPM pulse range). |
+
 ## Cockpit monitor (retired September 2026, WINCH-04)
 
 A monitor on the pilot's cockpit showed winch values (pull, line length, duty cycle) and could change settings.

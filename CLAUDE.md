@@ -51,7 +51,9 @@ OLED                                     battery, temp)          IO2 TX--       
 
 ## VESC firmware is frozen
 
-- The controller is a **Trampa VESC 75/300** (HW `75_300_R3`). It runs the patched firmware [vesc/vesc_75_300_auto_stop.bin](vesc/vesc_75_300_auto_stop.bin) (committed by Robert Zach, 2022-07-08, most likely **FW 5.x**; the exact flashed version is still to be read out in VESC Tool, see WINCH-08).
+- The controller is a **Trampa VESC 75/300** (HW `75_300_R3`). It runs the patched firmware [vesc/vesc_75_300_auto_stop.bin](vesc/vesc_75_300_auto_stop.bin) (committed by Robert Zach, 2022-07-08). **Flashed version confirmed: FW 5.3** with autostop patch (VESC Tool 3.01, 2026-09-30). Use VESC Tool 3.01 and decline firmware updates.
+- **Current VESC config:** [vesc/260930_motor_config.xml](vesc/260930_motor_config.xml) / [vesc/260930_app_config.xml](vesc/260930_app_config.xml): FOC **hall mode**, motor temperature sensor **KTY83/122** (the sensor cable must stay connected, an open input reads as over-temperature). Superseded backups live in `old/vesc-configs/`.
+- ⚠ Open safety issue: over-voltage fault when braking from full speed (WINCH-22).
 - **Do not touch, rebuild or propose changes to the VESC firmware, the patch or the VESC configs** unless Etienne explicitly asks for it. `vesc_ppm_auto_stop.patch` is reference documentation for understanding autostop behaviour only.
 - A 6.02 build (`VESC_75_300_AutoStop.bin`) existed in the repo briefly in May 2024 and was deleted. It is not the reference firmware.
 

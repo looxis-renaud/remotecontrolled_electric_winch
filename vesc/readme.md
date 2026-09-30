@@ -43,7 +43,7 @@ Winch-relevant points from the manufacturer manual ([PDF](VESC-75-300-MKIV-MANUA
 |------|--------|---------------|
 | PPM | Input from an RC receiver. Never connect one receiver to several VESCs (Y-PPM); use opto decouplers. | PPM signal from the LoRa receiver (IO13). |
 | COMM | UART, I²C and ADC; on the MKVI also the power-switch pin. | UART telemetry to the receiver; potentiometer on ADC2 (see "Line auto stop in VESC"). |
-| Sensors | Hall, ABI or AS5047P motor position sensors (3.3 V or 5 V). | *TODO (Etienne): confirm whether the motor's hall sensors are connected.* |
+| Sensors | Hall, ABI or AS5047P motor position sensors (3.3 V or 5 V). | Motor sensor cable (3 hall sensors + KTY83-122 temperature sensor) connected, FOC hall mode active since 2026-09-30. Wire colours: [doc/qs-motor/README.md](../doc/qs-motor/README.md). |
 | Motor A/B/C | Phase colours: A = yellow, B = blue, C = red (for correct display in VESC Tool). | QS Motor phases. |
 | CAN | Only connect CAN H and CAN L; all devices on the same battery GND. | Not used. |
 | USB | Configuration, firmware update, real-time data (USB-C on the MKVI). | VESC Tool via **Mini-USB**. |
@@ -117,7 +117,7 @@ Winch-relevant points from the manufacturer manual ([PDF](VESC-75-300-MKIV-MANUA
 
 The VESC is configured with **VESC Tool** (https://vesc-project.com/vesc_tool) over USB. This section explains the setup steps and the background needed to understand them.
 
-> ⚠ **Firmware:** The VESC Tool version must fit the firmware on the VESC (most likely FW 5.x, see [WINCH-08](../features/WINCH-08-autostop-docs-verification.md)). A newer VESC Tool may offer a **firmware update: decline it.** An update would replace the patched autostop firmware ([vesc_75_300_auto_stop.bin](vesc_75_300_auto_stop.bin)) with a stock firmware without line autostop.
+> ⚠ **Firmware:** The VESC runs **FW 5.3** with the autostop patch (read out in VESC Tool on 2026-09-30, HW `75_300_R3`). Use the matching **VESC Tool 3.01**. A newer VESC Tool may offer a **firmware update: decline it.** An update would replace the patched autostop firmware ([vesc_75_300_auto_stop.bin](vesc_75_300_auto_stop.bin)) with a stock firmware without line autostop.
 >
 > **Backups:** Before and after every change, save the motor and app configuration as XML files in VESC Tool and commit them to this folder with a date prefix, e.g. `260929_motor_config.xml`.
 
@@ -151,46 +151,40 @@ What this means on the winch (rough numbers from the config: 32 magnets = 16 pol
 
 Things to know:
 
-- **The 6-wire sensor cable also carries the motor temperature sensor** (5 V, GND, H1, H2, H3, TEMP). With the cable unplugged, the VESC has **no motor over-temperature protection** (`l_temp_motor_start/end`), and the remote cannot show a real motor temperature.
+- **The 6-wire sensor cable also carries the motor temperature sensor** (5 V, GND, H1, H2, H3, TEMP). The motor has a **KTY83-122** sensor, so `m_motor_temp_sens_type` must be **KTY83/122** (Motor Settings → General → Advanced → Motor Temperature Sensor Type). With this setting an unplugged cable reads as extremely hot: the VESC raises `FAULT_CODE_OVER_TEMP_MOTOR` and gives no current. **The sensor cable must always be connected.**
+- ⚠ **Wrong sensor type = no current.** Until 2026-09-30 the type was set to NTC 10k. The KTY83's ~1 kΩ then reads as ~100 °C, above the 75/85 °C motor limits: red LED, `FAULT_CODE_OVER_TEMP_MOTOR`, the motor doesn't turn (not even with the potentiometer). That was the "VESC error with the sensor cable connected" from WINCH-16.
 - **Downside of hall mode:** the VESC depends on the sensor cable. A loose plug, broken wire or faulty sensor gives wrong positions: jerks, weak pull or fault codes. Cable and connectors must be reliable. Sensorless mode has no such dependency.
 - **Plugging in the cable alone changes nothing.** The VESC only uses the sensors when the sensor mode is set to *Hall* **and** the hall table has been measured (see below).
 
-Sensor mode in the configs in this folder:
+**Current state (2026-09-30): the winch runs in FOC hall mode** (`foc_sensor_mode = 2`, backup [260930_motor_config.xml](260930_motor_config.xml)). Hall table measured: `255, 65, 118, 103, 199, 34, 173, 255`. Until then it ran sensorless (June 2024 config, now in [old/vesc-configs/](../old/vesc-configs/)). Check in VESC Tool: **Motor Settings → FOC → General → Sensor Mode.**
 
-| Config | Origin | `foc_sensor_mode` | Hall table |
-|---|---|---|---|
-| [vesc_motor_config_12kw_260_V4.xml](vesc_motor_config_12kw_260_V4.xml) | Robert Zach, 2022 | **2 = Hall** | measured |
-| [vesc_motor_config_12kw_273.xml](vesc_motor_config_12kw_273.xml) | Robert Zach, 2022 | **2 = Hall** | measured |
-| [240601_motor_config.xml](240601_motor_config.xml) | Etienne, June 2024 | **0 = Sensorless** | empty (all 255) |
+Note: **Motor Settings → General → "Sensor Port Mode: Hall Sensors"** only says what kind of sensor could be connected to the port (hall, ABI encoder, AS5047). It does not switch hall mode on; that is the FOC Sensor Mode.
 
-Which mode is active on the VESC right now has to be read in VESC Tool: **Motor Settings → FOC → General → Sensor Mode.**
+## Hall sensors: how they were set up (and how to redo it)
 
-## Recommendation: connect and use the hall sensors
+> ⚠ **Safety-relevant.** Hall mode changes how the motor starts and brakes. Bench test first, then field test. Tracked in [WINCH-17](../features/WINCH-17-hall-sensors-foc.md).
 
-> ⚠ **Safety-relevant.** This changes how the motor starts and brakes. Bench test first, then field test. Tracked in [WINCH-17](../features/WINCH-17-hall-sensors-foc.md).
+Chosen because the winch spends its most critical moments (start, pre-pull, braking, autostop) at low speed under load, and because the sensor cable also provides the motor temperature protection.
 
-Recommended because the winch spends its most critical moments (start, pre-pull, braking, autostop) at low speed under load, and because the sensor cable also restores the motor temperature protection.
+**Prerequisites**
+1. Sensor cable checked wire by wire (5 V, GND, H1, H2, H3, TEMP). Test procedure for the temperature sensor and the three hall sensors (German): [doc/qs-motor/sensors-troubleshooting.md](../doc/qs-motor/sensors-troubleshooting.md). Wire colours: [doc/qs-motor/README.md](../doc/qs-motor/README.md) (plug colours differ from motor wire colours). Status 2026-09-30: hall sensors of sensor set 1 intact, temperature sensor 0.97 kΩ at ~25 °C (KTY83-122).
+2. Motor temperature sensor type set to **KTY83/122** (see above), otherwise `FAULT_CODE_OVER_TEMP_MOTOR`.
 
-**Before you start**
-1. Find out why the VESC showed a fault when the repaired sensor cable was connected last time ([WINCH-16](../features/WINCH-16-uart-telemetry-zero.md)): read the fault code in VESC Tool.
-2. Check the sensor cable wire by wire (5 V, GND, H1, H2, H3, TEMP) against the motor's pinout and the VESC sensor port. Check the sensor supply voltage the motor's hall sensors need. Test procedure for the temperature sensor and the three hall sensors (German): [doc/qs-motor/sensors-troubleshooting.md](../doc/qs-motor/sensors-troubleshooting.md). Wire colours: [doc/qs-motor/README.md](../doc/qs-motor/README.md) (plug colours differ from motor wire colours). *Status 2026-09-30:* hall sensors of sensor set 1 measured intact, temperature sensor 0.97 kΩ at ~25 °C (KTY83-122); the VESC fault from step 1 is still open.
-3. Find out which temperature sensor the QS motor has (e.g. from the QS order/spec sheet) and set `m_motor_temp_sens_type` to match. The configs differ here: Robert's uses `2`, Etienne's 2024 config `0`.
-
-**Procedure**
+**Procedure** (done this way on 2026-09-30; **not** with the Setup Motor FOC wizard, which would also reset current limits, battery and temperature settings)
 1. Save the current motor and app configuration as XML (backup).
-2. Secure the winch. **Unhook the line or make sure there is no load on it, and keep everyone away from the drum: the motor turns by itself during detection.**
-3. Plug in the sensor cable.
-4. Run **Setup Motor FOC** again (or, in Motor Settings → FOC → Hall Sensors, run only the hall detection).
-5. Check the hall table: entries 1–6 must have values, only entries 0 and 7 are 255. If more entries are 255, a sensor or wire is faulty. Do not use hall mode then.
-6. Set **Sensor Mode = Hall**, write the motor configuration, and check the other motor settings against the backup (see "Setup Motor FOC" below).
-7. Save the new configuration as XML and commit it.
+2. Potentiometer at the "off" end. Secure the winch. **Unhook the line or make sure there is no load on it, and keep everyone away from the drum: the motor turns by itself during detection.**
+3. Motor Settings → FOC → **Hall Sensors** tab: run only the hall detection (default detection current; increase in small steps if the motor doesn't turn).
+4. Check the hall table: entries 1–6 must have values, only entries 0 and 7 are 255. If more entries are 255, a sensor or wire is faulty. Do not use hall mode then.
+5. Apply the table, set FOC → General → **Sensor Mode = Hall** (Sensorless ERPM stays 2000), **write** the motor configuration.
+6. Short test with the potentiometer (little travel): smooth start from standstill and smooth braking from slow speed. Then `faults` in the VESC Tool terminal.
+7. Read the configuration back, save it as XML and commit it to this folder.
 
 **Bench checks** (workshop, no pilot)
 - Smooth start from standstill in the pull states, also against load (line held / tied back), no jerks or backwards twitch.
 - Brake to standstill (soft brake, hard brake) without jerks.
 - Motor temperature on the remote is plausible (about ambient temperature when cold).
 - Line length counts up and down ([WINCH-16](../features/WINCH-16-uart-telemetry-zero.md)).
-- Unplug the sensor cable deliberately once on the bench (low pull state only) to see how the VESC reacts (fault code, behaviour), so the failure mode is known.
+- Unplug the sensor cable deliberately once on the bench (low pull state only) to see how the VESC reacts, so the failure mode is known. Expected with the KTY83/122 setting: `FAULT_CODE_OVER_TEMP_MOTOR` (open temperature input reads as very hot), no current.
 
 ## Setup wizards
 
@@ -205,7 +199,7 @@ The wizard asks roughly for:
 
 and then **measures the motor**. The motor makes noises and **turns during the measurement** (no line load, nobody at the drum). Afterwards it lets you choose the motor direction.
 
-What it measures and calculates (values from [240601_motor_config.xml](240601_motor_config.xml)):
+What it measures and calculates (values from [260930_motor_config.xml](260930_motor_config.xml); R, L and λ were measured in 2024 and are unchanged):
 
 | Value | Config name | Value in backup | What it means in simple words |
 |---|---|---|---|
@@ -213,8 +207,8 @@ What it measures and calculates (values from [240601_motor_config.xml](240601_mo
 | Inductance L | `foc_motor_l` | 17.8 µH | How "sluggish" the windings are against changes in current. Determines how fast the VESC can change the current. |
 | Flux linkage λ | `foc_motor_flux_linkage` | 26.1 mWb | Strength of the magnets as seen by the coils. The key motor constant: it links **current to torque** and **speed to voltage**. |
 | Current controller gains | `foc_current_kp`, `foc_current_ki` | 0.0178 / 4.34 | Settings of the VESC's internal current regulator. Not measured but **calculated from L and R** (here L × 1000 and R × 1000). |
-| Observer gain | `foc_observer_gain` | 1.47 × 10⁶ | Tuning of the sensorless position estimator, **calculated from λ**. |
-| Hall table | `foc_hall_table__0…7` | all 255 (no sensors) | Only with hall sensors: which rotor angle each of the 6 sensor combinations stands for. |
+| Observer gain | `foc_observer_gain` | 1.47 × 10⁶ | Tuning of the sensorless position estimator (used above `foc_sl_erpm`), **calculated from λ**. |
+| Hall table | `foc_hall_table__0…7` | 255, 65, 118, 103, 199, 34, 173, 255 | Which rotor angle each of the 6 hall sensor combinations stands for. Measured by the hall detection on 2026-09-30. |
 
 Rough cross-check with λ (theoretical, ignoring friction and losses): torque per amp ≈ 1.5 × 16 pole pairs × 0.0261 ≈ 0.63 Nm/A. At a drum radius of 0.215 m that is ≈ 2.9 N per amp, i.e. **≈ 3.4 A per kg of line pull.** This fits the ≈ 3.6 A/kg estimate used for the pull states (see [WINCH-14](../features/WINCH-14-pull-value-calibration.md)). The effective drum radius grows as line is wound on, so the real value varies.
 
@@ -226,8 +220,8 @@ Configures how the VESC reads the PPM signal from the LoRa receiver. The receive
 
 | Config | Pulse start | Center | End |
 |---|---|---|---|
-| [240601_app_config.xml](240601_app_config.xml) (Etienne) | 0.933 ms | 1.458 ms | 1.984 ms |
-| [vesc_app_config.xml](vesc_app_config.xml) (Robert) | 1.1 ms | 1.459 ms | 1.768 ms |
+| [260930_app_config.xml](260930_app_config.xml) (this winch, unchanged since June 2024) | 0.933 ms | 1.458 ms | 1.984 ms |
+| [old/vesc-configs/vesc_app_config.xml](../old/vesc-configs/vesc_app_config.xml) (Robert, for comparison) | 1.1 ms | 1.459 ms | 1.768 ms |
 
 > ⚠ **Do not re-run the input wizard casually.** The pulse range defines how many amps each pull state means, i.e. the actual pull in kg. Changing it is safety-relevant, needs Etienne's decision and a bench test, and should go together with the pull calibration ([WINCH-14](../features/WINCH-14-pull-value-calibration.md)).
 
@@ -235,7 +229,7 @@ Configures how the VESC reads the PPM signal from the LoRa receiver. The receive
 
 Motor settings are specific to the motor. **Every time a different motor is connected, the motor must be set up again** (Setup Motor FOC), otherwise the VESC and/or the motor can be damaged. Changes only take effect after the motor configuration has been **written** to the VESC.
 
-Settings worth knowing (values from [240601_motor_config.xml](240601_motor_config.xml); the VESC itself may differ):
+Settings worth knowing (values from [260930_motor_config.xml](260930_motor_config.xml), read from the VESC on 2026-09-30):
 
 | Setting | Config name | Value in backup | Note |
 |---|---|---|---|
@@ -243,13 +237,15 @@ Settings worth knowing (values from [240601_motor_config.xml](240601_motor_confi
 | Battery current max / min | `l_in_current_max` / `l_in_current_min` | 290 A / −290 A | Max. current drawn from / fed back into the battery. Must fit the BMS. |
 | Absolute max current | `l_abs_current_max` | 290 A | Hard cut-off: above this the VESC faults. |
 | Battery cutoff start / end | `l_battery_cut_start` / `l_battery_cut_end` | 54.4 V / 48 V (3.4 / 3.0 V per cell) | Below "start" the VESC reduces the current, at "end" it stops. The battery voltage sags under load, so with a partly discharged battery the **pull can be reduced during a tow**. |
-| Max input voltage | `l_max_vin` | 72 V | Over-voltage fault. Full battery = 67.2 V; regenerative braking raises it. |
-| Motor temp start / end | `l_temp_motor_start` / `l_temp_motor_end` | 75 °C / 85 °C | Current is reduced between these. **Only works with the temperature sensor connected.** |
+| Max input voltage | `l_max_vin` | 72 V | Over-voltage fault. Full battery = 67.2 V; regenerative braking raises it. ⚠ Triggered on 2026-09-30 when braking from full speed, see [WINCH-22](../features/WINCH-22-overvoltage-regen-braking.md). |
+| Motor temp start / end | `l_temp_motor_start` / `l_temp_motor_end` | 75 °C / 85 °C | Current is reduced between these. **Only works with the temperature sensor connected and the right sensor type.** |
 | FET temp start / end | `l_temp_fet_start` / `l_temp_fet_end` | 85 °C / 100 °C | Controller temperature; see cooling fan. |
 | Motor type | `motor_type` | 2 = FOC | |
-| Sensor mode | `foc_sensor_mode` | 0 = Sensorless | 2 = Hall, see recommendation above. |
-| Sensorless switch-over speed | `foc_sl_erpm` | 2000 ERPM | Below this, hall mode uses the sensors. |
-| Motor temp sensor type | `m_motor_temp_sens_type` | 0 | Must match the motor's sensor (open question). |
+| Sensor mode | `foc_sensor_mode` | 2 = Hall | Since 2026-09-30 (was 0 = sensorless). |
+| Sensorless switch-over speed | `foc_sl_erpm` | 2000 ERPM | Below this, hall mode uses the sensors; above it the sensorless observer. |
+| Hall interpolation | `foc_hall_interp_erpm` | 500 ERPM | Above this, the VESC interpolates between hall sectors. |
+| Motor temp sensor type | `m_motor_temp_sens_type` | 2 = KTY83/122 | Matches the motor (KTY83-122). Was 0 = NTC 10k until 2026-09-30, which caused `FAULT_CODE_OVER_TEMP_MOTOR`. |
+| Auxiliary output mode | `m_out_aux_mode` | 11 = "Temp motor or mosfet > 50 C" | AUX output switches on above 50 °C. What is connected to which 12 V output: see [WINCH-07](../features/WINCH-07-automatic-cooling-fan.md). |
 | Motor poles | `si_motor_poles` | 32 | 16 pole pairs. |
 | Wheel (drum) diameter | `si_wheel_diameter` | 0.43 m | Used for speed/distance in VESC Tool. |
 | Battery cells / capacity | `si_battery_cells` / `si_battery_ah` | 16 / 40 Ah | 16S10P × 4 Ah. |
@@ -268,17 +264,16 @@ App settings define which input the VESC listens to. Changes only take effect af
 
 The potentiometer on ADC2 is handled by the autostop firmware patch, not by a normal app (see "Line auto stop in VESC" below).
 
-**Toolbar:** On the right-hand side of VESC Tool there are buttons for motor (**M**) and app (**A**) configuration: *read* the configuration from the VESC, *read default* configuration, and *write* the configuration to the VESC. Always read first, change, then write.
+**Toolbar:** On the right-hand side of VESC Tool there are buttons for motor (**M**) and app (**A**) configuration: *read* the configuration from the VESC, *read default* configuration, and *write* the configuration to the VESC. Always read first, change, then write. Go by the tooltips: in VESC Tool 3.01 **write** is the icon with the arrow pointing **down**.
 
 ## Config backups in this repo
 
 | File | Origin | Content |
 |---|---|---|
-| [240601_motor_config.xml](240601_motor_config.xml) | Etienne, 2024-06-01 | Motor config of this winch (sensorless) |
-| [240601_app_config.xml](240601_app_config.xml) | Etienne, 2024-06-01 | App config of this winch |
-| [vesc_motor_config_12kw_260_V4.xml](vesc_motor_config_12kw_260_V4.xml) | Robert Zach, 2022 | QS 12 kW 260 V4, hall mode |
-| [vesc_motor_config_12kw_273.xml](vesc_motor_config_12kw_273.xml) | Robert Zach, 2022 | QS 12 kW 273, hall mode |
-| [vesc_app_config.xml](vesc_app_config.xml) | Robert Zach, 2022 | App config |
+| [260930_motor_config.xml](260930_motor_config.xml) | Etienne, 2026-09-30 | **Current** motor config of this winch: FOC hall mode, KTY83/122 temperature sensor |
+| [260930_app_config.xml](260930_app_config.xml) | Etienne, 2026-09-30 | **Current** app config of this winch (PPM + UART; unchanged since June 2024) |
+
+Older backups (June 2024 sensorless config, Robert Zach's 2022 configs) are archived in [old/vesc-configs/](../old/vesc-configs/). Keep only the current backups here; move superseded ones to `old/vesc-configs/`.
 
 **PLEASE NOTE:** Don't just load a motor config and write it to your VESC. Use it as an example only. Always run the **Setup Motor FOC** wizard so the VESC measures the real motor (resistance, inductance, flux linkage, hall sensors).
 

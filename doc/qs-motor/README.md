@@ -29,10 +29,10 @@ This page collects what is known about the motor. Values marked *to be completed
 | Hall sensors | 3 hall sensors, 5 V supply. **Two sensor sets** (each 3 halls + temperature sensor), one of them a spare | QS manual p. 1, Kelly manual |
 | Sensor set 1 | Fitted with our own plug, in use. All 3 hall sensors measured intact | Etienne, 2026-09-30 |
 | Sensor set 2 | Original QS plug (no matching counterpart), never connected, unchecked | Etienne, 2026-09-30 |
-| Temperature sensor | **Most likely KTY83-122.** Measured 0.97 kΩ at ~25 °C (KTY83-122 nominal 1.0 kΩ; a PT1000 would be ~1.1 kΩ, a 10k NTC ~10 kΩ). Heating test (resistance must rise ~0.8 %/°C) *to be completed* | QS manual p. 3, Etienne's measurement 2026-09-30 |
+| Temperature sensor | **KTY83-122.** Measured 0.97 kΩ at ~25 °C (KTY83-122 nominal 1.0 kΩ; a PT1000 would be ~1.1 kΩ, a 10k NTC ~10 kΩ). VESC set to KTY83/122 shows plausible temperatures. Heating test (resistance must rise ~0.8 %/°C) *to be completed* | QS manual p. 3, Etienne's measurement and VESC Tool session 2026-09-30 |
 | Waterproofing | IP65 (hub motors) | QS manual p. 5 |
 | QS temperature limits (V2/V3/V4) | 130 °C inside the motor (for 30 s) → limit current to 50 %; 145 °C → shut down, resume at 110 °C | QS manual p. 11 |
-| Phase resistance R | ≈ 4.3–5.8 mΩ | VESC motor detection: `240601_motor_config.xml` (4.34 mΩ), Robert's `vesc_motor_config_12kw_260_V4.xml` (5.8 mΩ) |
+| Phase resistance R | ≈ 4.3–5.8 mΩ | VESC motor detection: this winch 4.34 mΩ ([260930_motor_config.xml](../../vesc/260930_motor_config.xml), measured 2024), Robert's 260 V4 5.8 mΩ ([old/vesc-configs/](../../old/vesc-configs/)) |
 | Inductance L | ≈ 16–18 µH (Ld–Lq ≈ 4.7 µH) | same configs |
 | Flux linkage λ | ≈ 25.6–26.1 mWb | same configs |
 | Torque constant Kt | ≈ 0.63 Nm/A (derived: 1.5 × 16 pole pairs × λ). With the 0.43 m drum that is ≈ 3.4 A motor current per kg of line pull, consistent with the ~3.6 A/kg used for `myMaxPull` | Calculated estimate, not measured |
@@ -62,15 +62,15 @@ Confirmed by Etienne, 2026-09-30.
 
 ## VESC settings for this motor
 
-The VESC configuration is documented in [vesc/readme.md](../../vesc/readme.md). That file is the authority. Motor-related values in the configs in `vesc/`:
+The VESC configuration is documented in [vesc/readme.md](../../vesc/readme.md). That file is the authority. Motor-related values in the current config [vesc/260930_motor_config.xml](../../vesc/260930_motor_config.xml):
 
 | Setting | Value | Note |
 |---------|-------|------|
-| `motor_type` | 2 (FOC) | all configs |
-| `l_current_max` / `l_current_min` | 250 A / −250 A | Robert's 260 V4 config and Etienne's 2024 config |
+| `motor_type` | 2 (FOC) | |
+| `l_current_max` / `l_current_min` | 250 A / −250 A | Unchanged since 2024 |
 | `l_temp_motor_start` / `l_temp_motor_end` | 75 °C / 85 °C | Much more conservative than the QS limits above. Only works with the sensor cable connected |
-| `foc_sensor_mode` | Robert 2022: 2 (Hall); Etienne 2024: 0 (sensorless) | See [WINCH-17](../../features/WINCH-17-hall-sensors-foc.md) |
-| `m_motor_temp_sens_type` | Robert: 2; Etienne 2024: 0 | Must match the KTY83-122 once confirmed (WINCH-17) |
+| `foc_sensor_mode` | 2 (Hall) since 2026-09-30 | Hall table `255, 65, 118, 103, 199, 34, 173, 255`. See [WINCH-17](../../features/WINCH-17-hall-sensors-foc.md) |
+| `m_motor_temp_sens_type` | 2 (KTY83/122) since 2026-09-30 | Was 0 (NTC 10k) → permanent over-temperature fault. The sensor cable must stay connected |
 | `si_motor_poles` | 32 | = 16 pole pairs |
 | `si_wheel_diameter` | 0.43 m (Etienne 2024) | Drum diameter, used for the line length |
 

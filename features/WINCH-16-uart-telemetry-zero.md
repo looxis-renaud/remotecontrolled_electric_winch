@@ -5,7 +5,7 @@
 **Priority:** P0
 **Safety-relevant:** Yes (the receiver-side autostop taper uses the UART tachometer; the pilot/operator relies on the line length)
 **Depends on:** –
-**Created:** 2026-09-28 · **Last updated:** 2026-09-29
+**Created:** 2026-09-28 · **Last updated:** 2026-09-30
 
 ## Motivation
 The transmitter's bottom OLED line (`<line length>m| <duty cycle>%`) always shows 0 / 0 (Etienne, 2026-09-28). The values come from the VESC via UART to the receiver, then via LoRa ack to the transmitter. The motor's temperature sensor and hall sensors are currently not connected to the VESC. Unclear whether (a) the UART link is broken, or (b) UART works but the VESC reports 0.
@@ -34,7 +34,7 @@ This must be clarified before WINCH-08 (autostop verification), because autostop
 
 ### Questions for the next debug session
 - [ ] What changed around two days ago? Receiver reflashed? Arduino libraries updated (VescUart!)? VESC reflashed or reconfigured (e.g. motor detection / sensor mode changed while connecting the sensor cable)?
-- [ ] Which error did the VESC show with the sensor cable connected (fault code in VESC Tool)?
+- [x] Which error did the VESC show with the sensor cable connected (fault code in VESC Tool)? → `FAULT_CODE_OVER_TEMP_MOTOR`, wrong temperature sensor type (2026-09-30, see Log).
 - [ ] How exactly was "autostop still works" observed (PPM mode or poti mode, which line length)? Note: in poti mode autostop is only active if ADC1 > 3 V (see WINCH-08).
 - [ ] In PPM mode (remote), does the winch pull normally after line has been pulled out, or does it only brake?
 - [ ] What does the motor temperature `T:` show (expected: 0 or an implausible value without sensor)?
@@ -46,13 +46,13 @@ This must be clarified before WINCH-08 (autostop verification), because autostop
    - No (`B: 0%`) → UART read fails (continue at 2).
 2. [ ] **If UART fails:**
    - Wiring: VESC COMM TX → receiver IO14, VESC COMM RX → receiver IO2, common GND.
-   - VESC Tool → App settings: app = "PPM and UART", UART baud 115200. (Repo backups `vesc/240601_app_config.xml` / `vesc_app_config.xml` have `app_to_use = 4` = PPM + UART, 115200. To confirm on the real VESC.)
+   - VESC Tool → App settings: app = "PPM and UART", UART baud 115200. (Backups `old/vesc-configs/240601_app_config.xml` / `vesc_app_config.xml` have `app_to_use = 4` = PPM + UART, 115200. To confirm on the real VESC.)
    - Known pin collision: `RST 14` (LoRa reset) = `VESC_RX 14`. `LoRa.begin()` runs *after* `Serial1.begin()` and may reconfigure IO14. Suspect, not confirmed (see WINCH-15).
    - Optional: enable `vescUART.setDebugPort(&Serial)` / the commented-out serial prints in `receiver.ino` for a bench session (temporary, not committed).
 3. [ ] **If UART works but values stay 0:**
    - Check with the motor actually turning under pull (states ≥1, line being pulled in/out). At standstill 0 / 0 is expected.
    - VESC Tool → Realtime data: does the tachometer change while the drum turns (a) under pull, (b) when line is pulled out by hand under soft brake?
-   - Hall sensors: repo backup `240601_motor_config.xml` has `foc_sensor_mode = 0` (sensorless); the older configs have `2` (hall). In sensorless FOC the tachometer is counted by the observer **while the motor is driven**; at low speed / by hand it may not count. To confirm on the real VESC which mode is active.
+   - Hall sensors: June 2024 backup (now `old/vesc-configs/240601_motor_config.xml`) has `foc_sensor_mode = 0` (sensorless; hall mode active since 2026-09-30, WINCH-17); the older configs have `2` (hall). In sensorless FOC the tachometer is counted by the observer **while the motor is driven**; at low speed / by hand it may not count. To confirm on the real VESC which mode is active.
 4. [ ] Record the result here, then decide the fix (wiring, pin change in `receiver.ino` → safety-relevant, or reconnecting hall sensors).
 
 ## Out of scope
@@ -82,3 +82,7 @@ This must be clarified before WINCH-08 (autostop verification), because autostop
 - 2026-09-28: created (reported by Etienne).
 - 2026-09-28: first findings added: UART works (B 45 %), tacho stopped ~2 days ago, sensor cable unplugged after VESC error, autostop seems to still work. Debugging postponed.
 - 2026-09-29: reconnecting the hall / temperature sensors and switching to FOC hall mode split out as [WINCH-17](WINCH-17-hall-sensors-foc.md); background in vesc/readme.md.
+- 2026-09-30 (VESC Tool session with Etienne, VESC Tool 3.01, FW 5.3):
+  - **The VESC error with the sensor cable connected was `FAULT_CODE_OVER_TEMP_MOTOR`**: `m_motor_temp_sens_type` was set to NTC 10k, but the motor has a KTY83-122 (0.97 kΩ at ~25 °C). As NTC this reads ~100 °C, above the 75/85 °C motor limits → fault, no current. Fixed by setting the sensor type to KTY83/122 (see WINCH-17). Without the sensor cable the input is open and now reads as extremely hot, so the cable must stay connected.
+  - **The VESC-internal tachometer counts:** `faults` output showed `Tacho: 15914`, Realtime Data `Tac: 14566` / `Tac ABS: 15580` after turning the drum with the potentiometer. So the zeros are on the UART / receiver / LoRa side, not in the VESC.
+  - **Transmitter OLED shows `30m| 85%` and does not update** (Etienne): at least one telemetry packet with tachometer and duty cycle got through at some point, then the values froze. Keep for debugging: frozen values rather than zeros suggest that UART reads (`getVescValues()`) fail after a first success, or the ack stops carrying new data. Lead to check first: the pin collision `RST 14` (LoRa reset) = `VESC_RX 14` in `receiver.ino`.

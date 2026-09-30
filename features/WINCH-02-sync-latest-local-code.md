@@ -31,7 +31,7 @@ The repo code is about two years old (last sketch changes: `receiver.ino` 2024-0
 ## Open questions
 - [x] Where are the newer files (machine, path)? → Etienne's other machine; pasted into the session 2026-09-28.
 - [x] Which transmitter variant is flashed: with or without monitor support? → Most likely with monitor support (ID 3, maxPull 95), per Etienne. Verify via OLED (`3-B: …`).
-- [ ] Is a VESC config backup from the actual controller available (to compare with `vesc/240601_*.xml`)?
+- [x] Is a VESC config backup from the actual controller available (to compare with `vesc/240601_*.xml`)? → Yes, read out on 2026-09-30: practically identical to the June 2024 backup (then changed in WINCH-17, now `vesc/260930_*.xml`; the 2024 backups are in `old/vesc-configs/`).
 
 ## Decision log
 | Decision | Rationale | Date |
