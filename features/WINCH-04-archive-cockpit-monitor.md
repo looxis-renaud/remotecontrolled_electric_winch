@@ -1,11 +1,11 @@
 # WINCH-04: Archive cockpit monitor → `old/`
 
-**Status:** In Progress
+**Status:** Bench Test
 **Type:** Doc / FW
 **Priority:** P0
 **Safety-relevant:** No (transmitter change only comments out ESP-NOW; pull/brake, failsafe, LoRa protocol untouched)
 **Depends on:** WINCH-03
-**Created:** 2026-09-28 · **Last updated:** 2026-09-28
+**Created:** 2026-09-28 · **Last updated:** 2026-09-30
 
 ## Motivation
 The cockpit monitor (LilyGO T-Display S3, via LoRa or ESP-NOW) was lost in flight once, and experience showed it adds complexity without being needed. It won't be rebuilt.
@@ -52,3 +52,4 @@ The cockpit monitor (LilyGO T-Display S3, via LoRa or ESP-NOW) was lost in fligh
 ## Log
 - 2026-09-28: created
 - 2026-09-28: monitor folders + T-Display pinout moved to `old/`, `old/README.md` added, ESP-NOW code in transmitter commented out, README / parts list / CLAUDE.md updated. Not compiled.
+- 2026-09-30: set to Bench Test (Etienne). Repo work complete. Open: compile in the Arduino IDE, flash the remote, bench check (see Test plan). The remote still runs the old firmware with ESP-NOW until reflashed.

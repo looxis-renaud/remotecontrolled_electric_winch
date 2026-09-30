@@ -1,11 +1,11 @@
 # WINCH-03: Source-file cleanup & drop PlatformIO
 
-**Status:** In Progress
+**Status:** Done
 **Type:** FW / Doc
 **Priority:** P0
 **Safety-relevant:** No (file organisation only, no logic changes)
 **Depends on:** WINCH-02
-**Created:** 2026-09-28 · **Last updated:** 2026-09-28
+**Created:** 2026-09-28 · **Last updated:** 2026-09-30
 
 ## Motivation
 The move to VS Code + PlatformIO was never completed and won't be. Etienne works with the Arduino IDE: open the sketch, compile, flash. PlatformIO left `.cpp` main files behind, which the Arduino IDE compiles *together* with the `.ino` in the same sketch folder. Two main files mean duplicate `setup()`/`loop()`, and the build fails.
@@ -27,8 +27,8 @@ The move to VS Code + PlatformIO was never completed and won't be. Etienne works
 - **Docs:** README.md toolchain section.
 
 ## Test plan
-- [ ] `transmitter/` and `receiver/` each open and compile in the Arduino IDE without errors (Etienne).
-- [ ] `transmitter/` compile check also covers the WINCH-02 baseline, which was never compiled.
+- [ ] `transmitter/` and `receiver/` each open and compile in the Arduino IDE without errors (Etienne). → Deferred by Etienne (2026-09-30).
+- [ ] `transmitter/` compile check also covers the WINCH-02 baseline, which was never compiled. → Deferred, see above.
 - [x] `grep -ri platformio` finds nothing outside `old/` and `features/`. (Only the "No PlatformIO" rule in CLAUDE.md remains.)
 
 ## Open questions
@@ -43,3 +43,4 @@ The move to VS Code + PlatformIO was never completed and won't be. Etienne works
 ## Log
 - 2026-09-28: created
 - 2026-09-28: `transmitter/` now contains only `transmitter.ino` (renamed `.cpp`, content unchanged). README PlatformIO section removed, sketch note updated. CLAUDE.md updated. `receiver/` already fine. `monitor-ESP-NOW/mac-address.cpp` sits next to the monitor `.ino` (same problem) → handled with WINCH-04. Awaiting compile check (Etienne).
+- 2026-09-30: set to Done by Etienne. Repo work complete (one `.ino` per sketch folder, no PlatformIO references). Compile check deferred; the sketches are not compile-verified.
