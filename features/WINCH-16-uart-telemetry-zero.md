@@ -5,7 +5,7 @@
 **Priority:** P0
 **Safety-relevant:** Yes (the receiver-side autostop taper uses the UART tachometer; the pilot/operator relies on the line length)
 **Depends on:** –
-**Created:** 2026-09-28 · **Last updated:** 2026-09-30
+**Created:** 2026-09-28 · **Last updated:** 2026-10-02
 
 ## Motivation
 The transmitter's bottom OLED line (`<line length>m| <duty cycle>%`) always shows 0 / 0 (Etienne, 2026-09-28). The values come from the VESC via UART to the receiver, then via LoRa ack to the transmitter. The motor's temperature sensor and hall sensors are currently not connected to the VESC. Unclear whether (a) the UART link is broken, or (b) UART works but the VESC reports 0.
@@ -86,3 +86,4 @@ This must be clarified before WINCH-08 (autostop verification), because autostop
   - **The VESC error with the sensor cable connected was `FAULT_CODE_OVER_TEMP_MOTOR`**: `m_motor_temp_sens_type` was set to NTC 10k, but the motor has a KTY83-122 (0.97 kΩ at ~25 °C). As NTC this reads ~100 °C, above the 75/85 °C motor limits → fault, no current. Fixed by setting the sensor type to KTY83/122 (see WINCH-17). Without the sensor cable the input is open and now reads as extremely hot, so the cable must stay connected.
   - **The VESC-internal tachometer counts:** `faults` output showed `Tacho: 15914`, Realtime Data `Tac: 14566` / `Tac ABS: 15580` after turning the drum with the potentiometer. So the zeros are on the UART / receiver / LoRa side, not in the VESC.
   - **Transmitter OLED shows `30m| 85%` and does not update** (Etienne): at least one telemetry packet with tachometer and duty cycle got through at some point, then the values froze. Keep for debugging: frozen values rather than zeros suggest that UART reads (`getVescValues()`) fail after a first success, or the ack stops carrying new data. Lead to check first: the pin collision `RST 14` (LoRa reset) = `VESC_RX 14` in `receiver.ino`.
+- 2026-10-02: according to the board pinout in `doc/` (LilyGO T3 V1.6.1), the LoRa reset is **GPIO23**, not 14. With `RST 14`, the LoRa library most likely switches IO14 to a plain output during `LoRa.begin()` (it pulses the reset pin), which runs *after* `Serial1.begin()`. The UART RX pin would then no longer receive and would drive against the VESC's TX. Not verified on the board; strong suspect for the frozen telemetry. A wiring check with the old firmware comes first (WINCH-05, "Before flashing"). Also: the board's microSD slot uses IO13/14/15/2, so no card may be inserted. Etienne: no card in the receiver, none planned.
