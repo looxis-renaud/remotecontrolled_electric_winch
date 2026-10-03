@@ -5,7 +5,7 @@
 **Priority:** P0
 **Safety-relevant:** Yes
 **Depends on:** WINCH-01, WINCH-16 (tachometer / UART must be understood first)
-**Created:** 2026-09-28 · **Last updated:** 2026-09-30
+**Created:** 2026-09-28 · **Last updated:** 2026-10-02
 
 ## Motivation
 Autostop protects the azimuth system and the line at the end of the rewind, but only under the right conditions. The README doesn't explain how the potentiometer is wired, which poti position does what, or the limits of the brake. Some of what we "know" comes only from the patch source and isn't verified on the real winch.
@@ -49,7 +49,9 @@ Autostop protects the azimuth system and the line at the end of the rewind, but 
 | Decision | Rationale | Date |
 |----------|-----------|------|
 | Autostop docs are based on verified facts only; unverified items are marked as such | Safety documentation must not guess | 2026-09-28 |
+| Stay on FW 5.3 with the autostop patch (`vesc/vesc_75_300_auto_stop.bin`); no firmware update | Etienne's decision: proven in operation; FW 6.x would drop the line autostop. Consequence: no VESC Express (needs FW 6.x + VESC Tool 6.x), so no SD-card logging via CAN for now | 2026-10-02 |
 
 ## Log
 - 2026-09-28: created
 - 2026-09-30: FW 5.3 confirmed (VESC Tool 3.01). Observed in the same session: the VESC-internal tachometer counts (see WINCH-16). Over-voltage fault when braking from full speed → WINCH-22.
+- 2026-10-02: Etienne confirms the flashed firmware is exactly `vesc/vesc_75_300_auto_stop.bin` from this repo (built by Robert Zach, not compiled by Etienne) and that he has operated the winch with it several times. Still open: whether every detail of `vesc_ppm_auto_stop.patch` (e.g. the ADC1 > 3 V condition in manual mode) is in that binary, since it was not built from the patch here.
