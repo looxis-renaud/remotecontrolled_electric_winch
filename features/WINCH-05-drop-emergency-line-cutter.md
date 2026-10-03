@@ -26,6 +26,8 @@ Bernd's line cutter was physically mounted in the new frame (winter 24/25) but n
 
 ## Before flashing (old firmware still on both boards)
 
+> **Status 2026-10-03:** both boards were flashed with the new firmware **without** this backup (Etienne's deliberate decision). The image of the old firmware is gone. Fallback if the new version misbehaves: build the old sketches from git (`git show 40a043e:receiver/receiver.ino`, `git show 40a043e:transmitter/transmitter.ino`, the state before WINCH-05/06/07) and flash both boards together. That rebuild is close to the old state but not guaranteed to be byte-identical (libraries / core used back then are unknown).
+
 Do these two steps first, with the winch **not in use** (no pilot, line not under tension). Plugging USB into the receiver resets the ESP32. The PPM signal stops, and after 1 s the VESC brakes with its timeout brake current (10 A).
 
 ### 1. Back up the current firmware of both boards (esptool)
@@ -113,3 +115,4 @@ Record the results in WINCH-07 (relay) and WINCH-16 (UART).
 - 2026-09-28: created
 - 2026-09-30: implemented together with WINCH-06/07 (one flash). Transmitter: 3rd button (IO14), servo variable, `LineCutter()`/`setServo()` and the `servo` field removed. Receiver: ESP32Servo, servo object/pin 15 and the "Line Cutter" OLED line removed. `LoraTxMessage` is now 3 bytes (was 5); `static_assert`s in both sketches check 3/4 bytes. Additional safety fix: the admin transmitter's (ID 0) startup scan accepted packets `>=` the TX size; with 3 bytes it would have read the receiver's 4-byte ack as a transmitter message (possibly a wrong start state). Changed to `==`. README, CLAUDE.md updated. Both sketches compile (arduino-cli, esp32 core 2.0.15, board TTGO LoRa32-OLED). Not flashed, not bench-tested.
 - 2026-10-02: added "Before flashing": esptool backup/restore of both boards and a wiring check with the old firmware (Etienne's call: rule out wiring problems for the relay and the UART first).
+- 2026-10-03: both boards flashed with the current firmware (RST 23, WINCH-05/06/07 struct). The esptool backup was skipped on purpose (Etienne). Fallback: rebuild the old sketches from commit `40a043e`.
