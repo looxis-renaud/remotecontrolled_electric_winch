@@ -35,6 +35,7 @@ Collected here until `doc/manual.md` exists.
 | Incident | Cause | Consequence | Lesson / measure |
 |----------|-------|-------------|------------------|
 | Carabiner pulled into the azimuth system | Line rewound with too much pull after release (old README said fullPull) | Azimuth system destroyed / line snapped, whole winch rebuilt | Rewind with max. state 2 only (WINCH-01, README) |
+| Line fell onto the towing track after release | Remote switched off right after release, before the line was fully rewound and AutoStop had stopped the drum. The receiver does not know about AutoStop: its failsafe kept defaultPull for 20 s, then soft brake | Rest of the line lay on the towing track; rewound afterwards with the potentiometer (README E) | Keep the remote on (state 1 or 2) until AutoStop has stopped the drum, only then switch it off (README C, 2026-10-02); checklist item (WINCH-24) |
 | Line wrap at the drum on launch | Line pulled out in neutral (state 0) while towing alone; the drum overran when Etienne stopped walking and loose turns formed at the drum | Line and the 3D-printed plastic gear of the winding mechanism destroyed | Pull the line out with soft brake only (README, 2026-09-30); camera + overwrap protection (WINCH-19) |
 
 **Good practice (lesson learned):** the gears of the winding mechanism were first 3D-printed in plastic to check function and fit. They have since been replaced by **laser-sintered steel gears** for permanent use. Etienne's verdict: a good decision. Recommended approach for custom parts: prototype in printed plastic, then switch to a durable material (e.g. laser-sintered steel) for the part in use. Date of the replacement: *to be completed*.
@@ -54,3 +55,4 @@ Collected here until `doc/manual.md` exists.
 ## Log
 - 2026-09-28: created
 - 2026-09-30: incident log started (rewind incident, line wrap after pulling out in neutral); lesson learned: printed plastic gears for prototyping, laser-sintered steel gears for use (Etienne). Several pilots / admin remote added to the scope.
+- 2026-10-02: incident added: remote switched off too early after release, line fell onto the towing track (Etienne). README release section has a new warning.

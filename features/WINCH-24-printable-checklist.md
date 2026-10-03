@@ -56,6 +56,7 @@ Etienne wants a short checklist to print, laminate and stick onto the winch: wha
 
 **5. After the tow** (to be decided)
 - [ ] Rewind with **max. state 2 (prePull)**
+- [ ] Remote stays **on** until the line is fully in and AutoStop has stopped the drum
 - [ ] ...
 
 ## Candidates to add (to be decided with Etienne)

@@ -10,7 +10,6 @@
 
 //vesc battery number of cells
 static int numberOfCells = 16;
-static int myMaxPull = 85;  // 0 - 127 [kg], must be scaled with VESC ppm settings
 
 #include "LiPoCheck.h"    //to calculate battery % based on cell Voltage
 
@@ -28,7 +27,7 @@ SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL - SDA and SCL usuall
 #define MISO    19   // GPIO19 -- SX1278's MISnO
 #define MOSI    27   // GPIO27 -- SX1278's MOSI
 #define SS      18   // GPIO18 -- SX1278's CS
-#define RST     14   // GPIO14 -- SX1278's RESET
+#define RST     23   // GPIO23 -- SX1278's RESET on TTGO LoRa32 V2.1_1.6 (was 14, which is also VESC_RX: LoRa.begin() turned the UART RX pin into an output) [WINCH-15/16]
 #define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
 #define BAND  868E6  //frequency in Hz (433E6, 868E6, 915E6) 
 
@@ -116,10 +115,8 @@ int smoothStep = 0;    // used to smooth pull changes
 int hardBrake = -20;  //in kg
 int softBrake = -8;  //in kg
 int defaultPull = 8;  //in kg
-int prePullScale = 20;      //in % of myMaxPull
-int takeOffPullScale = 50;  //in % of myMaxPull
-int fullPullScale = 80;     //in % of myMaxPull
-int strongPullScale = 100;  //in % of myMaxPull
+// The pull states (myMaxPull, scales) live in the transmitter only. The receiver uses the
+// three values above for failsafe and autostop. Unused copies removed 2026-10-03 [WINCH-15].
 
 int currentId = 0;
 int currentState = -1;
@@ -293,7 +290,7 @@ void loop() {
       if (currentState >= 1) {
             // no packet for 1,5s --> failsave
             if (millis() > lastTxLoraMessageMillis + 1500 ) {
-                 // A) keep default pull if connection issue during pull for up to 10 seconds
+                 // A) keep default pull if connection issue during pull for up to 20 seconds
                  if (millis() < lastTxLoraMessageMillis + 20000) {
                     targetPullValue = defaultPull;   // default pull
                     currentState = 1;
@@ -402,7 +399,11 @@ void loop() {
       if (loopStep % 20 == 0) {
         if (vescUART.getVescValues()) {
             vescBattery = CapCheckPerc(vescUART.data.inpVoltage, numberOfCells);    // vesc battery in %
-            vescTempMotor = vescUART.data.tempMotor;                                // motor temp in C            
+            vescTempMotor = vescUART.data.tempMotor;                                // motor temp in C
+            // UART diagnosis on the USB serial monitor (115200 baud) [WINCH-16]
+            Serial.printf("VESC ok: %.1f V, tacho %ld, duty %.2f, motor %.0f C\n",
+                          vescUART.data.inpVoltage, (long)vescUART.data.tachometer,
+                          vescUART.data.dutyCycleNow, vescUART.data.tempMotor);
             //SerialPrint(measuredVescVal, &DEBUGSERIAL);
             /*
             Serial.println(vescUART.data.tachometer);
@@ -417,7 +418,7 @@ void loop() {
           {
             //TODO send notification to lora
             //measuredVescVal.tachometer = 0;
-            // Serial.println("Failed to get data from VESC!");
+            Serial.println("Failed to get data from VESC!");   // UART diagnosis [WINCH-16]
           }
       }
 }

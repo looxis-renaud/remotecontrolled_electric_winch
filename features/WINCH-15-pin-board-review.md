@@ -22,3 +22,6 @@ Check each item against the board pinout and real behaviour, then decide per ite
 
 ## Log
 - 2026-09-28: created as idea
+- 2026-10-03: receiver supply documented (README "Receiver wiring harness"): the VESC powers the receiver through the board's small 2-pin **battery** connector (on the transmitter it goes to an 18650 cell). Open: which voltage the VESC delivers there. That input is designed for a single Li-ion cell (about 3.0–4.2 V) and feeds the onboard charger; if it gets 5 V, check that this is within the board's limits or move the supply to the 5V pin.
+- 2026-10-03: **LoRa reset pin fixed in both sketches: `RST 14` → `RST 23`** (Etienne asked to review and correct the code before reflashing). The board pinout (doc/LilyGO-…-pinout….jpg, T3_V1.6.1) shows LoRa RST = GPIO23. On the receiver, IO14 is also `VESC_RX`, and `LoRa.begin()` set it as an output (HIGH) after `Serial1.begin()`. On the transmitter IO14 is unused since WINCH-05. Safety-relevant (LoRa init): bench test on the desk before using it at the winch. Compiles (arduino-cli, esp32 2.0.15); not flashed, not tested.
+- 2026-10-03: unused `myMaxPull = 85` and the four `…PullScale` variables removed from `receiver.ino` (never referenced; the pull states are computed in the transmitter only). No behaviour change. Compiles.

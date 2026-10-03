@@ -78,7 +78,7 @@ OLED                                     battery, temp)          IO2 TX--       
 
 Buttons: UP (IO15) moves one state up (at most once per second, skips neutral). DOWN (IO12) goes from any pull >1 back to default pull (1), or from 0/-1 one step down; a short press in state 1 does nothing. DOWN long press (500 ms) → soft brake. DOWN double click from brake → neutral. A former 3rd button (IO14, fan relay and line cutter) was removed from the code in WINCH-05/07.
 
-The receiver keeps its **own** copies of some values (`softBrake = -8`, `defaultPull = 8`, scale values differing slightly). It uses them for failsafe and autostop, not for the normal pull states, which come from the transmitter.
+The receiver keeps its **own** values `hardBrake = -20`, `softBrake = -8`, `defaultPull = 8` for failsafe and autostop only. The normal pull states come from the transmitter (`myMaxPull` and the scales exist only in `transmitter.ino`; unused receiver copies removed 2026-10-03).
 
 ### LoRa link
 
@@ -91,7 +91,7 @@ The receiver keeps its **own** copies of some values (`softBrake = -8`, `default
 
 ### Receiver behaviour
 
-- **Failsafe** (only if state ≥1): no packet for >1.5 s → default pull. After 20 s without a packet → soft brake. (A code comment says "10 seconds"; the code uses 20 s.)
+- **Failsafe** (only if state ≥1): no packet for >1.5 s → default pull. After 20 s without a packet → soft brake.
 - **Smoothing:** pull increases at max ~65 kg/s and decreases at ~90 kg/s. Brake values (<0) apply immediately.
 - **PPM output** on IO13: `(currentPull + 127) * (2000 − 950) / 254 + 950` µs, one pulse per loop (~20 ms).
 - UART to VESC every 20 loops: battery %, motor temp, tachometer, duty cycle.
@@ -119,10 +119,10 @@ Autostop exists on two layers:
 
 Found while reading the code. Not fixed yet. The repo may also be behind Etienne's local versions (WINCH-02); review in WINCH-15.
 
-- `#define RST 14` (LoRa reset) collides with `VESC_RX 14` on the receiver (and collided with the former `BUTTON_THREE 14` on the transmitter). On the TTGO LoRa32 V2.1_1.6 the LoRa reset is probably GPIO23.
+- ~~`#define RST 14` (LoRa reset) collides with `VESC_RX 14` on the receiver.~~ Fixed 2026-10-03: `RST 23` in both sketches (board pinout), not yet bench-tested (WINCH-15/16).
 - IO12 is an ESP32 strapping pin (flash voltage), used for the relay (receiver) and BUTTON_DOWN (transmitter).
 - `LoRa.begin(868E6)` is hardcoded, so the `BAND` define is unused.
-- Failsafe comment says 10 s, the code uses 20 s.
+- ~~Failsafe comment says 10 s, the code uses 20 s.~~ Comment corrected 2026-10-03.
 - Receiver autostop tachometer thresholds (2–40) vs. the patch (1500 ≈ 15 m) use different units.
 - *Etienne's observation:* the reported line length is about 0.7× the real length, although the drum diameter and related settings in the VESC app appear to be entered correctly. **Hypothesis (calculated, to be verified, WINCH-08):** `receiver.ino` assumes 100 tachometer counts per metre and the patch 1500 counts ≈ 15 m, which fits Robert's ~0.97 m drum circumference. With 96 counts per drum turn and this winch's 0.43 m drum (≈ 1.35 m) it is ≈ 71 counts/m → display ≈ 0.71× real length, and the VESC autostop triggers at ≈ 21 m instead of 15 m. The VESC's `si_wheel_diameter` only affects VESC Tool displays, not these raw counts. See [vesc/vesc-tool-guide.md](vesc/vesc-tool-guide.md) section 8.
 

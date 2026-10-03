@@ -36,7 +36,7 @@ SSD1306Wire display(0x3c, SDA, SCL);   // ADDRESS, SDA, SCL - SDA and SCL usuall
 #define MISO    19   // GPIO19 -- SX1278's MISnO
 #define MOSI    27   // GPIO27 -- SX1278's MOSI
 #define SS      18   // GPIO18 -- SX1278's CS
-#define RST     14   // GPIO14 -- SX1278's RESET
+#define RST     23   // GPIO23 -- SX1278's RESET on TTGO LoRa32 V2.1_1.6 (was 14) [WINCH-15/16]
 #define DI0     26   // GPIO26 -- SX1278's IRQ(Interrupt Request)
 #define BAND  868E6  //frequency in Hz (433E6, 868E6, 915E6)
 

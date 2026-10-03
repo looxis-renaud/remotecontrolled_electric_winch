@@ -59,7 +59,24 @@ IO 14 (VESC_RX)   //connect to COMM Port "TX" on Vesc
 
 IO 2 (VESC_TX)   //connect to COMM Port "RX" on Vesc
 
-IO 12 (Relay Signal) (for the VESC cooling fan) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire the VESC cooling fan through the relay module. The receiver switches the fan automatically, see "Cooling fan" below. If your relay module is active-low, set `RELAY_ACTIVE_HIGH` to `false` in `receiver.ino`. // note to self: White (signal) from Relay to yellow from receiver (IO12), red from relay to red or blue from receiver (5V+), black to black or green from receiver (GND).
+IO 12 (Relay Signal) (for the VESC cooling fan) // connect red wire to 5V, black wire to GND and white cable (signal) to Pin 12. Wire the VESC cooling fan through the relay module. The receiver switches the fan automatically, see "Cooling fan" below. If your relay module is active-low, set `RELAY_ACTIVE_HIGH` to `false` in `receiver.ino`. Wire colours on this winch: see the table below.
+
+### Receiver wiring harness (this winch)
+Wire colours as they leave the TTGO LoRa board, recorded by Etienne on 2026-10-03. Two 6-pin plugs: the **female** plug goes only to the fan relay (doubled / free pins leave room for a later function), the **male** plug goes to the VESC. The main supply uses the small 2-pin connector that came with the board (on the transmitter the same connector goes to the 18650 cell).
+
+| Plug | Board pin | Wire colour | Function |
+|------|-----------|-------------|----------|
+| 6-pin **female** | IO15 | yellow | currently not used (the relay signal was wrongly on IO15 until 2026-10-02) |
+| 6-pin **female** | IO12 | white | relay signal (cooling fan) |
+| 6-pin **female** | GND | green & black | ground |
+| 6-pin **female** | +5V | red & blue | 5 V supply |
+| 6-pin **male** | IO2 | white | UART TX → VESC COMM RX (orange wire on the pre-made COMM plug) |
+| 6-pin **male** | IO13 | yellow | PPM → VESC "Servo" port |
+| 6-pin **male** | IO14 | blue | UART RX ← VESC COMM TX (green wire on the VESC side) |
+| 6-pin **male** | + (main supply) | red | board supply from the VESC, via the small 2-pin battery connector on the TTGO board |
+| 6-pin **male** | − (main supply) | black | board ground from the VESC, via the same 2-pin connector |
+
+Colours of pre-made cables differ: go by the signal, not by the colour.
 
 ## PIN Setup Transmitter:
 IO 15 (BUTTON_UP) //together with GND connect with push button for UP Command
@@ -82,6 +99,7 @@ The VESC cooling fan is switched by a relay on receiver IO 12. The receiver deci
 - Fan **ON** as soon as a pull state (state 1 or higher) is active, including the failsafe default pull.
 - Fan **OFF** 120 s after the last pull state (`FAN_RUN_ON_MS` in `receiver.ino`). The run-on lets the VESC cool down and keeps the fan from switching on and off during step tows.
 - After power-up (soft brake) the fan stays off.
+- After a release the remote usually stays in state 1 or 2 while AutoStop holds the drum, so the fan keeps running (the receiver does not know about the VESC AutoStop). It switches off 120 s after the remote goes to brake, or about 140 s after the remote is switched off (20 s failsafe defaultPull, then soft brake, then 120 s run-on).
 - The receiver OLED shows "Fan ON", "Fan ON (off in … s)" during the run-on, or "Fan OFF".
 
 The emergency line cutter was dropped (WINCH-05).
@@ -134,6 +152,12 @@ defaultPull (7kg) and the brakes (-7kg / -20kg) are fixed values.
   > azimuth system and destroys it, or the line snaps. **This has already happened once** - the line broke and
   > tangled and the whole winch had to be rebuilt. (An earlier version of this README wrongly said to rewind
   > with fullPull.)
+
+  > ⚠️ **WARNING - do NOT switch the remote off until the line is fully rewound and AutoStop has stopped the drum!**
+  > The receiver does not know about the VESC AutoStop. If the remote goes off while the line is still being
+  > rewound, the receiver failsafe keeps only defaultPull for 20 s and then switches to soft brake: the drum stops
+  > and the rest of the line falls onto the towing track and stays there. **This has already happened once.**
+  > Keep the remote on (state 1 or 2) until AutoStop has stopped the drum, and only then switch it off.
  
 - D) Neutral
   You can get to neutral state only if you are in Brake Mode (-7kg), Double Press the ButtonDown to activate it.
@@ -141,7 +165,7 @@ defaultPull (7kg) and the brakes (-7kg / -20kg) are fixed values.
   Use the soft brake instead. (An earlier version of this README recommended neutral for pulling the line out.)
 
 - E) Rewinding the Cable
-  If something does not go as expected ( during one flight, I turned off the remote too soon after release, the winch stopped pulling, as it should, the line fell on the ground):
+  If something does not go as expected (during one flight, I turned off the remote too soon after release: the failsafe stopped the winch, as designed, and the line fell on the ground, see the warning in C) Release):
   - use the Potentiometer, which should be on the far left position, to gently rotate it towards the right. The motor will start to rewind the line, regardless of the measured distance.
 
 ## Several pilots / several remotes

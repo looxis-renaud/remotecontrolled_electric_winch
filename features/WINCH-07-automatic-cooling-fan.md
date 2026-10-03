@@ -5,12 +5,13 @@
 **Priority:** P1
 **Safety-relevant:** Yes (LoRa struct change; a VESC overheating would cut power during a tow)
 **Depends on:** WINCH-05, WINCH-06
-**Created:** 2026-09-28 · **Last updated:** 2026-09-30
+**Created:** 2026-09-28 · **Last updated:** 2026-10-02
 
 ## Motivation
 Today the transmitter turns the relay (fan) ON at startup, and a short press on the 3rd button toggles it. Manual toggling is unnecessary. The fan should simply run while the winch is working and stop afterwards.
 
-## ⚠ Known bug (TODO, fix first)
+## Known bug (diagnosed and fixed 2026-10-02)
+**Cause:** the relay signal wire (yellow) was soldered to **GPIO15** instead of IO12. The sketch never drives GPIO15; its internal boot pull-up only made the module LED glow, too weak to switch the transistor, so the relay never clicked. Etienne resoldered it to IO12 (2026-10-02): the relay now clicks and the fan runs. Fan wiring on the load side: COM + NO (correct for `RELAY_ACTIVE_HIGH = true`). Relay module: Songle SRD-05VDC-SC-C, `+` → 5V, `-` → GND, `S` → IO12.
 **Fan does not switch on, although the receiver OLED shows "Fan/Light ON"** after the remote has connected (reported by Etienne, 2026-09-28).
 
 The OLED text only shows the software variable `relay`, so the receiver has received `relay = true` and writes IO12 HIGH every loop. The fault is therefore most likely between IO12 and the fan, not in the LoRa logic. Not yet diagnosed. Candidates to check (bench, winch not in use):
@@ -44,13 +45,13 @@ Whatever the cause, the new fan logic below must drive the relay with the correc
 
 ## Test plan
 ### Bench
-- [ ] Known bug diagnosed and fixed: when the OLED shows Fan ON, the fan physically runs (and vice versa).
-- [ ] Power-on in soft brake: fan OFF.
+- [x] Known bug diagnosed and fixed: relay signal was on GPIO15, now IO12; relay clicks, fan runs (Etienne, 2026-10-02).
+- [ ] Power-on in soft brake: fan OFF. ⚠ 2026-10-02: the fan switched ON immediately when the remote connected (remote in its start state). That matches the **old** firmware (transmitter turned the relay on at startup), not the WINCH-07 logic: check whether the WINCH-07 build is flashed on both boards (receiver OLED shows "Fan ON/OFF", old firmware "Fan/Light ON").
 - [ ] State 1 → fan ON immediately.
 - [ ] Back to brake: fan stays on for about 120 s, then OFF.
 - [ ] Brake ↔ pull within 120 s: fan stays on without switching off.
 - [ ] Transmitter off during pull (failsafe): fan stays on.
-- [ ] Receiver boots normally with the relay connected to IO12 (strapping pin, see WINCH-15).
+- [x] Receiver boots normally with the relay connected to IO12 (strapping pin, see WINCH-15): the receiver is powered by the VESC and boots immediately when the VESC is switched on (Etienne, 2026-10-02).
 ### Field
 - [ ] Full tow session: fan behaviour as expected, no VESC temperature problems.
 
@@ -67,3 +68,6 @@ Whatever the cause, the new fan logic below must drive the relay with the correc
 - 2026-09-28: created
 - 2026-09-28: known bug added: fan does not run although OLED shows "Fan/Light ON" (Etienne). Diagnosis checklist added.
 - 2026-09-30: implemented in `receiver.ino`: fan ON while `currentState >= 1` (incl. failsafe), OFF after `FAN_RUN_ON_MS` = **120 s** (Etienne's choice) without pull state, OFF after power-up. Relay polarity as constant `RELAY_ACTIVE_HIGH` (default `true` = previous behaviour; the known bug is not diagnosed yet, set to `false` if the relay module turns out to be active-low). OLED: "Fan ON", "Fan ON (off in … s)", "Fan OFF". Transmitter: relay toggle and `relay` field removed. Compiles; not flashed, not bench-tested. Not covered: manual rewinding with the potentiometer while the remote is in brake keeps the fan off (the receiver doesn't know about poti mode).
+- 2026-10-02: known bug diagnosed and fixed: relay signal wire was on GPIO15, resoldered to IO12 (Etienne). Relay clicks, fan runs. Receiver (powered by the VESC) boots normally with the relay on IO12. Open: the fan switched on as soon as the remote connected, which points to the old firmware still being flashed (see bench test plan).
+- 2026-10-02: fan behaviour after release reviewed (code reading only, Etienne's observation): after release the remote stays in state 1 or 2 while the VESC AutoStop holds the drum. The receiver does not see AutoStop (it only follows the remote's state), so the fan keeps running until the remote goes to brake (then 120 s run-on) or is switched off (20 s failsafe defaultPull → soft brake, then 120 s run-on, ≈ 140 s in total). Decision proposal: keep it this way. While AutoStop holds the drum the VESC drives 18 A brake current into the motor, so cooling is useful. Detecting AutoStop in the receiver (tachometer/duty cycle over UART) would depend on WINCH-16 and would be a change to safety-relevant code; not planned. Etienne's observation after switching the remote off: OLED shows "P 1" with -20 kg, then "B -1". Interpretation (not verified): the failsafe sets state 1, but the receiver's own autostop taper (`tachometer < 10` → `hardBrake = -20`) overrides the pull value; after 20 s the failsafe goes to soft brake. If correct, the UART tachometer is not stuck at 0 any more (relevant to WINCH-16).
+- 2026-10-02: confirmed by Etienne: transmitter and receiver still run the **old** firmware (pre WINCH-07). This explains the fan switching on at connect. The WINCH-07 logic has not been flashed or bench-tested yet.
