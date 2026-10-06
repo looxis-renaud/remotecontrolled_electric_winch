@@ -127,6 +127,7 @@ int8_t targetPullValue = 0;    // received from lora transmitter or rewinding wi
 
 uint8_t vescBattery = 0;
 uint8_t vescTempMotor = 0;
+bool vescUartOk = false;   // result of the last UART read, shown on the OLED [WINCH-16]
 
 unsigned long lastTxLoraMessageMillis = 0;
 unsigned long previousTxLoraMessageMillis = 0;
@@ -217,6 +218,10 @@ void loop() {
         display.drawString(0, 36, String("Fan OFF"));
       }
       // display.drawString(0, 48, String("Last TX / RX: ") + lastTxLoraMessageMillis/100 + " / " + lastRxLoraMessageMillis/100);
+      // UART telemetry: raw tachometer counts and duty cycle as read from the VESC [WINCH-16]
+      // e.g. "Tac 15914 D 12% ok", "ERR" = last UART read failed (values are then the last good ones)
+      display.drawString(0, 48, String("Tac ") + vescUART.data.tachometer + " D "
+                         + (int)abs(vescUART.data.dutyCycleNow * 100) + "% " + (vescUartOk ? "ok" : "ERR"));
       display.display();
     }
     
@@ -397,7 +402,8 @@ void loop() {
 
       //read actual Vesc values from uart
       if (loopStep % 20 == 0) {
-        if (vescUART.getVescValues()) {
+        vescUartOk = vescUART.getVescValues();
+        if (vescUartOk) {
             vescBattery = CapCheckPerc(vescUART.data.inpVoltage, numberOfCells);    // vesc battery in %
             vescTempMotor = vescUART.data.tempMotor;                                // motor temp in C
             // UART diagnosis on the USB serial monitor (115200 baud) [WINCH-16]

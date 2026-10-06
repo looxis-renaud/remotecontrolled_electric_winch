@@ -45,7 +45,8 @@
 | WINCH-22 | Over-voltage fault when braking (regen) | HW/VESC/Doc | Planned | P0 | Yes | – | [WINCH-22](WINCH-22-overvoltage-regen-braking.md) |
 | WINCH-23 | VESC Tool user guide | Doc | In Progress | P1 | No | WINCH-17 | [WINCH-23](WINCH-23-vesc-tool-guide.md) |
 | WINCH-24 | Printable checklist (packing, setup, before launch) | Doc | Planned | P1 | Yes | – | [WINCH-24](WINCH-24-printable-checklist.md) |
+| WINCH-25 | Telemetry over the VESC CAN port (UART does not answer) | HW/FW/VESC | Idea | P3 | Yes | WINCH-16, WINCH-08 | [WINCH-25](WINCH-25-can-telemetry.md) |
 
 <!-- Add features above this line -->
 
-## Next Available ID: WINCH-25
+## Next Available ID: WINCH-26

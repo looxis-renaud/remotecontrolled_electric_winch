@@ -46,9 +46,9 @@ Whatever the cause, the new fan logic below must drive the relay with the correc
 ## Test plan
 ### Bench
 - [x] Known bug diagnosed and fixed: relay signal was on GPIO15, now IO12; relay clicks, fan runs (Etienne, 2026-10-02).
-- [ ] Power-on in soft brake: fan OFF. ⚠ 2026-10-02: the fan switched ON immediately when the remote connected (remote in its start state). That matches the **old** firmware (transmitter turned the relay on at startup), not the WINCH-07 logic: check whether the WINCH-07 build is flashed on both boards (receiver OLED shows "Fan ON/OFF", old firmware "Fan/Light ON").
-- [ ] State 1 → fan ON immediately.
-- [ ] Back to brake: fan stays on for about 120 s, then OFF.
+- [x] Power-on in soft brake: fan OFF (Etienne, 2026-10-03, new firmware; the 2026-10-02 "fan on at connect" was the old firmware).
+- [x] State 1 → fan ON immediately (2026-10-03).
+- [x] Back to brake: fan stays on for about 120 s, then OFF (2026-10-03).
 - [ ] Brake ↔ pull within 120 s: fan stays on without switching off.
 - [ ] Transmitter off during pull (failsafe): fan stays on.
 - [x] Receiver boots normally with the relay connected to IO12 (strapping pin, see WINCH-15): the receiver is powered by the VESC and boots immediately when the VESC is switched on (Etienne, 2026-10-02).
@@ -71,3 +71,4 @@ Whatever the cause, the new fan logic below must drive the relay with the correc
 - 2026-10-02: known bug diagnosed and fixed: relay signal wire was on GPIO15, resoldered to IO12 (Etienne). Relay clicks, fan runs. Receiver (powered by the VESC) boots normally with the relay on IO12. Open: the fan switched on as soon as the remote connected, which points to the old firmware still being flashed (see bench test plan).
 - 2026-10-02: fan behaviour after release reviewed (code reading only, Etienne's observation): after release the remote stays in state 1 or 2 while the VESC AutoStop holds the drum. The receiver does not see AutoStop (it only follows the remote's state), so the fan keeps running until the remote goes to brake (then 120 s run-on) or is switched off (20 s failsafe defaultPull → soft brake, then 120 s run-on, ≈ 140 s in total). Decision proposal: keep it this way. While AutoStop holds the drum the VESC drives 18 A brake current into the motor, so cooling is useful. Detecting AutoStop in the receiver (tachometer/duty cycle over UART) would depend on WINCH-16 and would be a change to safety-relevant code; not planned. Etienne's observation after switching the remote off: OLED shows "P 1" with -20 kg, then "B -1". Interpretation (not verified): the failsafe sets state 1, but the receiver's own autostop taper (`tachometer < 10` → `hardBrake = -20`) overrides the pull value; after 20 s the failsafe goes to soft brake. If correct, the UART tachometer is not stuck at 0 any more (relevant to WINCH-16).
 - 2026-10-02: confirmed by Etienne: transmitter and receiver still run the **old** firmware (pre WINCH-07). This explains the fan switching on at connect. The WINCH-07 logic has not been flashed or bench-tested yet.
+- 2026-10-03: new firmware flashed on both boards. Bench (desk, no motor), Etienne: TX and RX connect, LoRa works, buttons work, fan starts and stops as intended. Still open: brake ↔ pull within 120 s, failsafe with the remote switched off.

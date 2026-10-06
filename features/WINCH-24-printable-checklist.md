@@ -5,7 +5,7 @@
 **Priority:** P1
 **Safety-relevant:** Yes (a forgotten step, e.g. potentiometer not at the "off" end or line pulled out in neutral, has already caused damage)
 **Depends on:** –
-**Created:** 2026-09-30 · **Last updated:** 2026-09-30
+**Created:** 2026-09-30 · **Last updated:** 2026-10-06
 
 ## Motivation
 Etienne wants a short checklist to print, laminate and stick onto the winch: what to pack before leaving, how to set up the winch, what to check before pulling out the line and before launch. Several incidents came from single forgotten or wrong steps (line pulled out in neutral → line wrap; rewind with too much pull → azimuth system destroyed). A checklist on the winch makes the order repeatable, also for other pilots or helpers.
@@ -14,6 +14,7 @@ Etienne wants a short checklist to print, laminate and stick onto the winch: wha
 - One printable page per phase, or one page front/back, readable outdoors: large font, checkboxes, no explanations (details stay in the README / manual).
 - Source as Markdown in `doc/` (e.g. `doc/checklist.md`) plus a print-ready PDF.
 - Phases:
+  0. **Day before** (ideally): charge batteries
   1. **Packing** (before leaving home)
   2. **Setup** (on site)
   3. **Before pulling out the line**
@@ -23,6 +24,13 @@ Etienne wants a short checklist to print, laminate and stick onto the winch: wha
 
 ## Draft content (from Etienne, 2026-09-30; to be completed and ordered)
 
+**0. Day before (ideally)**
+- [ ] 11 V LiPo for the camera receiver + monitor (cockpit) charged
+- [ ] Vario charged
+- [ ] 60 V winch battery charged
+- [ ] Cordless screwdriver battery charged
+- [ ] Winch remote(s) charged
+
 **1. Packing**
 - [ ] Winch
 - [ ] Line parachute (drogue)
@@ -31,9 +39,8 @@ Etienne wants a short checklist to print, laminate and stick onto the winch: wha
 - [ ] Remote(s); admin remote (red) if towing with several pilots
 - [ ] Ratchet straps, ground screws and cordless screwdriver (to fix the winch to the ground)
 - [ ] Antenna (receiver)
-- [ ] Camera (winch), receiver + monitor (cockpit), LiPo for receiver/monitor
+- [ ] Camera (winch, powered by the VESC), camera receiver + monitor (cockpit), 11 V LiPo for receiver/monitor
 - [ ] Paraglider, harness with reserve, cockpit
-- [ ] **All batteries charged:** winch battery, remote(s), camera LiPo, (screwdriver)
 
 **2. Setup**
 - [ ] Fix the winch to the ground with ratchet straps (and screws)
@@ -78,6 +85,8 @@ Etienne wants a short checklist to print, laminate and stick onto the winch: wha
 - [ ] Format: A5 or A4? One sheet front/back or one sheet per phase?
 - [ ] Language on the printout: German or English? (Repo docs are English; a German printout for use on site is possible.)
 - [ ] Order of setup steps as Etienne actually does them (e.g. camera before or after the remote)?
+- [x] Is the 11 V monitor battery the same as the "LiPo for receiver/monitor", and does the winch camera need its own battery? → Same battery; the winch camera has no battery, it is powered by the VESC (Etienne, 2026-10-06).
 
 ## Log
 - 2026-09-30: created (Etienne). Draft content from Etienne's list; candidates from today's findings added.
+- 2026-10-06: new phase "0. Day before (ideally)" with the charging items from Etienne (11 V monitor battery, vario, 60 V winch battery, screwdriver battery, remote(s)). The old "All batteries charged" line in Packing was folded into it.
