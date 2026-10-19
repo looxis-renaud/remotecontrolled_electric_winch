@@ -112,6 +112,8 @@ The emergency line cutter was dropped (WINCH-05).
  - 2,4 kWh
 
 # usage:
+Printable step-by-step checklist (packing, setup, tow, release, rewind): [doc/checklist.md](doc/checklist.md) (German).
+
 Pull values below are for `myMaxPull = 95` in the transmitter (set it to roughly the pilot's take-off weight).
 States 2-5 scale with it: prePull 18 %, takeOffPull 55 %, fullPull 80 %, strongPull 100 %.
 defaultPull (7kg) and the brakes (-7kg / -20kg) are fixed values.

@@ -44,7 +44,7 @@
 | WINCH-21 | Add CAD files of the winding gears (Fusion + STL) | HW/Doc | Planned | P2 | No | – | [WINCH-21](WINCH-21-gear-cad-files.md) |
 | WINCH-22 | Over-voltage fault when braking (regen) | HW/VESC/Doc | Planned | P0 | Yes | – | [WINCH-22](WINCH-22-overvoltage-regen-braking.md) |
 | WINCH-23 | VESC Tool user guide | Doc | In Progress | P1 | No | WINCH-17 | [WINCH-23](WINCH-23-vesc-tool-guide.md) |
-| WINCH-24 | Printable checklist (packing, setup, before launch) | Doc | Planned | P1 | Yes | – | [WINCH-24](WINCH-24-printable-checklist.md) |
+| WINCH-24 | Printable checklist (packing, setup, before launch) | Doc | In Progress | P1 | Yes | – | [WINCH-24](WINCH-24-printable-checklist.md) |
 | WINCH-25 | Telemetry over the VESC CAN port (UART does not answer) | HW/FW/VESC | Idea | P3 | Yes | WINCH-16, WINCH-08 | [WINCH-25](WINCH-25-can-telemetry.md) |
 
 <!-- Add features above this line -->
