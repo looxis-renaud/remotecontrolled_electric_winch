@@ -11,12 +11,14 @@ Zum Ausdrucken/Laminieren, siehe [WINCH-24](../features/WINCH-24-printable-check
 - [ ] 60 V Windenbatterie geladen
 - [ ] Akku Akkuschrauber geladen
 - [ ] Fernbedienung(en) geladen
+- [ ] E-Bike-Akku geladen
+- [ ] Reifen vom Anhänger haben ausreichend Luft
 
 ## 2. Am gleichen Tag, vor dem Losfahren
 
 **Mitnehmen:**
 
-- [ ] Winde
+- [ ] Winde auf Anhänger
 - [ ] Bremsschirm (Drogue) für das Seil
 - [ ] Windenbatterie
 - [ ] Controller (VESC) / Empfängereinheit
@@ -24,7 +26,7 @@ Zum Ausdrucken/Laminieren, siehe [WINCH-24](../features/WINCH-24-printable-check
 - [ ] Spanngurte, Erdnägel/Schrauben und Akkuschrauber (Winde am Boden fixieren)
 - [ ] Antenne (Empfänger)
 - [ ] Kamera (Winde, von VESC versorgt), Kamera-Empfänger + Monitor (Cockpit), 11 V LiPo dafür
-- [ ] Gleitschirm, Gurtzeug mit Reserve, Cockpit
+- [ ] Gleitschirm, Gurtzeug mit Reserve, Cockpit, Helm
 
 **Beachten:**
 
@@ -34,14 +36,21 @@ Zum Ausdrucken/Laminieren, siehe [WINCH-24](../features/WINCH-24-printable-check
 
 ## 3. Aufbau der Winde und Vorbereiten zum Ausziehen des Seils
 
+- [ ] Abdeckung abnehmen
+- [ ] Windenanhänger abkoppeln und Standfüße ausfahren
+- [ ] Akku für Precharge über die Antispark-Plugs teilverbinden
+- [ ] Alles Nötige aus der Alu-Box entnehmen (Akkuschrauber, Erdschrauben, Spanngurte, Seilfallschirm, Fernbedienung, Kamera, Antenne)
 - [ ] Winde mit Spanngurten (und ggf. Erdnägeln) am Boden fixieren
 - [ ] Antenne aufstellen und anschließen
-- [ ] Controller (VESC) und Empfänger einschalten
+- [ ] Kamera aufstellen und verbinden
+- [ ] Akku nach Precharge vollständig verbinden
+- [ ] Controller (VESC) einschalten
+- [ ] Empfänger einschalten
 - [ ] VESC-LED nicht rot (sonst Fehler auslesen, siehe [vesc/vesc-tool-guide.md](../vesc/vesc-tool-guide.md))
 - [ ] Sensorkabel (Hall + Motortemperatur) eingesteckt (sonst meldet der VESC Übertemperatur und gibt keine Leistung)
 - [ ] ⚠ Potentiometer ganz links (Aus-Endstellung)
 - [ ] Fernbedienung einschalten, Verbindung OK (RSSI im OLED), Windenmodus **Softbremse "B -1" (−7 kg)**
-- [ ] Kamera und Monitor an, Bild der Trommel sichtbar
+- [ ] Monitor an, Bild der Trommel sichtbar
 
 ## 4. Während des Ausziehens und am Startplatz, vor dem Start
 
